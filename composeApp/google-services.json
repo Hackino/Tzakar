@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "218251720662",
+    "project_id": "tzakar-reminder",
+    "storage_bucket": "tzakar-reminder.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:218251720662:android:bea952ebef955bf5c21677",
+        "android_client_info": {
+          "package_name": "com.senior25.tzakar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "218251720662-ra2pjkkn09ulimhdbj3mu634rlm2ltjh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.senior25.tzakar",
+            "certificate_hash": "8e778dfc2e0112132ebb33118ca8d6ccef23d2a0"
+          }
+        },
+        {
+          "client_id": "218251720662-1nhv6hko4d498otv72l3nvcqp5hcecf4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHwICPlNNgcmmPxLsgDh_b3ccErW34UlI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "218251720662-1nhv6hko4d498otv72l3nvcqp5hcecf4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "218251720662-dtgvilig9motq84r849e2eikgq8dgsk5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.senior25.tzakar.Tzakar-Reminder"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

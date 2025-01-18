@@ -11,7 +11,6 @@ plugins {
 
 kotlin {
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
@@ -51,6 +50,16 @@ android {
     namespace = "com.senior25.tzakar"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
+
+    signingConfigs {
+        create("release") {
+            keyAlias = "tzakarReminder"
+            keyPassword = "tzakar123"
+            storeFile  = file(rootProject.file("composeApp/keystore.jks"))
+            storePassword=  "tzakar123"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.senior25.tzakar"
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -66,8 +75,14 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+
         }
-    }
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("release")
+
+        }
+        }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
