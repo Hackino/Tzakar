@@ -52,6 +52,7 @@ kotlin {
             implementation(libs.datastore.preferences)
             implementation(libs.datastore)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.navigation_compose)
 
         }
     }
