@@ -8,6 +8,9 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.googleServices)
+    alias(libs.plugins.kotlin.serialization)
+
+
 }
 
 kotlin {
@@ -46,6 +49,10 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.firebase.auth)
+            implementation(libs.datastore.preferences)
+            implementation(libs.datastore)
+            implementation(libs.kotlinx.serialization.json)
+
         }
     }
 }
