@@ -1,23 +1,30 @@
 package com.senior25.tzakar
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import com.senior25.tzakar.data.local.preferences.SharedPref
+import com.senior25.tzakar.ui.theme.MyColors
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import tzakar_reminder.composeapp.generated.resources.Res
+import tzakar_reminder.composeapp.generated.resources.ic_email
+import tzakar_reminder.composeapp.generated.resources.ic_eye_off
+import tzakar_reminder.composeapp.generated.resources.ic_eye_on
 
-@Composable
 @Preview
+@Composable
 fun App() {
     MaterialTheme {
-        SharedPref.selectedLanguage = "ar"
-        Column(
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(SharedPref.selectedLanguage)
+        Scaffold (backgroundColor = MyColors.colorWhite) {
+            Column {
+                Image(painter = painterResource(Res.drawable.ic_email),"")
+                Image(painter = painterResource(Res.drawable.ic_eye_on),"")
+                Image(painter = painterResource(Res.drawable.ic_eye_off),"")
+
+
+            }
 
         }
     }

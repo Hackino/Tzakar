@@ -19,7 +19,8 @@ firebaseAuth = "2.1.0"
 coreSplashscreen = "1.0.1"
 datastore = "1.1.2"
 kotlinx-serialization = "1.6.0" # Specify the version of kotlinx.serialization
-navigation_compose = "2.8.5"
+navigationCompose = "2.8.0-alpha10"
+coil = "3.0.4"
 
 [libraries]
 firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebaseAuth" }
@@ -27,11 +28,11 @@ androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", versi
 
 datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+jetbrains-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
-navigation_compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation_compose" }
-
-
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }

@@ -1,5 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -9,8 +7,6 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.googleServices)
     alias(libs.plugins.kotlin.serialization)
-
-
 }
 
 kotlin {
@@ -19,7 +15,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -30,14 +26,13 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
-        
         androidMain.dependencies {
+
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.core.splashscreen)
-
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -52,7 +47,10 @@ kotlin {
             implementation(libs.datastore.preferences)
             implementation(libs.datastore)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.navigation_compose)
+            implementation(libs.jetbrains.navigation.compose)
+
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
 
         }
     }
@@ -94,7 +92,7 @@ android {
             signingConfig = signingConfigs.getByName("release")
 
         }
-        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

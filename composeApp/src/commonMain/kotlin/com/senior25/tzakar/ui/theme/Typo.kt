@@ -1,4 +1,4 @@
-package com.senior25.tzakar.ui
+package com.senior25.tzakar.ui.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
