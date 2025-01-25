@@ -27,10 +27,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,6 +50,7 @@ import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
 import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphM
+import com.senior25.tzakar.ui.theme.fontParagraphS
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -52,7 +58,9 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.already_have_an_account
+import tzakar_reminder.composeapp.generated.resources.and_our
 import tzakar_reminder.composeapp.generated.resources.app_icon
+import tzakar_reminder.composeapp.generated.resources.by_signing_in
 import tzakar_reminder.composeapp.generated.resources.copyright
 import tzakar_reminder.composeapp.generated.resources.email_address
 import tzakar_reminder.composeapp.generated.resources.enter_email_address
@@ -67,9 +75,11 @@ import tzakar_reminder.composeapp.generated.resources.ic_sign_in
 import tzakar_reminder.composeapp.generated.resources.lets_create_your_account
 import tzakar_reminder.composeapp.generated.resources.lets_sign_up_and_join_the_journey
 import tzakar_reminder.composeapp.generated.resources.password
+import tzakar_reminder.composeapp.generated.resources.privacy_policy
 import tzakar_reminder.composeapp.generated.resources.sign_in
 import tzakar_reminder.composeapp.generated.resources.sign_up
 import tzakar_reminder.composeapp.generated.resources.sign_up_with_google
+import tzakar_reminder.composeapp.generated.resources.terms_of_service
 import tzakar_reminder.composeapp.generated.resources.username
 
 @OptIn(KoinExperimentalAPI::class)
@@ -84,10 +94,7 @@ fun SignUpScreen() {
         override fun getUiState(): StateFlow<SignUpPageUiState?> = viewModel.uiState
         override fun navigate(action: SignUpAction) {
             when (action) {
-                SignUpAction.PRIVACY_POLICY ->{
-
-                    Res.string.sign_up.key
-                }
+                SignUpAction.PRIVACY_POLICY ->{}
                 SignUpAction.TERMS_AND_CONDITION ->{}
                 SignUpAction.SIGN_UP -> {}
                 SignUpAction.SIGN_IN -> {}
@@ -115,7 +122,6 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -126,9 +132,7 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                 contentDescription =  ""
             )
             val annotatedText = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = MyColors.colorPurple)) {
-                    append("T")
-                }
+                withStyle(style = SpanStyle(color = MyColors.colorPurple)) { append("T") }
                 append("zakar")
             }
             Text(
@@ -139,7 +143,6 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                 ),
             )
         }
-
 
         Surface(
             modifier = Modifier
@@ -175,7 +178,6 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
-
 
                 userNameField(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -224,7 +226,6 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                     trailingIcon = painterResource(Res.drawable.ic_eye_off)
                 )
 
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 CustomButton(
@@ -243,6 +244,34 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                     startIcon = painterResource(Res.drawable.ic_google),
                     text = stringResource(Res.string.sign_up_with_google)
                 )
+
+                val annotatedText = buildAnnotatedString {
+                    append(stringResource(Res.string.already_have_an_account))
+                    append(" ")
+                    withLink(
+                        LinkAnnotation.Clickable(
+                            tag = "SIGN_IN",
+                            styles = TextLinkStyles(
+                                style = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline),
+                                pressedStyle = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline, background =MyColors.colorLightGrey)
+
+                            ),
+                            linkInteractionListener = {
+                                interaction?.navigate(SignUpAction.SIGN_IN)
+                            }
+                        )
+                    ) {
+                        append(stringResource(Res.string.sign_in))
+                    }
+                }
+                Text(
+                    text = annotatedText,
+                    style = fontLink.copy(
+                        color = MyColors.colorDarkBlue,
+                        textAlign = TextAlign.Center,
+                    ),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                )
             }
         }
 
@@ -252,31 +281,47 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             val annotatedText = buildAnnotatedString {
-                append(stringResource(Res.string.already_have_an_account))
+                append(stringResource(Res.string.by_signing_in))
                 append(" ")
-                withStyle(style = SpanStyle(color = MyColors.colorPurple)) {
-                    pushStringAnnotation(tag = "SIGN_UP", annotation = "sign_up")
-                    append(stringResource(Res.string.sign_in))
-                    pop()
+                withLink(LinkAnnotation.Clickable(
+                    tag = "TERMS_AND_CONDITION",
+                    styles = TextLinkStyles(
+                        style = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline),
+                        pressedStyle = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline, background =MyColors.colorLightGrey)
+                    ),
+                    linkInteractionListener = { interaction?.navigate(SignUpAction.TERMS_AND_CONDITION) }
+                )
+                ) {
+                    append(stringResource(Res.string.terms_of_service))
+                }
+                append(" ")
+                append(stringResource(Res.string.and_our))
+                append(" ")
+                withLink(
+                    LinkAnnotation.Clickable(
+                        tag = "PRIVACY_POLICY",
+                        styles = TextLinkStyles(
+                            style = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline),
+                            pressedStyle = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline, background =MyColors.colorLightGrey)
+                        ),
+                        linkInteractionListener = {
+                            interaction?.navigate(SignUpAction.PRIVACY_POLICY)
+                        }
+                    )
+                ) {
+                    append(stringResource(Res.string.privacy_policy))
                 }
             }
 
-            ClickableText(
+            Text(
                 text = annotatedText,
-                onClick = { offset ->
-                    annotatedText.getStringAnnotations(
-                        tag = "SIGN_UP",
-                        start = offset,
-                        end = offset
-                    ).firstOrNull()?.let {
-                        //navigate to sign up
-                    }
-                },
-                style = fontLink.copy(
-                    color = MyColors.colorDarkBlue,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = fontParagraphS.copy(
                     textAlign = TextAlign.Center,
-                ),
-                modifier = Modifier.fillMaxWidth(),
+                    color = MyColors.colorLightDarkBlue,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal
+                )
             )
 
             Text(
@@ -298,6 +343,7 @@ interface SignUpScreenInteraction{
     fun getUiState(): StateFlow<SignUpPageUiState?>
     fun navigate(action: SignUpAction)
 }
+
 enum class SignUpAction {
     PRIVACY_POLICY,
     TERMS_AND_CONDITION,

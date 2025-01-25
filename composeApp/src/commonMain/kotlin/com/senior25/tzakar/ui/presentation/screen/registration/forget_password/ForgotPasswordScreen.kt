@@ -3,6 +3,7 @@ package com.senior25.tzakar.ui.presentation.screen.registration.forget_password
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
+import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpAction
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
@@ -62,6 +64,12 @@ fun ForgotPasswordScreen() {
         override fun getEmail() = viewModel.email?:""
         override fun onUIEvent(event: ForgotPasswordPageEvent) { viewModel.onUIEvent(event) }
         override fun getUiState(): StateFlow<ForgotPasswordPageUiState?> = viewModel.uiState
+        override fun navigate(action: ForgotPasswordAction) {
+            when (action) {
+                ForgotPasswordAction.GO_BACK_TO_LOGIN -> {}
+                ForgotPasswordAction.RESET -> {}
+            }
+        }
     })
 }
 
@@ -72,7 +80,7 @@ private fun ForgotPasswordScreen(interaction: ForgotPasswordScreenInteraction? =
     val emailFocusRequester = remember { FocusRequester() }
 
     Column(
-        modifier =  Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .background(MyColors.colorOffWhite)
             .padding(bottom = 24.dp, top = 48.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -161,14 +169,18 @@ private fun ForgotPasswordScreen(interaction: ForgotPasswordScreenInteraction? =
                     CustomButton(
                         isEnabled = isValidEmail ,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                        onClick = {},
+                        onClick = {
+                            interaction?.navigate(ForgotPasswordAction.RESET)
+                        },
                         text = stringResource(Res.string.reset_password)
                     )
                 }
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().clickable {
+                    interaction?.navigate(ForgotPasswordAction.GO_BACK_TO_LOGIN)
+                },
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -188,14 +200,19 @@ private fun ForgotPasswordScreen(interaction: ForgotPasswordScreenInteraction? =
                 )
             }
         }
-
         Row {/*do not remove*/  }
     }
 }
-
 
 interface ForgotPasswordScreenInteraction{
     fun getEmail():String
     fun onUIEvent(event: ForgotPasswordPageEvent)
     fun getUiState(): StateFlow<ForgotPasswordPageUiState?>
+    fun navigate(action: ForgotPasswordAction)
+}
+
+enum class ForgotPasswordAction {
+    GO_BACK_TO_LOGIN,
+    RESET
+
 }

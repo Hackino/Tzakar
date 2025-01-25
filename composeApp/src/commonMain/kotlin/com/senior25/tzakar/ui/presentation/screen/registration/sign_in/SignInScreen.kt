@@ -358,7 +358,6 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                     append(stringResource(Res.string.terms_of_service))
 
                 }
-//                pop()
                 append(" ")
                 append(stringResource(Res.string.and_our))
                 append(" ")
@@ -378,7 +377,6 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                     append(stringResource(Res.string.privacy_policy))
 
                 }
-//                pop()
             }
 
             Text(
