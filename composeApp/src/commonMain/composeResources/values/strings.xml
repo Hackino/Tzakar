@@ -1,0 +1,26 @@
+<resources>
+    <string name="copyright">Copyright 2025© Tzakar</string>
+    <string name="dont_have_an_account">Don’t have an account?</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="welcome_back">Welcome Back.</string>
+    <string name="lets_sign_in_and_get_starter">Let’s sign in to your account and get started.</string>
+    <string name="email_address">Email Address</string>
+    <string name="password">Password</string>
+    <string name="enter_password">Enter password</string>
+    <string name="enter_email_address">Enter email address</string>
+    <string name="forgot_password">Forgot Password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_in_with_google">Sign In With Google</string>
+    <string name="remember_me">Remember me</string>
+    <string name="lets_create_your_account">Let’s Create Your Account.</string>
+    <string name="sign_up_with_google">Sign Up With Google</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="username">Username</string>
+    <string name="enter_username">Enter username</string>
+    <string name="lets_sign_up_and_join_the_journey">Join us and let’s get this adventure started!</string>
+    <string name="reset_your_password">Reset Your Password</string>
+    <string name="dont_worry_we_can_restore_it">Don’t worry, mate! We can restore it for you.</string>
+    <string name="reset_password">Reset password</string>
+    <string name="back_to_login_screen">Back to login screen</string>
+
+</resources>

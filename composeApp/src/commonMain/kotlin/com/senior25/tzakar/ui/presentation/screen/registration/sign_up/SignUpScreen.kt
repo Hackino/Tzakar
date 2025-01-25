@@ -1,4 +1,4 @@
-package com.senior25.tzakar.ui.presentation.screen.registration.sign_in
+package com.senior25.tzakar.ui.presentation.screen.registration.sign_up
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -31,6 +31,7 @@ import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButto
 import com.senior25.tzakar.ui.presentation.components.checkbox.RoundedCheckbox
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
+import com.senior25.tzakar.ui.presentation.components.fields.userNameField
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
@@ -39,28 +40,35 @@ import com.senior25.tzakar.ui.theme.fontParagraphM
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import tzakar_reminder.composeapp.generated.resources.Res
+import tzakar_reminder.composeapp.generated.resources.already_have_an_account
 import tzakar_reminder.composeapp.generated.resources.app_icon
 import tzakar_reminder.composeapp.generated.resources.copyright
 import tzakar_reminder.composeapp.generated.resources.dont_have_an_account
 import tzakar_reminder.composeapp.generated.resources.email_address
 import tzakar_reminder.composeapp.generated.resources.enter_email_address
 import tzakar_reminder.composeapp.generated.resources.enter_password
+import tzakar_reminder.composeapp.generated.resources.enter_username
 import tzakar_reminder.composeapp.generated.resources.forgot_password
 import tzakar_reminder.composeapp.generated.resources.ic_email
 import tzakar_reminder.composeapp.generated.resources.ic_eye_off
 import tzakar_reminder.composeapp.generated.resources.ic_google
 import tzakar_reminder.composeapp.generated.resources.ic_lock
+import tzakar_reminder.composeapp.generated.resources.ic_person
 import tzakar_reminder.composeapp.generated.resources.ic_sign_in
+import tzakar_reminder.composeapp.generated.resources.lets_create_your_account
 import tzakar_reminder.composeapp.generated.resources.lets_sign_in_and_get_starter
+import tzakar_reminder.composeapp.generated.resources.lets_sign_up_and_join_the_journey
 import tzakar_reminder.composeapp.generated.resources.password
 import tzakar_reminder.composeapp.generated.resources.remember_me
 import tzakar_reminder.composeapp.generated.resources.sign_in
 import tzakar_reminder.composeapp.generated.resources.sign_in_with_google
 import tzakar_reminder.composeapp.generated.resources.sign_up
+import tzakar_reminder.composeapp.generated.resources.sign_up_with_google
+import tzakar_reminder.composeapp.generated.resources.username
 import tzakar_reminder.composeapp.generated.resources.welcome_back
 
 @Composable
-fun SignInScreen() {
+fun SignUpScreen() {
 
     Column(
         modifier =  Modifier.fillMaxSize()
@@ -94,6 +102,7 @@ fun SignInScreen() {
             )
         }
 
+
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -111,7 +120,7 @@ fun SignInScreen() {
 
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(Res.string.welcome_back),
+                    text = stringResource(Res.string.lets_create_your_account),
                     color = MyColors.colorDarkBlue,
                     textAlign = TextAlign.Center,
                     style = fontH1.copy(fontSize = 34.sp)
@@ -121,13 +130,29 @@ fun SignInScreen() {
 
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(Res.string.lets_sign_in_and_get_starter),
+                    text = stringResource(Res.string.lets_sign_up_and_join_the_journey),
                     color = MyColors.colorLightDarkBlue,
                     textAlign = TextAlign.Center,
                     style = fontParagraphL
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
+
+
+                userNameField(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    label = stringResource(Res.string.username),
+                    placeHolder = stringResource(Res.string.enter_username),
+                    value = "",
+                    onValueChange = {},
+                    isInputValid = {},
+                    imeAction = null,
+                    focusRequester = null,
+                    onKeyPressed = {},
+                    leadingIcon = painterResource(Res.drawable.ic_person)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 EmailField(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -157,42 +182,15 @@ fun SignInScreen() {
                     leadingIcon = painterResource(Res.drawable.ic_lock),
                     trailingIcon = painterResource(Res.drawable.ic_eye_off)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
 
-                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    RoundedCheckbox(
-                        checked = false,
-                        onCheckedChange = {},
-                    ){
-                        Text(
-                            text = stringResource(Res.string.remember_me),
-                            style = fontLink.copy(
-                                color = MyColors.colorDarkBlue,
-                                textAlign = TextAlign.Center,
-                                fontSize = 14.sp
-                            ),
-                        )
-                    }
-                    Text(
-                        text = stringResource(Res.string.forgot_password),
-                        style = fontLink.copy(
-                            color = MyColors.colorPurple,
-                            textAlign = TextAlign.Center,
-                            fontSize = 14.sp
-                        ),
-                        modifier = Modifier.clickable {},
-                    )
-                }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 CustomButton(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     onClick = {  },
                     endIcon = painterResource(Res.drawable.ic_sign_in),
-                    text = stringResource(Res.string.sign_in)
+                    text = stringResource(Res.string.sign_up)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -201,7 +199,7 @@ fun SignInScreen() {
                     onClick = { },
                     keepIconColor = true,
                     startIcon = painterResource(Res.drawable.ic_google),
-                    text = stringResource(Res.string.sign_in_with_google)
+                    text = stringResource(Res.string.sign_up_with_google)
                 )
             }
         }
@@ -212,11 +210,11 @@ fun SignInScreen() {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             val annotatedText = buildAnnotatedString {
-                append(stringResource(Res.string.dont_have_an_account))
+                append(stringResource(Res.string.already_have_an_account))
                 append(" ")
                 withStyle(style = SpanStyle(color = MyColors.colorPurple)) {
                     pushStringAnnotation(tag = "SIGN_UP", annotation = "sign_up")
-                    append(stringResource(Res.string.sign_up))
+                    append(stringResource(Res.string.sign_in))
                     pop()
                 }
             }
