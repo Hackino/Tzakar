@@ -8,6 +8,7 @@ import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInScr
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpScreenViewModel
 import org.koin.compose.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
+import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
 
@@ -20,8 +21,9 @@ val appModule = module {
 
 }
 
-fun initializeKoin() {
+fun initializeKoin(config: KoinAppDeclaration? = null) {
     startKoin {
+        config?.invoke(this)
         modules(appModule)
     }
 }

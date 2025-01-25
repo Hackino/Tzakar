@@ -428,7 +428,7 @@ fun BaseTextField(
                 focusRequester?.let { modifier.focusRequester(it) }?:   modifier
             }                .heightIn(min = 10.dp) // Ensure dynamic height
             ,
-            visualTransformation = if (keyboardType == KeyboardType.Password) PasswordVisualTransformation() else VisualTransformation.None, // Apply visual transformation for passwords
+            visualTransformation = if (keyboardType == KeyboardType.Password && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = imeAction?:ImeAction.Done,
                 keyboardType = keyboardType
