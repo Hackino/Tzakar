@@ -30,4 +30,8 @@
     <string name="privacy_policy">Privacy policy</string>
     <string name="by_signing_in">By Signing in you agree to our</string>
 
+    <string name="invalid_email_address">Invalid email address</string>
+    <string name="password_not_validated">Passwords must have at least 6 characters and contain uppercase letters, lower case letters, numbers and special characters</string>
+
+
 </resources>

@@ -36,7 +36,9 @@ kotlin {
 
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+
         }
+
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)

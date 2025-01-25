@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -27,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
@@ -35,16 +33,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
+import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceClick
+import com.senior25.tzakar.ui.presentation.components.debounce.withDebounceAction
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
 import com.senior25.tzakar.ui.presentation.components.fields.userNameField
-import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInAction
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
@@ -84,7 +83,7 @@ import tzakar_reminder.composeapp.generated.resources.username
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun SignUpScreen() {
+fun SignUpScreen(navController: NavHostController? = null) {
     val viewModel = koinViewModel<SignUpScreenViewModel>()
     SignUpScreen(interaction = object : SignUpScreenInteraction {
         override fun getEmail() = viewModel.email?:""
@@ -97,7 +96,8 @@ fun SignUpScreen() {
                 SignUpAction.PRIVACY_POLICY ->{}
                 SignUpAction.TERMS_AND_CONDITION ->{}
                 SignUpAction.SIGN_UP -> {}
-                SignUpAction.SIGN_IN -> {}
+                SignUpAction.SIGN_IN -> {navController?.navigateUp()}
+                SignUpAction.GOOGLE -> {}
             }
         }
     })
@@ -218,20 +218,16 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                     isInputValid = { isValidPassword = it },
                     imeAction = ImeAction.Done,
                     focusRequester = passwordFocusRequester,
-                    onKeyPressed = {
-                        passwordFocusRequester.freeFocus()
-                        keyboardController?.hide()
-                    },
+                    onKeyPressed = { passwordFocusRequester.freeFocus();keyboardController?.hide() },
                     leadingIcon = painterResource(Res.drawable.ic_lock),
                     trailingIcon = painterResource(Res.drawable.ic_eye_off)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-
                 CustomButton(
                     isEnabled = isValidEmail && isValidPassword && isValidUsername,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    onClick = {  },
+                    onClick = { interaction?.navigate(SignUpAction.SIGN_UP) },
                     endIcon = painterResource(Res.drawable.ic_sign_in),
                     text = stringResource(Res.string.sign_up)
                 )
@@ -239,30 +235,33 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
 
                 OutlinedCustomButton(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    onClick = { },
+                    onClick =  {  interaction?.navigate(SignUpAction.GOOGLE)},
                     keepIconColor = true,
                     startIcon = painterResource(Res.drawable.ic_google),
                     text = stringResource(Res.string.sign_up_with_google)
                 )
 
+
+
                 val annotatedText = buildAnnotatedString {
                     append(stringResource(Res.string.already_have_an_account))
                     append(" ")
-                    withLink(
-                        LinkAnnotation.Clickable(
-                            tag = "SIGN_IN",
-                            styles = TextLinkStyles(
-                                style = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline),
-                                pressedStyle = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline, background =MyColors.colorLightGrey)
-
+                    withDebounceAction(
+                        tag = "SIGN_IN",
+                        styles = TextLinkStyles(
+                            style = SpanStyle(
+                                color = MyColors.colorPurple,
+                                textDecoration = TextDecoration.Underline
                             ),
-                            linkInteractionListener = {
-                                interaction?.navigate(SignUpAction.SIGN_IN)
-                            }
-                        )
-                    ) {
-                        append(stringResource(Res.string.sign_in))
-                    }
+                            pressedStyle = SpanStyle(
+                                color = MyColors.colorPurple,
+                                textDecoration = TextDecoration.Underline,
+                                background =MyColors.colorLightGrey
+                            )
+                        ),
+                        action = { interaction?.navigate(SignUpAction.SIGN_IN) },
+                        stringToAppend = stringResource(Res.string.sign_in)
+                    )
                 }
                 Text(
                     text = annotatedText,
@@ -283,34 +282,29 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
             val annotatedText = buildAnnotatedString {
                 append(stringResource(Res.string.by_signing_in))
                 append(" ")
-                withLink(LinkAnnotation.Clickable(
+                withDebounceAction(
                     tag = "TERMS_AND_CONDITION",
                     styles = TextLinkStyles(
                         style = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline),
                         pressedStyle = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline, background =MyColors.colorLightGrey)
                     ),
-                    linkInteractionListener = { interaction?.navigate(SignUpAction.TERMS_AND_CONDITION) }
+                    action = { interaction?.navigate(SignUpAction.TERMS_AND_CONDITION) },
+                    stringToAppend = stringResource(Res.string.terms_of_service)
                 )
-                ) {
-                    append(stringResource(Res.string.terms_of_service))
-                }
                 append(" ")
                 append(stringResource(Res.string.and_our))
                 append(" ")
-                withLink(
-                    LinkAnnotation.Clickable(
-                        tag = "PRIVACY_POLICY",
-                        styles = TextLinkStyles(
-                            style = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline),
-                            pressedStyle = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline, background =MyColors.colorLightGrey)
-                        ),
-                        linkInteractionListener = {
-                            interaction?.navigate(SignUpAction.PRIVACY_POLICY)
-                        }
-                    )
-                ) {
-                    append(stringResource(Res.string.privacy_policy))
-                }
+                withDebounceAction(
+                    tag = "PRIVACY_POLICY",
+                    styles = TextLinkStyles(
+                        style = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline),
+                        pressedStyle = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline, background =MyColors.colorLightGrey)
+                    ),
+                    action = {
+                        interaction?.navigate(SignUpAction.PRIVACY_POLICY)
+                    },
+                    stringToAppend =  stringResource(Res.string.privacy_policy)
+                )
             }
 
             Text(
@@ -348,6 +342,7 @@ enum class SignUpAction {
     PRIVACY_POLICY,
     TERMS_AND_CONDITION,
     SIGN_UP,
+    GOOGLE,
     SIGN_IN
 
 }

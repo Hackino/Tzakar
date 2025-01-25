@@ -1,6 +1,7 @@
 package com.senior25.tzakar.ui.presentation.components.fields
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Colors
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
@@ -26,7 +26,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.key.Key.Companion.R
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -52,7 +51,6 @@ import tzakar_reminder.composeapp.generated.resources.enter_username
 import tzakar_reminder.composeapp.generated.resources.ic_eye_off
 import tzakar_reminder.composeapp.generated.resources.ic_eye_on
 
-
 @Composable
 fun EmailField(
     modifier: Modifier = Modifier,
@@ -72,12 +70,11 @@ fun EmailField(
         placeHolder = placeHolder,
         keyboardType = KeyboardType.Email,
         onValueChange =onValueChange,
-
-//        validate = {
-////            val isValid = isEmailValid(context,it)
-////            isInputValid(isValid.first)
-////            true
-//        },
+        validate = {
+            val isValid = isEmailValid(it)
+            isInputValid(isValid.first)
+            isValid
+        },
         label = label,
         imeAction =  imeAction,
         focusRequester = focusRequester,
@@ -105,11 +102,11 @@ fun userNameField(
         placeHolder = placeHolder,
         keyboardType = KeyboardType.Text,
         onValueChange =onValueChange,
-//        validate = {
-////            val isValid = isNameValid(context,it)
-////            isInputValid(isValid.first)
-////            isValid
-//        },
+        validate = {
+            val isValid = isNameValid(it)
+            isInputValid(isValid.first)
+            isValid
+        },
         label = label,
         imeAction =  imeAction,
         focusRequester = focusRequester,
@@ -118,75 +115,11 @@ fun userNameField(
     )
 }
 
-//@Composable
-//fun FatherNameField(
-//    label: String? = null,
-//    value:String? = null,
-//    placeHolder: String? = stringResource(com.base.commons.R.string.father_name),
-//
-//    onValueChange: (String) -> Unit = {},
-//    isInputValid:(Boolean)->Unit = {},
-//    imeAction: ImeAction? = null,
-//    focusRequester:FocusRequester? = null,
-//    onKeyPressed:()->Unit = {}
-//) {
-//    val context = LocalContext.current
-//    BaseTextField(
-//        value = value,
-//
-//        placeHolder = placeHolder,
-//        keyboardType = KeyboardType.Text,
-//        onValueChange =onValueChange,
-//        validate = {
-//            val isValid = isNameValid(context,it)
-//            isInputValid(isValid.first)
-//            isValid
-//        },
-//        label = label,
-//        imeAction =  imeAction,
-//        focusRequester = focusRequester,
-//        onKeyPressed = onKeyPressed
-//    )
-//}
-
-
-//@Composable
-//fun LastNameField(
-//    label: String? = null,
-//    placeHolder: String? = stringResource(com.base.commons.R.string.last_name),
-//
-//    value:String? = null,
-//    onValueChange: (String) -> Unit = {},
-//    isInputValid:(Boolean)->Unit = {},
-//    imeAction: ImeAction? = null,
-//    focusRequester:FocusRequester? = null,
-//    onKeyPressed:()->Unit = {}
-//) {
-//    val context = LocalContext.current
-//    BaseTextField(
-//        value = value,
-//
-//        placeHolder = placeHolder,
-//        keyboardType = KeyboardType.Text,
-//        onValueChange =onValueChange,
-//        validate = {
-//            val isValid = isNameValid(context,it)
-//            isInputValid(isValid.first)
-//            isValid
-//        },
-//        label = label,
-//        imeAction =  imeAction,
-//        focusRequester = focusRequester,
-//        onKeyPressed = onKeyPressed
-//    )
-//}
-
 @Composable
 fun PasswordField(
     modifier: Modifier = Modifier,
     label: String? = null,
     placeHolder: String? = stringResource(Res.string.enter_password),
-
     value:String? = null,
     onValueChange: (String) -> Unit = {},
     isInputValid:(Boolean)->Unit = {},
@@ -204,11 +137,11 @@ fun PasswordField(
         placeHolder = placeHolder,
         keyboardType = KeyboardType.Password,
         onValueChange =onValueChange,
-//        validate = {
-//            val isValid = isPasswordValid(context,it)
-//            isInputValid(isValid.first)
-//            isValid
-//        },
+        validate = {
+            val isValid = isPasswordValid(it)
+            isInputValid(isValid.first)
+            isValid
+        },
         label = label,
         imeAction =  imeAction,
         focusRequester = focusRequester,
@@ -356,14 +289,13 @@ fun BaseTextField(
     label:String? = null,
     placeHolder:String? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
-    validate:((String)->Pair<Boolean, String>)? = null,
+    validate:@Composable ((String)->Pair<Boolean, String>)? = null,
     onValueChange: (String) -> Unit = {},
     imeAction: ImeAction? = null,
     focusRequester:FocusRequester? = null,
     onKeyPressed:()->Unit = {},
     leadingIcon: Painter? = null,
     trailingIcon: Painter? = null,
-
     ) {
     var content by remember(value) { mutableStateOf(value?:"") }
     var error by remember { mutableStateOf("") }
@@ -385,7 +317,7 @@ fun BaseTextField(
             maxLines = 1,
             textStyle = fontParagraphS.copy(
                 fontSize = 14.sp,
-                lineHeight = TextUnit.Unspecified, // Dynamically adapts to content,
+                lineHeight = TextUnit.Unspecified,
             ),
 
             colors = TextFieldDefaults.textFieldColors(
@@ -426,45 +358,32 @@ fun BaseTextField(
             },
             modifier = Modifier.fillMaxWidth().let {modifier->
                 focusRequester?.let { modifier.focusRequester(it) }?:   modifier
-            }                .heightIn(min = 10.dp) // Ensure dynamic height
-            ,
+            }.heightIn(min = 10.dp)  ,
             visualTransformation = if (keyboardType == KeyboardType.Password && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = imeAction?:ImeAction.Done,
                 keyboardType = keyboardType
             ),
             trailingIcon =trailingIcon?.let{ {
-                    if (keyboardType == KeyboardType.Password) {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                painter = painterResource(
-                                  if (passwordVisible) Res.drawable.ic_eye_on else Res.drawable.ic_eye_off
-                                ),
-                                contentDescription = "",
-                                tint =MyColors.colorLightDarkBlue
-                            )
-                        }
+                if (keyboardType == KeyboardType.Password) {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            painter = painterResource(
+                                if (passwordVisible) Res.drawable.ic_eye_on else Res.drawable.ic_eye_off
+                            ),
+                            contentDescription = "",
+                            tint =MyColors.colorLightDarkBlue
+                        )
                     }
                 }
-//                if (showInfoIcon){
-//                    IconButton(
-//                        onClick = {onInfoIconClick()},
-//                        modifier = Modifier.size(24.dp)
-//                    ) {
-//                        Icon(
-//                            painter = painterResource(R.drawable.ic_info),
-//                            contentDescription = "",
-//                            tint = Color.Unspecified
-//                        )
-//                    }
-//                }
+            }
             },
             keyboardActions = KeyboardActions(onNext = { onKeyPressed() },onDone = { onKeyPressed() }),
             isError =
             isError(
                 validate = validate,
                 onValueChange = onValueChange,
-                content = content?:"",
+                content = content,
                 error = { error = it }
             )
         )
@@ -480,17 +399,19 @@ fun BaseTextField(
     }
 }
 
+@Composable
 private fun isError(
-    validate:((String)->Pair<Boolean, String>)? = null,
+    validate:@Composable ((String)->Pair<Boolean, String>)? = null,
     onValueChange: (String) -> Unit = {},
     error:(String)->Unit = {},
     content:String? = null
 ):Boolean{
+    Row {  }
     val isValid = validate?.invoke(content?:"")
     if (isValid == null){ error("");onValueChange(content?:"");return false }
-    return if (isValid?.first != true){
-        error(isValid?.second?:"")
-        onValueChange("")
+    return if (!isValid.first){
+        error(isValid.second)
+        onValueChange(content?:"")
         true
     }else {
         error("")

@@ -1,11 +1,11 @@
 package com.senior25.tzakar
 
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.navigation.compose.rememberNavController
 import com.senior25.tzakar.data.local.preferences.AppState
+import com.senior25.tzakar.ui.presentation.graph.RegistrationGraph
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInScreen
-import com.senior25.tzakar.ui.theme.MyColors
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
 
@@ -20,11 +20,10 @@ fun App() {
 @Preview
 @Composable
 fun RoutingScreen(interaction:RoutingScreenInteraction? = null) {
-    Scaffold (backgroundColor = MyColors.colorWhite) {
-        when (interaction?.getAppState()) {
-            AppState.NONE -> SignInScreen()
-            else -> SignInScreen()
-        }
+    val navController = rememberNavController()
+    when (interaction?.getAppState()) {
+        AppState.NONE -> RegistrationGraph(navController)
+        else -> RegistrationGraph(navController)
     }
 }
 

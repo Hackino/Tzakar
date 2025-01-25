@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.senior25.tzakar.ui.presentation.components.debounce.debounceClick
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontLink
 
@@ -42,7 +43,7 @@ fun CustomButton(
             .clip(CircleShape)
             .background(MyColors.colorPurple)
             .let {
-                return@let if (isEnabled == true) { it.clickable { onClick()} } else it
+                return@let if (isEnabled == true) { it.debounceClick { onClick()} } else it
             }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -106,7 +107,7 @@ fun  OutlinedCustomButton(
             .clip(CircleShape)
             .border(1.dp, tint, CircleShape)
             .let {
-                return@let if (isEnabled == true) { it.clickable { onClick()} } else it
+                return@let if (isEnabled == true) { it.debounceClick { onClick()} } else it
             }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,

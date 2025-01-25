@@ -33,7 +33,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
+import com.senior25.tzakar.ui.presentation.components.debounce.debounceClick
+import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceClick
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpAction
 import com.senior25.tzakar.ui.theme.MyColors
@@ -58,7 +61,7 @@ import tzakar_reminder.composeapp.generated.resources.reset_your_password
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun ForgotPasswordScreen() {
+fun ForgotPasswordScreen(navController: NavHostController? = null) {
     val viewModel = koinViewModel<ForgotPasswordScreenViewModel>()
     ForgotPasswordScreen(interaction = object : ForgotPasswordScreenInteraction {
         override fun getEmail() = viewModel.email?:""
@@ -66,7 +69,7 @@ fun ForgotPasswordScreen() {
         override fun getUiState(): StateFlow<ForgotPasswordPageUiState?> = viewModel.uiState
         override fun navigate(action: ForgotPasswordAction) {
             when (action) {
-                ForgotPasswordAction.GO_BACK_TO_LOGIN -> {}
+                ForgotPasswordAction.GO_BACK_TO_LOGIN -> {navController?.navigateUp()}
                 ForgotPasswordAction.RESET -> {}
             }
         }
@@ -178,7 +181,7 @@ private fun ForgotPasswordScreen(interaction: ForgotPasswordScreenInteraction? =
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth().clickable {
+                modifier = Modifier.fillMaxWidth().debounceClick {
                     interaction?.navigate(ForgotPasswordAction.GO_BACK_TO_LOGIN)
                 },
                 horizontalArrangement = Arrangement.Center,
