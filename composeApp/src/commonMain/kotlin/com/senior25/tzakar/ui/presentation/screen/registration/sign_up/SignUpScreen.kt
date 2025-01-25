@@ -39,6 +39,7 @@ import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButto
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
 import com.senior25.tzakar.ui.presentation.components.fields.userNameField
+import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInAction
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
@@ -75,13 +76,23 @@ import tzakar_reminder.composeapp.generated.resources.username
 @Composable
 fun SignUpScreen() {
     val viewModel = koinViewModel<SignUpScreenViewModel>()
-
     SignUpScreen(interaction = object : SignUpScreenInteraction {
-        override fun getEmail()  = viewModel.email?:""
-        override fun getUsername()  = viewModel.username?:""
-        override fun getPassword()  = viewModel.password?:""
+        override fun getEmail() = viewModel.email?:""
+        override fun getUsername() = viewModel.username?:""
+        override fun getPassword() = viewModel.password?:""
         override fun onUIEvent(event: SignUpPageEvent) { viewModel.onUIEvent(event) }
         override fun getUiState(): StateFlow<SignUpPageUiState?> = viewModel.uiState
+        override fun navigate(action: SignUpAction) {
+            when (action) {
+                SignUpAction.PRIVACY_POLICY ->{
+
+                    Res.string.sign_up.key
+                }
+                SignUpAction.TERMS_AND_CONDITION ->{}
+                SignUpAction.SIGN_UP -> {}
+                SignUpAction.SIGN_IN -> {}
+            }
+        }
     })
 }
 
@@ -285,4 +296,12 @@ interface SignUpScreenInteraction{
     fun getPassword():String
     fun onUIEvent(event: SignUpPageEvent)
     fun getUiState(): StateFlow<SignUpPageUiState?>
+    fun navigate(action: SignUpAction)
+}
+enum class SignUpAction {
+    PRIVACY_POLICY,
+    TERMS_AND_CONDITION,
+    SIGN_UP,
+    SIGN_IN
+
 }

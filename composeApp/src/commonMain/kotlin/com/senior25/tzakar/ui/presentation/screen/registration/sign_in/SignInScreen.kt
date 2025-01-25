@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -27,15 +26,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.senior25.tzakar.data.local.preferences.AppState
+import com.senior25.tzakar.platform_specific.toast_helper.showToast
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
 import com.senior25.tzakar.ui.presentation.components.checkbox.RoundedCheckbox
@@ -46,13 +51,20 @@ import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
 import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphM
+import com.senior25.tzakar.ui.theme.fontParagraphS
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import tzakar_reminder.composeapp.generated.resources.Res
+import tzakar_reminder.composeapp.generated.resources.and_our
 import tzakar_reminder.composeapp.generated.resources.app_icon
+import tzakar_reminder.composeapp.generated.resources.by_signing_in
 import tzakar_reminder.composeapp.generated.resources.copyright
 import tzakar_reminder.composeapp.generated.resources.dont_have_an_account
 import tzakar_reminder.composeapp.generated.resources.email_address
@@ -66,10 +78,12 @@ import tzakar_reminder.composeapp.generated.resources.ic_lock
 import tzakar_reminder.composeapp.generated.resources.ic_sign_in
 import tzakar_reminder.composeapp.generated.resources.lets_sign_in_and_get_starter
 import tzakar_reminder.composeapp.generated.resources.password
+import tzakar_reminder.composeapp.generated.resources.privacy_policy
 import tzakar_reminder.composeapp.generated.resources.remember_me
 import tzakar_reminder.composeapp.generated.resources.sign_in
 import tzakar_reminder.composeapp.generated.resources.sign_in_with_google
 import tzakar_reminder.composeapp.generated.resources.sign_up
+import tzakar_reminder.composeapp.generated.resources.terms_of_service
 import tzakar_reminder.composeapp.generated.resources.welcome_back
 
 @OptIn(KoinExperimentalAPI::class)
@@ -79,8 +93,61 @@ fun SignInScreen() {
     SignInScreen(interaction = object :SignInScreenInteraction{
         override fun getEmail()  = viewModel.email?:""
         override fun getPassword()  = viewModel.password?:""
+        override fun isRememberMe()  = viewModel.isRememberMe == true
         override fun onUIEvent(event: SignInPageEvent) { viewModel.onUIEvent(event) }
         override fun getUiState(): StateFlow<SignInPageUiState?> = viewModel.uiState
+        override fun navigate(action: SignInAction) {
+            when (action) {
+                SignInAction.APP -> {
+//                    sharedViewModel.navigateTo(R.id.loginFragment)
+                }
+
+                SignInAction.GOOGLE -> {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        showToast(getString( Res.string.sign_in_with_google))
+                    }
+                }
+
+
+                SignInAction.PRIVACY_POLICY -> {
+
+                    CoroutineScope(Dispatchers.Main).launch {
+                        showToast(getString( Res.string.privacy_policy))
+                    }
+
+//                    startActivity(
+//                        WebActivity.newIntent(
+//                            requireContext(), PRIVACY_POLICY_LINK, getString(
+//                                com.base.commons.R.string.privacy_policy
+//                            )
+//                        )
+//                    )
+                }
+
+                SignInAction.TERMS_AND_CONDITION -> {
+//                    startActivity(
+//                        WebActivity.newIntent(
+//                            requireContext(), TERMS_OF_SERVICE_LINK, getString(
+//                                com.base.commons.R.string.terms_of_service
+//                            )
+//                        )
+//                    )
+                    CoroutineScope(Dispatchers.Main).launch {
+                        showToast(getString( Res.string.terms_of_service))
+                    }
+                }
+
+                SignInAction.FORGOT_PASSWORD -> {
+
+                }
+
+                SignInAction.SIGN_UP -> {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        showToast(getString( Res.string.sign_up))
+                    }
+                }
+            }
+        }
     })
 }
 
@@ -93,6 +160,9 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val emailFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
+    var rememberMe by remember { mutableStateOf(interaction?.isRememberMe()) }
+
+
 
     Column(
         modifier =  Modifier.fillMaxSize()
@@ -116,17 +186,12 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
             }
             Text(
                 text = annotatedText,
-                style = fontH1.copy(
-                    color = MyColors.colorDarkBlue,
-                    textAlign = TextAlign.Center,
-                ),
+                style = fontH1.copy(color = MyColors.colorDarkBlue, textAlign = TextAlign.Center,),
             )
         }
 
         Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             shape =  RoundedCornerShape(16.dp),
             border = BorderStroke(1.dp, MyColors.colorLightGrey,),
             elevation = 4.dp
@@ -196,8 +261,11 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     RoundedCheckbox(
-                        checked = false,
-                        onCheckedChange = {},
+                        checked = rememberMe==true,
+                        onCheckedChange ={
+                            rememberMe = it
+                            interaction?.onUIEvent(SignInPageEvent.UpdateRememberMe(it))
+                        },
                     ){
                         Text(
                             text = stringResource(Res.string.remember_me),
@@ -215,16 +283,16 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                             textAlign = TextAlign.Center,
                             fontSize = 14.sp
                         ),
-                        modifier = Modifier.clickable {},
+                        modifier = Modifier.clickable {
+                            interaction?.navigate(SignInAction.FORGOT_PASSWORD)
+                        },
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
                 CustomButton(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    onClick = {
-
-                    },
+                    onClick = { interaction?.navigate(SignInAction.APP) },
                     isEnabled = isValidEmail && isValidPassword,
                     endIcon = painterResource(Res.drawable.ic_sign_in),
                     text = stringResource(Res.string.sign_in)
@@ -233,13 +301,38 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
 
                 OutlinedCustomButton(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    onClick = {
-
-                    },
+                    onClick = { interaction?.navigate(SignInAction.GOOGLE) },
                     keepIconColor = true,
                     startIcon = painterResource(Res.drawable.ic_google),
                     text = stringResource(Res.string.sign_in_with_google)
                 )
+                val annotatedText = buildAnnotatedString {
+                    append(stringResource(Res.string.dont_have_an_account))
+                    append(" ")
+                    withLink(LinkAnnotation.Clickable(
+                        tag = "SIGN_UP",
+                        styles = TextLinkStyles(
+                            style = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline),
+                            pressedStyle = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline, background =MyColors.colorLightGrey)
+                        ),
+                        linkInteractionListener = {
+                            interaction?.navigate(SignInAction.SIGN_UP)
+                        }
+                    )
+                    ) {
+                        append(stringResource(Res.string.sign_up))
+                    }
+                }
+                Text(
+                    text = annotatedText,
+                    style = fontLink.copy(
+                        color = MyColors.colorDarkBlue,
+                        textAlign = TextAlign.Center,
+                    ),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                )
+
+
             }
         }
 
@@ -248,33 +341,58 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
+
             val annotatedText = buildAnnotatedString {
-                append(stringResource(Res.string.dont_have_an_account))
+                append(stringResource(Res.string.by_signing_in))
                 append(" ")
-                withStyle(style = SpanStyle(color = MyColors.colorPurple)) {
-                    pushStringAnnotation(tag = "SIGN_UP", annotation = "sign_up")
-                    append(stringResource(Res.string.sign_up))
-                    pop()
+                withLink(LinkAnnotation.Clickable(
+                    tag = "TERMS_AND_CONDITION",
+                    styles = TextLinkStyles(
+                        style = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline),
+                        pressedStyle = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline, background =MyColors.colorLightGrey)
+                    ),
+                    linkInteractionListener = { interaction?.navigate(SignInAction.TERMS_AND_CONDITION) }
+                )
+                ) {
+                    append(stringResource(Res.string.terms_of_service))
+
                 }
+//                pop()
+                append(" ")
+                append(stringResource(Res.string.and_our))
+                append(" ")
+                withLink(
+                    LinkAnnotation.Clickable(
+                        tag = "PRIVACY_POLICY",
+                        styles = TextLinkStyles(
+                            style = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline),
+                            pressedStyle = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline, background =MyColors.colorLightGrey)
+
+                    ),
+                        linkInteractionListener = {
+                            interaction?.navigate(SignInAction.PRIVACY_POLICY)
+                        }
+                    )
+                ) {
+                    append(stringResource(Res.string.privacy_policy))
+
+                }
+//                pop()
             }
 
-            ClickableText(
+            Text(
                 text = annotatedText,
-                onClick = { offset ->
-                    annotatedText.getStringAnnotations(
-                        tag = "SIGN_UP",
-                        start = offset,
-                        end = offset
-                    ).firstOrNull()?.let {
-                            //navigate to sign up
-                    }
-                },
-                style = fontLink.copy(
-                    color = MyColors.colorDarkBlue,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = fontParagraphS.copy(
                     textAlign = TextAlign.Center,
-                ),
-                modifier = Modifier.fillMaxWidth(),
+                    color = MyColors.colorLightDarkBlue,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal
+                )
             )
+
+
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(Res.string.copyright),
@@ -287,8 +405,22 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
 }
 
 interface SignInScreenInteraction{
-     fun getEmail():String
-     fun getPassword():String
-     fun onUIEvent(event: SignInPageEvent)
-     fun getUiState(): StateFlow<SignInPageUiState?>
+    fun getEmail():String
+    fun getPassword():String
+    fun isRememberMe():Boolean
+
+    fun onUIEvent(event: SignInPageEvent)
+    fun getUiState(): StateFlow<SignInPageUiState?>
+    fun navigate(action: SignInAction)
+
+}
+
+enum class SignInAction {
+    APP,
+    GOOGLE,
+    PRIVACY_POLICY,
+    TERMS_AND_CONDITION,
+    FORGOT_PASSWORD,
+    SIGN_UP
+
 }

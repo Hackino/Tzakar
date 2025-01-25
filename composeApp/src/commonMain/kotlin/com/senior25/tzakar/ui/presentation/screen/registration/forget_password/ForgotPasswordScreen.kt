@@ -59,7 +59,7 @@ import tzakar_reminder.composeapp.generated.resources.reset_your_password
 fun ForgotPasswordScreen() {
     val viewModel = koinViewModel<ForgotPasswordScreenViewModel>()
     ForgotPasswordScreen(interaction = object : ForgotPasswordScreenInteraction {
-        override fun getEmail()  = viewModel.email?:""
+        override fun getEmail() = viewModel.email?:""
         override fun onUIEvent(event: ForgotPasswordPageEvent) { viewModel.onUIEvent(event) }
         override fun getUiState(): StateFlow<ForgotPasswordPageUiState?> = viewModel.uiState
     })
@@ -161,9 +161,7 @@ private fun ForgotPasswordScreen(interaction: ForgotPasswordScreenInteraction? =
                     CustomButton(
                         isEnabled = isValidEmail ,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                        onClick = {
-
-                        },
+                        onClick = {},
                         text = stringResource(Res.string.reset_password)
                     )
                 }
