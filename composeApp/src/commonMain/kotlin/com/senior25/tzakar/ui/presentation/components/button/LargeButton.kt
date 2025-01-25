@@ -43,7 +43,7 @@ fun CustomButton(
             .clip(CircleShape)
             .background(MyColors.colorPurple)
             .let {
-                return@let if (isEnabled == true) { it.debounceClick { onClick()} } else it
+                return@let if (isEnabled == true)  it.debounceClick { onClick()} else it
             }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -104,10 +104,10 @@ fun  OutlinedCustomButton(
 ){
     Row(
         modifier.alpha(if (isEnabled==true)1f else 0.7f)
-            .clip(CircleShape)
             .border(1.dp, tint, CircleShape)
+            .clip(CircleShape)
             .let {
-                return@let if (isEnabled == true) { it.debounceClick { onClick()} } else it
+                return@let if (isEnabled == true)  it.debounceClick { onClick()}  else it
             }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,

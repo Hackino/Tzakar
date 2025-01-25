@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -118,7 +120,9 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
     Column(
         modifier =  Modifier.fillMaxSize()
             .background(MyColors.colorOffWhite)
-            .padding(bottom = 24.dp, top = 48.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = 24.dp, top = 48.dp)
+           ,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -146,6 +150,7 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
 
         Surface(
             modifier = Modifier
+                .padding(vertical = 16.dp)
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             shape =  RoundedCornerShape(16.dp),

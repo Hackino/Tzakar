@@ -26,18 +26,6 @@ class ForgotPasswordScreenViewModel(
         }
     }
 
-//    fun signUp(): Flow<ApiDataModel<SignUpReq, SignUpRsp>> {
-//        _uiState.value = SignUpPageUiState.ProgressLoader
-//        return hitApi(hitApi = {registrationRepository.signUP(it)},
-//            request = SignUpReq(msisdn = phoneNumber),
-//            showError = false,
-//            emitStatusCode = {
-//                _uiState.value =  SignUpPageUiState.Error
-//                onResponseErrorMessage.value = it
-//            },
-//            showLoader =false
-//        )
-//    }
 }
 
 sealed class ForgotPasswordPageEvent {

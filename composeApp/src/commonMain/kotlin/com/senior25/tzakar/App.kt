@@ -5,9 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.rememberNavController
 import com.senior25.tzakar.data.local.preferences.AppState
 import com.senior25.tzakar.ui.presentation.graph.RegistrationGraph
-import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
+
+//handle navigation from 1 place
+// firebase
 
 @Preview
 @Composable
