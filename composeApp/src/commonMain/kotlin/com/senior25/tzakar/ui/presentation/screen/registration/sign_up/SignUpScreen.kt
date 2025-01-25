@@ -3,7 +3,6 @@ package com.senior25.tzakar.ui.presentation.screen.registration.sign_up
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,17 +17,25 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
-import com.senior25.tzakar.ui.presentation.components.checkbox.RoundedCheckbox
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
 import com.senior25.tzakar.ui.presentation.components.fields.userNameField
@@ -37,18 +44,19 @@ import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
 import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphM
+import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.already_have_an_account
 import tzakar_reminder.composeapp.generated.resources.app_icon
 import tzakar_reminder.composeapp.generated.resources.copyright
-import tzakar_reminder.composeapp.generated.resources.dont_have_an_account
 import tzakar_reminder.composeapp.generated.resources.email_address
 import tzakar_reminder.composeapp.generated.resources.enter_email_address
 import tzakar_reminder.composeapp.generated.resources.enter_password
 import tzakar_reminder.composeapp.generated.resources.enter_username
-import tzakar_reminder.composeapp.generated.resources.forgot_password
 import tzakar_reminder.composeapp.generated.resources.ic_email
 import tzakar_reminder.composeapp.generated.resources.ic_eye_off
 import tzakar_reminder.composeapp.generated.resources.ic_google
@@ -56,19 +64,38 @@ import tzakar_reminder.composeapp.generated.resources.ic_lock
 import tzakar_reminder.composeapp.generated.resources.ic_person
 import tzakar_reminder.composeapp.generated.resources.ic_sign_in
 import tzakar_reminder.composeapp.generated.resources.lets_create_your_account
-import tzakar_reminder.composeapp.generated.resources.lets_sign_in_and_get_starter
 import tzakar_reminder.composeapp.generated.resources.lets_sign_up_and_join_the_journey
 import tzakar_reminder.composeapp.generated.resources.password
-import tzakar_reminder.composeapp.generated.resources.remember_me
 import tzakar_reminder.composeapp.generated.resources.sign_in
-import tzakar_reminder.composeapp.generated.resources.sign_in_with_google
 import tzakar_reminder.composeapp.generated.resources.sign_up
 import tzakar_reminder.composeapp.generated.resources.sign_up_with_google
 import tzakar_reminder.composeapp.generated.resources.username
-import tzakar_reminder.composeapp.generated.resources.welcome_back
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun SignUpScreen() {
+    val viewModel = koinViewModel<SignUpScreenViewModel>()
+
+    SignUpScreen(interaction = object : SignUpScreenInteraction {
+        override fun getEmail()  = viewModel.email?:""
+        override fun getUsername()  = viewModel.username?:""
+        override fun getPassword()  = viewModel.password?:""
+        override fun onUIEvent(event: SignUpPageEvent) { viewModel.onUIEvent(event) }
+        override fun getUiState(): StateFlow<SignUpPageUiState?> = viewModel.uiState
+    })
+}
+
+@Composable
+private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
+    val uiState: State<SignUpPageUiState?>? = interaction?.getUiState()?.collectAsState()
+    var isValidEmail by remember { mutableStateOf(false) }
+    var isValidUsername by remember { mutableStateOf(false) }
+    var isValidPassword by remember { mutableStateOf(false) }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val emailFocusRequester = remember { FocusRequester() }
+    val usernameFocusRequester = remember { FocusRequester() }
+    val passwordFocusRequester = remember { FocusRequester() }
 
     Column(
         modifier =  Modifier.fillMaxSize()
@@ -143,12 +170,12 @@ fun SignUpScreen() {
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     label = stringResource(Res.string.username),
                     placeHolder = stringResource(Res.string.enter_username),
-                    value = "",
-                    onValueChange = {},
-                    isInputValid = {},
-                    imeAction = null,
-                    focusRequester = null,
-                    onKeyPressed = {},
+                    value = interaction?.getUsername(),
+                    onValueChange = { interaction?.onUIEvent(SignUpPageEvent.UpdateUsername(it)) },
+                    isInputValid = { isValidUsername = it },
+                    imeAction = ImeAction.Next,
+                    focusRequester = usernameFocusRequester,
+                    onKeyPressed = { emailFocusRequester.requestFocus() },
                     leadingIcon = painterResource(Res.drawable.ic_person)
                 )
 
@@ -158,12 +185,12 @@ fun SignUpScreen() {
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     label = stringResource(Res.string.email_address),
                     placeHolder = stringResource(Res.string.enter_email_address),
-                    value = "",
-                    onValueChange = {},
-                    isInputValid = {},
-                    imeAction = null,
-                    focusRequester = null,
-                    onKeyPressed = {},
+                    value = interaction?.getEmail(),
+                    onValueChange = { interaction?.onUIEvent(SignUpPageEvent.UpdateEmail(it)) },
+                    isInputValid = { isValidEmail = it },
+                    imeAction = ImeAction.Next,
+                    focusRequester = emailFocusRequester,
+                    onKeyPressed = { passwordFocusRequester.requestFocus() },
                     leadingIcon = painterResource(Res.drawable.ic_email)
                 )
 
@@ -173,12 +200,15 @@ fun SignUpScreen() {
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     label  = stringResource(Res.string.password),
                     placeHolder = stringResource(Res.string.enter_password),
-                    value = null,
-                    onValueChange = {},
-                    isInputValid = {},
-                    imeAction = null,
-                    focusRequester = null,
-                    onKeyPressed = {},
+                    value = interaction?.getPassword(),
+                    onValueChange = { interaction?.onUIEvent(SignUpPageEvent.UpdatePassword(it)) },
+                    isInputValid = { isValidPassword = it },
+                    imeAction = ImeAction.Done,
+                    focusRequester = passwordFocusRequester,
+                    onKeyPressed = {
+                        passwordFocusRequester.freeFocus()
+                        keyboardController?.hide()
+                    },
                     leadingIcon = painterResource(Res.drawable.ic_lock),
                     trailingIcon = painterResource(Res.drawable.ic_eye_off)
                 )
@@ -187,6 +217,7 @@ fun SignUpScreen() {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 CustomButton(
+                    isEnabled = isValidEmail && isValidPassword && isValidUsername,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     onClick = {  },
                     endIcon = painterResource(Res.drawable.ic_sign_in),
@@ -227,8 +258,8 @@ fun SignUpScreen() {
                         start = offset,
                         end = offset
                     ).firstOrNull()?.let {
-                            //navigate to sign up
-                        }
+                        //navigate to sign up
+                    }
                 },
                 style = fontLink.copy(
                     color = MyColors.colorDarkBlue,
@@ -245,6 +276,13 @@ fun SignUpScreen() {
                 style = fontParagraphM
             )
         }
-
     }
+}
+
+interface SignUpScreenInteraction{
+    fun getEmail():String
+    fun getUsername():String
+    fun getPassword():String
+    fun onUIEvent(event: SignUpPageEvent)
+    fun getUiState(): StateFlow<SignUpPageUiState?>
 }

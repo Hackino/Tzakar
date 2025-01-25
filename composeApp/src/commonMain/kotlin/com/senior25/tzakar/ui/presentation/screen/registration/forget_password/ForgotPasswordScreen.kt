@@ -17,10 +17,17 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -31,8 +38,11 @@ import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
 import com.senior25.tzakar.ui.theme.fontParagraphL
+import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.app_icon
 import tzakar_reminder.composeapp.generated.resources.back_to_login_screen
@@ -44,8 +54,22 @@ import tzakar_reminder.composeapp.generated.resources.ic_email
 import tzakar_reminder.composeapp.generated.resources.reset_password
 import tzakar_reminder.composeapp.generated.resources.reset_your_password
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun ForgotPasswordScreen() {
+    val viewModel = koinViewModel<ForgotPasswordScreenViewModel>()
+    ForgotPasswordScreen(interaction = object : ForgotPasswordScreenInteraction {
+        override fun getEmail()  = viewModel.email?:""
+        override fun onUIEvent(event: ForgotPasswordPageEvent) { viewModel.onUIEvent(event) }
+        override fun getUiState(): StateFlow<ForgotPasswordPageUiState?> = viewModel.uiState
+    })
+}
+
+@Composable
+private fun ForgotPasswordScreen(interaction: ForgotPasswordScreenInteraction? = null) {
+    var isValidEmail by remember { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val emailFocusRequester = remember { FocusRequester() }
 
     Column(
         modifier =  Modifier.fillMaxSize()
@@ -54,7 +78,6 @@ fun ForgotPasswordScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -121,20 +144,26 @@ fun ForgotPasswordScreen() {
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                         label = stringResource(Res.string.email_address),
                         placeHolder = stringResource(Res.string.enter_email_address),
-                        value = "",
-                        onValueChange = {},
-                        isInputValid = {},
-                        imeAction = null,
-                        focusRequester = null,
-                        onKeyPressed = {},
+                        value = interaction?.getEmail(),
+                        onValueChange = { interaction?.onUIEvent(ForgotPasswordPageEvent.UpdateEmail(it)) },
+                        isInputValid = { isValidEmail = it },
+                        imeAction = ImeAction.Done,
+                        focusRequester = emailFocusRequester,
+                        onKeyPressed = {
+                            emailFocusRequester.freeFocus()
+                            keyboardController?.hide()
+                        },
                         leadingIcon = painterResource(Res.drawable.ic_email)
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     CustomButton(
+                        isEnabled = isValidEmail ,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                        onClick = {  },
+                        onClick = {
+
+                        },
                         text = stringResource(Res.string.reset_password)
                     )
                 }
@@ -164,4 +193,11 @@ fun ForgotPasswordScreen() {
 
         Row {/*do not remove*/  }
     }
+}
+
+
+interface ForgotPasswordScreenInteraction{
+    fun getEmail():String
+    fun onUIEvent(event: ForgotPasswordPageEvent)
+    fun getUiState(): StateFlow<ForgotPasswordPageUiState?>
 }

@@ -18,14 +18,24 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.senior25.tzakar.data.local.preferences.AppState
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
 import com.senior25.tzakar.ui.presentation.components.checkbox.RoundedCheckbox
@@ -36,8 +46,11 @@ import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
 import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphM
+import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.app_icon
 import tzakar_reminder.composeapp.generated.resources.copyright
@@ -59,8 +72,27 @@ import tzakar_reminder.composeapp.generated.resources.sign_in_with_google
 import tzakar_reminder.composeapp.generated.resources.sign_up
 import tzakar_reminder.composeapp.generated.resources.welcome_back
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun SignInScreen() {
+    val viewModel = koinViewModel<SignInScreenViewModel>()
+    SignInScreen(interaction = object :SignInScreenInteraction{
+        override fun getEmail()  = viewModel.email?:""
+        override fun getPassword()  = viewModel.password?:""
+        override fun onUIEvent(event: SignInPageEvent) { viewModel.onUIEvent(event) }
+        override fun getUiState(): StateFlow<SignInPageUiState?> = viewModel.uiState
+    })
+}
+
+@Composable
+private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
+    val uiState: State<SignInPageUiState?>? = interaction?.getUiState()?.collectAsState()
+    var isValidEmail by remember { mutableStateOf(false) }
+    var isValidPassword by remember { mutableStateOf(false) }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val emailFocusRequester = remember { FocusRequester() }
+    val passwordFocusRequester = remember { FocusRequester() }
 
     Column(
         modifier =  Modifier.fillMaxSize()
@@ -69,7 +101,6 @@ fun SignInScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -80,9 +111,7 @@ fun SignInScreen() {
                 contentDescription =  ""
             )
             val annotatedText = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = MyColors.colorPurple)) {
-                    append("T")
-                }
+                withStyle(style = SpanStyle(color = MyColors.colorPurple)) { append("T") }
                 append("zakar")
             }
             Text(
@@ -133,12 +162,12 @@ fun SignInScreen() {
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     label = stringResource(Res.string.email_address),
                     placeHolder = stringResource(Res.string.enter_email_address),
-                    value = "",
-                    onValueChange = {},
-                    isInputValid = {},
-                    imeAction = null,
-                    focusRequester = null,
-                    onKeyPressed = {},
+                    value = interaction?.getEmail(),
+                    onValueChange = { interaction?.onUIEvent(SignInPageEvent.UpdateEmail(it)) },
+                    isInputValid = { isValidEmail = it },
+                    imeAction = ImeAction.Next,
+                    focusRequester = emailFocusRequester,
+                    onKeyPressed = { passwordFocusRequester.requestFocus() },
                     leadingIcon = painterResource(Res.drawable.ic_email)
                 )
 
@@ -148,12 +177,15 @@ fun SignInScreen() {
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     label  = stringResource(Res.string.password),
                     placeHolder = stringResource(Res.string.enter_password),
-                    value = null,
-                    onValueChange = {},
-                    isInputValid = {},
-                    imeAction = null,
-                    focusRequester = null,
-                    onKeyPressed = {},
+                    value = interaction?.getPassword(),
+                    onValueChange = { interaction?.onUIEvent(SignInPageEvent.UpdatePassword(it)) },
+                    isInputValid = { isValidPassword =true },
+                    imeAction = ImeAction.Done,
+                    focusRequester = passwordFocusRequester,
+                    onKeyPressed = {
+                        passwordFocusRequester.freeFocus()
+                        keyboardController?.hide()
+                    },
                     leadingIcon = painterResource(Res.drawable.ic_lock),
                     trailingIcon = painterResource(Res.drawable.ic_eye_off)
                 )
@@ -190,7 +222,10 @@ fun SignInScreen() {
 
                 CustomButton(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    onClick = {  },
+                    onClick = {
+
+                    },
+                    isEnabled = isValidEmail && isValidPassword,
                     endIcon = painterResource(Res.drawable.ic_sign_in),
                     text = stringResource(Res.string.sign_in)
                 )
@@ -198,7 +233,9 @@ fun SignInScreen() {
 
                 OutlinedCustomButton(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    onClick = { },
+                    onClick = {
+
+                    },
                     keepIconColor = true,
                     startIcon = painterResource(Res.drawable.ic_google),
                     text = stringResource(Res.string.sign_in_with_google)
@@ -230,7 +267,7 @@ fun SignInScreen() {
                         end = offset
                     ).firstOrNull()?.let {
                             //navigate to sign up
-                        }
+                    }
                 },
                 style = fontLink.copy(
                     color = MyColors.colorDarkBlue,
@@ -238,7 +275,6 @@ fun SignInScreen() {
                 ),
                 modifier = Modifier.fillMaxWidth(),
             )
-
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(Res.string.copyright),
@@ -247,6 +283,12 @@ fun SignInScreen() {
                 style = fontParagraphM
             )
         }
-
     }
+}
+
+interface SignInScreenInteraction{
+     fun getEmail():String
+     fun getPassword():String
+     fun onUIEvent(event: SignInPageEvent)
+     fun getUiState(): StateFlow<SignInPageUiState?>
 }
