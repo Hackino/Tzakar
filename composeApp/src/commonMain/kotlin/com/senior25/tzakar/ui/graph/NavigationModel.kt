@@ -1,4 +1,4 @@
-package com.senior25.tzakar.ui.presentation.graph
+package com.senior25.tzakar.ui.graph
 
 import androidx.core.bundle.Bundle
 

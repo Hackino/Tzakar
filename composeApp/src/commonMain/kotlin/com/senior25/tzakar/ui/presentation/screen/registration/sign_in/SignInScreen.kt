@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
+import com.senior25.tzakar.ui.graph.screens.RegistrationScreens
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
 import com.senior25.tzakar.ui.presentation.components.checkbox.RoundedCheckbox
@@ -45,7 +46,6 @@ import com.senior25.tzakar.ui.presentation.components.debounce.debounceClick
 import com.senior25.tzakar.ui.presentation.components.debounce.withDebounceAction
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
-import com.senior25.tzakar.ui.presentation.graph.RegistrationScreens
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
@@ -100,7 +100,6 @@ fun SignInScreen(sharedViewModel: RegistrationScreenViewModel? = null, navContro
         override fun navigate(action: SignInAction) {
             when (action) {
                 SignInAction.APP -> Unit
-
                 SignInAction.GOOGLE -> {
                     CoroutineScope(Dispatchers.Main).launch {
                         showToast(getString( Res.string.sign_in_with_google))
@@ -120,11 +119,11 @@ fun SignInScreen(sharedViewModel: RegistrationScreenViewModel? = null, navContro
                 }
 
                 SignInAction.FORGOT_PASSWORD -> {
-                    navController?.navigate(RegistrationScreens.Forgot)
+                    navController?.navigate(RegistrationScreens.Forgot.route)
                 }
 
                 SignInAction.SIGN_UP -> {
-                    navController?.navigate(RegistrationScreens.SignUp)
+                    navController?.navigate(RegistrationScreens.SignUp.route)
                 }
             }
         }

@@ -19,7 +19,7 @@ fun WebViewScreen(navController: NavHostController? = null, title: String? = nul
                 }
             })
         }
-    ) {paddin->
+    ) {padding->
         WebView(
             link?:"",
             modifier = Modifier.fillMaxWidth(),

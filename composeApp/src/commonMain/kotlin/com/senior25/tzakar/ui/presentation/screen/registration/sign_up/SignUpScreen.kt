@@ -39,10 +39,12 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.senior25.tzakar.ui.presentation.app.AppGraph
+import com.senior25.tzakar.platform_specific.toast_helper.showToast
+import com.senior25.tzakar.ui.graph.AppGraph
+import com.senior25.tzakar.ui.graph.screens.RegistrationScreens
+import com.senior25.tzakar.ui.graph.screens.RoutingScreens
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
-import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceClick
 import com.senior25.tzakar.ui.presentation.components.debounce.withDebounceAction
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
@@ -99,7 +101,8 @@ fun SignUpScreen(sharedViewModel: RegistrationScreenViewModel? = null, navContro
             when (action) {
                 SignUpAction.PRIVACY_POLICY ->{}
                 SignUpAction.TERMS_AND_CONDITION ->{
-                  sharedViewModel?.navigateTo(AppGraph.Web,null,"titlelllleeee")
+
+                    navController?.navigate(RoutingScreens.Web.route)
                 }
                 SignUpAction.SIGN_UP -> {}
                 SignUpAction.SIGN_IN -> {navController?.navigateUp()}
@@ -115,7 +118,6 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
     var isValidEmail by remember { mutableStateOf(false) }
     var isValidUsername by remember { mutableStateOf(false) }
     var isValidPassword by remember { mutableStateOf(false) }
-
     val keyboardController = LocalSoftwareKeyboardController.current
     val emailFocusRequester = remember { FocusRequester() }
     val usernameFocusRequester = remember { FocusRequester() }
@@ -233,6 +235,7 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
                 CustomButton(
                     isEnabled = isValidEmail && isValidPassword && isValidUsername,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -249,8 +252,6 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                     startIcon = painterResource(Res.drawable.ic_google),
                     text = stringResource(Res.string.sign_up_with_google)
                 )
-
-
 
                 val annotatedText = buildAnnotatedString {
                     append(stringResource(Res.string.already_have_an_account))
@@ -309,9 +310,7 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                         style = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline),
                         pressedStyle = SpanStyle( color = MyColors.colorPurple, textDecoration = TextDecoration.Underline, background =MyColors.colorLightGrey)
                     ),
-                    action = {
-                        interaction?.navigate(SignUpAction.PRIVACY_POLICY)
-                    },
+                    action = { interaction?.navigate(SignUpAction.PRIVACY_POLICY) },
                     stringToAppend =  stringResource(Res.string.privacy_policy)
                 )
             }
@@ -353,5 +352,4 @@ enum class SignUpAction {
     SIGN_UP,
     GOOGLE,
     SIGN_IN
-
 }

@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.googleServices)
     alias(libs.plugins.kotlin.serialization)
+//    alias(libs.plugins.crashlytics)
+
 }
 
 kotlin {
@@ -49,21 +51,18 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.firebase.auth)
+//            implementation(libs.firebase.crashlytics)
+
             implementation(libs.datastore.preferences)
             implementation(libs.datastore)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.jetbrains.navigation.compose)
-
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
-
-
             implementation(libs.viewmodel.compose)
-
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
-
         }
     }
 }
@@ -71,7 +70,6 @@ kotlin {
 android {
     namespace = "com.senior25.tzakar"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-
 
     signingConfigs {
         create("release") {
