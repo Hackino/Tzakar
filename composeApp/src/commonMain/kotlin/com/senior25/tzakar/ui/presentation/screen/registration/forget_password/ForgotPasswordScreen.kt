@@ -38,6 +38,7 @@ import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.debounce.debounceClick
 import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceClick
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
+import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpAction
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
@@ -61,7 +62,7 @@ import tzakar_reminder.composeapp.generated.resources.reset_your_password
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun ForgotPasswordScreen(navController: NavHostController? = null) {
+fun ForgotPasswordScreen(sharedViewModel: RegistrationScreenViewModel? = null, navController: NavHostController? = null) {
     val viewModel = koinViewModel<ForgotPasswordScreenViewModel>()
     ForgotPasswordScreen(interaction = object : ForgotPasswordScreenInteraction {
         override fun getEmail() = viewModel.email?:""

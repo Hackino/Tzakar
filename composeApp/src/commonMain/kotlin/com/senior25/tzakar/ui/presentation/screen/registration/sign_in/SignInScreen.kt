@@ -46,6 +46,7 @@ import com.senior25.tzakar.ui.presentation.components.debounce.withDebounceActio
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
 import com.senior25.tzakar.ui.presentation.graph.RegistrationScreens
+import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
@@ -88,7 +89,7 @@ import tzakar_reminder.composeapp.generated.resources.welcome_back
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun SignInScreen(navController: NavHostController? = null) {
+fun SignInScreen(sharedViewModel: RegistrationScreenViewModel? = null, navController: NavHostController? = null) {
     val viewModel = koinViewModel<SignInScreenViewModel>()
     SignInScreen(interaction = object :SignInScreenInteraction{
         override fun getEmail()  = viewModel.email?:""
@@ -98,9 +99,7 @@ fun SignInScreen(navController: NavHostController? = null) {
         override fun getUiState(): StateFlow<SignInPageUiState?> = viewModel.uiState
         override fun navigate(action: SignInAction) {
             when (action) {
-                SignInAction.APP -> {
-//                   sharedViewModel.navigateTo(R.id.loginFragment)
-                }
+                SignInAction.APP -> Unit
 
                 SignInAction.GOOGLE -> {
                     CoroutineScope(Dispatchers.Main).launch {

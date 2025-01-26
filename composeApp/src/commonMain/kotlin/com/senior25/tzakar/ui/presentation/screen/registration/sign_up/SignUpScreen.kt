@@ -39,6 +39,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.senior25.tzakar.ui.presentation.app.AppGraph
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
 import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceClick
@@ -46,6 +47,7 @@ import com.senior25.tzakar.ui.presentation.components.debounce.withDebounceActio
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
 import com.senior25.tzakar.ui.presentation.components.fields.userNameField
+import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
@@ -85,7 +87,7 @@ import tzakar_reminder.composeapp.generated.resources.username
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun SignUpScreen(navController: NavHostController? = null) {
+fun SignUpScreen(sharedViewModel: RegistrationScreenViewModel? = null, navController: NavHostController? = null) {
     val viewModel = koinViewModel<SignUpScreenViewModel>()
     SignUpScreen(interaction = object : SignUpScreenInteraction {
         override fun getEmail() = viewModel.email?:""
@@ -96,7 +98,9 @@ fun SignUpScreen(navController: NavHostController? = null) {
         override fun navigate(action: SignUpAction) {
             when (action) {
                 SignUpAction.PRIVACY_POLICY ->{}
-                SignUpAction.TERMS_AND_CONDITION ->{}
+                SignUpAction.TERMS_AND_CONDITION ->{
+                  sharedViewModel?.navigateTo(AppGraph.Web,null,"titlelllleeee")
+                }
                 SignUpAction.SIGN_UP -> {}
                 SignUpAction.SIGN_IN -> {navController?.navigateUp()}
                 SignUpAction.GOOGLE -> {}

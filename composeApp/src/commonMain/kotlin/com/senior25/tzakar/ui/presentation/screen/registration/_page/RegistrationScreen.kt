@@ -2,16 +2,23 @@ package com.senior25.tzakar.ui.presentation.screen.registration._page
 
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
-import com.senior25.tzakar.RoutingScreenInteraction
-import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInScreen
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.senior25.tzakar.ui.presentation.app.ScreenIntentListener
+import com.senior25.tzakar.ui.presentation.graph.RegistrationGraph
 import com.senior25.tzakar.ui.theme.MyColors
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
-
+@OptIn(KoinExperimentalAPI::class)
 @Preview
 @Composable
-fun RegistrationScreen(interaction: RoutingScreenInteraction? = null) {
+fun RegistrationScreen(routingNavController: NavHostController) {
+    val viewModel = koinViewModel<RegistrationScreenViewModel>()
+    val navController = rememberNavController()
+    ScreenIntentListener(viewModel,routingNavController)
     Scaffold (backgroundColor = MyColors.colorWhite) {
-        SignInScreen()
+        RegistrationGraph(viewModel,navController)
     }
 }

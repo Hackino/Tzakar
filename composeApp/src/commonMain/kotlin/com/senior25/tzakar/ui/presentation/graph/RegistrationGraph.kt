@@ -4,17 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
+import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreen
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInScreen
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpScreen
 import kotlinx.serialization.Serializable
-import kotlin.reflect.typeOf
-
 
 @Serializable
 sealed interface RegistrationScreens{
-
     @Serializable
     data object SignIn: RegistrationScreens
 
@@ -26,10 +23,10 @@ sealed interface RegistrationScreens{
 }
 
 @Composable
-fun RegistrationGraph(navController: NavHostController) {
+fun RegistrationGraph(viewModel:RegistrationScreenViewModel,navController: NavHostController) {
     NavHost(navController = navController, startDestination = RegistrationScreens.SignIn) {
-        composable<RegistrationScreens.SignIn> { SignInScreen(navController) }
-        composable<RegistrationScreens.SignUp> { SignUpScreen(navController) }
-        composable<RegistrationScreens.Forgot> { ForgotPasswordScreen(navController) }
+        composable<RegistrationScreens.SignIn> { SignInScreen(viewModel,navController) }
+        composable<RegistrationScreens.SignUp> { SignUpScreen(viewModel,navController) }
+        composable<RegistrationScreens.Forgot> { ForgotPasswordScreen(viewModel,navController) }
     }
 }

@@ -3,6 +3,8 @@ package com.senior25.tzakar.di
 //
 import com.senior25.tzakar.data.repositories.RegistrationRepositoryImpl
 import com.senior25.tzakar.domain.RegistrationRepository
+import com.senior25.tzakar.ui.presentation.graph.RegistrationScreens
+import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpScreenViewModel
@@ -17,6 +19,7 @@ val appModule = module {
     viewModel { SignInScreenViewModel(get()) }
     viewModel { ForgotPasswordScreenViewModel(get()) }
     viewModel { SignUpScreenViewModel(get()) }
+    viewModel { RegistrationScreenViewModel(get()) }
 
 
 }
