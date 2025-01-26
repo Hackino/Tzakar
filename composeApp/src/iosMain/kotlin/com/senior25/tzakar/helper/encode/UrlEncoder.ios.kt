@@ -1,0 +1,14 @@
+package com.senior25.tzakar.helper.encode
+
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import platform.CoreFoundation.CFStringCreateWithCString
+import platform.CoreFoundation.CFURLCreateStringByAddingPercentEscapes
+import platform.CoreFoundation.kCFAllocatorDefault
+import platform.CoreFoundation.kCFStringEncodingUTF8
+import platform.Foundation.NSString
+import platform.Foundation.NSURL
+
+
+

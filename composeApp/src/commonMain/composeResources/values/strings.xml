@@ -22,16 +22,22 @@
     <string name="dont_worry_we_can_restore_it">Don’t worry, mate! We can restore it for you.</string>
     <string name="reset_password">Reset password</string>
     <string name="back_to_login_screen">Back to login screen</string>
-
     <string name="by_creating_an_account">By creating an account you agree to our</string>
     <string name="and_our">&amp; our</string>
     <string name="you_agree_to_our_terms_and_privacy">you agree to our Terms of Service &amp; our Privacy Policy</string>
     <string name="terms_of_service">Terms of service</string>
     <string name="privacy_policy">Privacy policy</string>
     <string name="by_signing_in">By Signing in you agree to our</string>
-
     <string name="invalid_email_address">Invalid email address</string>
     <string name="password_not_validated">Passwords must have at least 6 characters and contain uppercase letters, lower case letters, numbers and special characters</string>
-
-
+    <string name="failed">Failed</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="invalid_credentials">Invalid credentials</string>
+    <string name="weak_password">weak password</string>
+    <string name="invalid_user">invalid user</string>
+    <string name="_confirm">confirm</string>
+    <string name="ok">Ok</string>
+    <string name="close">Close</string>
+    <string name="too_many_request">Too many request</string>
+    <string name="email_already_exist">Email already exist</string>
 </resources>

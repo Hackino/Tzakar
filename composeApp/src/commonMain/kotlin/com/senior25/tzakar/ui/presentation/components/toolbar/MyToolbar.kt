@@ -46,6 +46,20 @@ fun MyTopAppBarBack(title:String, interaction : BackPressInteraction?) {
                 )
             }
         },
+        actions = {
+            IconButton(
+                modifier = Modifier
+                    .size(30.dp)
+                    .fillMaxHeight(),
+                onClick = {}
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_back),
+                    contentDescription = null,
+                    tint = Color.Transparent
+                )
+            }
+        },
          backgroundColor = MyColors.colorPurple
 //        contentColor = TopAppBar}.centerAlignedTopAppBarColors(
 //            containerColor =MyColors.colorPurple,

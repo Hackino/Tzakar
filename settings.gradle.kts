@@ -22,6 +22,8 @@ dependencyResolutionManagement {
                 includeGroupAndSubgroups("androidx")
                 includeGroupAndSubgroups("com.android")
                 includeGroupAndSubgroups("com.google")
+                maven(url = "https://jitpack.io")
+
             }
         }
         mavenCentral()

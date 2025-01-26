@@ -39,6 +39,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.senior25.tzakar.data.local.preferences.SharedPref
+import com.senior25.tzakar.helper.AppLinks
+import com.senior25.tzakar.helper.encode.encodeUrl
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
 import com.senior25.tzakar.ui.graph.AppGraph
 import com.senior25.tzakar.ui.graph.screens.RegistrationScreens
@@ -49,7 +52,10 @@ import com.senior25.tzakar.ui.presentation.components.debounce.withDebounceActio
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
 import com.senior25.tzakar.ui.presentation.components.fields.userNameField
+import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
+import com.senior25.tzakar.ui.presentation.dialog.ShowDialog
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInAction
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
@@ -66,11 +72,13 @@ import tzakar_reminder.composeapp.generated.resources.already_have_an_account
 import tzakar_reminder.composeapp.generated.resources.and_our
 import tzakar_reminder.composeapp.generated.resources.app_icon
 import tzakar_reminder.composeapp.generated.resources.by_signing_in
+import tzakar_reminder.composeapp.generated.resources.close
 import tzakar_reminder.composeapp.generated.resources.copyright
 import tzakar_reminder.composeapp.generated.resources.email_address
 import tzakar_reminder.composeapp.generated.resources.enter_email_address
 import tzakar_reminder.composeapp.generated.resources.enter_password
 import tzakar_reminder.composeapp.generated.resources.enter_username
+import tzakar_reminder.composeapp.generated.resources.failed
 import tzakar_reminder.composeapp.generated.resources.ic_email
 import tzakar_reminder.composeapp.generated.resources.ic_eye_off
 import tzakar_reminder.composeapp.generated.resources.ic_google
@@ -91,25 +99,47 @@ import tzakar_reminder.composeapp.generated.resources.username
 @Composable
 fun SignUpScreen(sharedViewModel: RegistrationScreenViewModel? = null, navController: NavHostController? = null) {
     val viewModel = koinViewModel<SignUpScreenViewModel>()
+    val statusCode = viewModel.errorStatusCode.collectAsState()
+    val isLoading = viewModel.isLoading.collectAsState()
+    val terms =  stringResource(Res.string.terms_of_service)
+    val privacy =  stringResource(Res.string.privacy_policy)
+
     SignUpScreen(interaction = object : SignUpScreenInteraction {
-        override fun getEmail() = viewModel.email?:""
-        override fun getUsername() = viewModel.username?:""
-        override fun getPassword() = viewModel.password?:""
+        override fun getEmail() = viewModel.email?:"ramsiskhortoum1@gmail.com"
+        override fun getUsername() = viewModel.username?:"ramsis"
+        override fun getPassword() = viewModel.password?:"Test@123"
         override fun onUIEvent(event: SignUpPageEvent) { viewModel.onUIEvent(event) }
         override fun getUiState(): StateFlow<SignUpPageUiState?> = viewModel.uiState
         override fun navigate(action: SignUpAction) {
             when (action) {
-                SignUpAction.PRIVACY_POLICY ->{}
-                SignUpAction.TERMS_AND_CONDITION ->{
-
-                    navController?.navigate(RoutingScreens.Web.route)
+                SignUpAction.SIGN_UP -> {
+                    viewModel.createUser{
+                        showToast("created")
+                    }
                 }
-                SignUpAction.SIGN_UP -> {}
                 SignUpAction.SIGN_IN -> {navController?.navigateUp()}
                 SignUpAction.GOOGLE -> {}
+
+                SignUpAction.PRIVACY_POLICY -> {
+                    navController?.navigate(RoutingScreens.Web.route+"/${privacy}/${AppLinks.PRIVACY.link.encodeUrl()}")
+                }
+
+                SignUpAction.TERMS_AND_CONDITION -> {
+                    navController?.navigate(RoutingScreens.Web.route+"/${terms}/${AppLinks.TERMS.link.encodeUrl()}")
+                }
             }
         }
     })
+
+    statusCode.value?.let {
+        ShowDialog(
+            title = stringResource(Res.string.failed),
+            message = it.errorMessage.toString(),
+            onConfirm = { viewModel._errorStatusCode.value = null },
+            confirmText = stringResource(Res.string.close)
+        )
+    }
+    isLoading.value?.let { FullScreenLoader() }
 }
 
 @Composable

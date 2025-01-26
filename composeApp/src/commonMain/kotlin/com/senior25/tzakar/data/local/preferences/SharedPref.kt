@@ -35,6 +35,14 @@ object SharedPref {
 
     private fun selectedLanguage() = getSharedPreference().getFromDataStore(keyLanguageSelected())?:"en"
 
+
+    private fun keyIsRememberMe()  = "${getApplicationConfig().id}.pref_language_selected"
+
+    var isRememberMeChecked: Boolean
+        set(id) = getSharedPreference().saveToDataStore(keyIsRememberMe(),id)
+        get() = isRememberMe()
+    private fun isRememberMe() = getSharedPreference().getFromDataStore(keyIsRememberMe())?:false
+
     private fun notificationStatus()  = "${getApplicationConfig().id}.pref_is_notification_permission_status"
 
     var notificationPermissionStatus: NotificationStatus
