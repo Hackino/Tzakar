@@ -1,4 +1,4 @@
-import SwiftUI
+//import SwiftUI
 import FirebaseCore
 
 //@main
@@ -15,12 +15,15 @@ import FirebaseCore
 //    }
 //}
 
-//import SwiftUI
-//import GoogleSignIn
+import SwiftUI
+import GoogleSignIn
+
 
 @main
 struct iOSApp: App {
-    
+        init() {
+            FirebaseApp.configure()
+        }
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
     var body: some Scene {
@@ -38,7 +41,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
       _ app: UIApplication,
       open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]
     ) -> Bool {
+//     FirebaseApp.configure()
       var handled: Bool
+    
 
     // Let Google Sign-In handle the URL if it's related to Google Sign-In
       handled = GIDSignIn.sharedInstance.handle(url)

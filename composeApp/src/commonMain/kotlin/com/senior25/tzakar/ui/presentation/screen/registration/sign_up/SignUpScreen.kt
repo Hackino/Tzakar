@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,12 +40,12 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.senior25.tzakar.data.local.preferences.SharedPref
+import com.mmk.kmpauth.google.GoogleAuthCredentials
+import com.mmk.kmpauth.google.GoogleAuthProvider
+import com.mmk.kmpauth.google.GoogleButtonUiContainer
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.encode.encodeUrl
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
-import com.senior25.tzakar.ui.graph.AppGraph
-import com.senior25.tzakar.ui.graph.screens.RegistrationScreens
 import com.senior25.tzakar.ui.graph.screens.RoutingScreens
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
@@ -55,7 +56,6 @@ import com.senior25.tzakar.ui.presentation.components.fields.userNameField
 import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
 import com.senior25.tzakar.ui.presentation.dialog.ShowDialog
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
-import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInAction
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
@@ -153,12 +153,23 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
     val usernameFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
 
+    var authReady by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        GoogleAuthProvider.create(
+            credentials = GoogleAuthCredentials(
+                serverId = "218251720662-1nhv6hko4d498otv72l3nvcqp5hcecf4.apps.googleusercontent.com"
+            )
+        )
+        authReady = true
+    }
+
+
     Column(
         modifier =  Modifier.fillMaxSize()
             .background(MyColors.colorOffWhite)
             .verticalScroll(rememberScrollState())
             .padding(bottom = 24.dp, top = 48.dp)
-           ,
+        ,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -275,13 +286,21 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedCustomButton(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    onClick =  {  interaction?.navigate(SignUpAction.GOOGLE)},
-                    keepIconColor = true,
-                    startIcon = painterResource(Res.drawable.ic_google),
-                    text = stringResource(Res.string.sign_up_with_google)
-                )
+                if (authReady) {
+                    GoogleButtonUiContainer(
+                        onGoogleSignInResult = { googleUser ->
+                            showToast(googleUser?.idToken.toString())
+                        }
+                    ) {
+                        OutlinedCustomButton(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            onClick = { this.onClick()/* interaction?.navigate(SignUpAction.GOOGLE)*/ },
+                            keepIconColor = true,
+                            startIcon = painterResource(Res.drawable.ic_google),
+                            text = stringResource(Res.string.sign_up_with_google)
+                        )
+                    }
+                }
 
                 val annotatedText = buildAnnotatedString {
                     append(stringResource(Res.string.already_have_an_account))

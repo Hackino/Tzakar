@@ -37,10 +37,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.bundle.Bundle
 import androidx.navigation.NavHostController
 import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
+import com.mmk.kmpauth.google.GoogleButtonUiContainer
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.encode.encodeUrl
@@ -106,17 +106,9 @@ fun SignInScreen(sharedViewModel: RegistrationScreenViewModel? = null, navContro
     val statusCode = viewModel.errorStatusCode.collectAsState()
     val isLoading = viewModel.isLoading.collectAsState()
 
-    var authReady by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        GoogleAuthProvider.create(
-            credentials = GoogleAuthCredentials(
-                serverId = "218251720662-1nhv6hko4d498otv72l3nvcqp5hcecf4.apps.googleusercontent.com"
-            )
-        )
-        authReady = true
-    }
 
-   val terms =  stringResource(Res.string.terms_of_service)
+
+    val terms =  stringResource(Res.string.terms_of_service)
     val privacy =  stringResource(Res.string.privacy_policy)
 
     SignInScreen(interaction = object :SignInScreenInteraction{
@@ -179,6 +171,16 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
     val emailFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
     var rememberMe by remember { mutableStateOf(interaction?.isRememberMe()) }
+
+    var authReady by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        GoogleAuthProvider.create(
+            credentials = GoogleAuthCredentials(
+                serverId = "218251720662-1nhv6hko4d498otv72l3nvcqp5hcecf4.apps.googleusercontent.com"
+            )
+        )
+        authReady = true
+    }
 
     Column(
         modifier =  Modifier.fillMaxSize()
@@ -314,14 +316,21 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                     text = stringResource(Res.string.sign_in)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedCustomButton(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    onClick = { interaction?.navigate(SignInAction.GOOGLE) },
-                    keepIconColor = true,
-                    startIcon = painterResource(Res.drawable.ic_google),
-                    text = stringResource(Res.string.sign_in_with_google)
-                )
+                if (authReady) {
+                    GoogleButtonUiContainer(
+                        onGoogleSignInResult = {googleUser ->
+                            showToast(googleUser?.idToken.toString())
+                        }
+                    ){
+                        OutlinedCustomButton(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            onClick = {this.onClick() /*interaction?.navigate(SignInAction.GOOGLE)*/ },
+                            keepIconColor = true,
+                            startIcon = painterResource(Res.drawable.ic_google),
+                            text = stringResource(Res.string.sign_in_with_google)
+                        )
+                    }
+                }
                 val annotatedText = buildAnnotatedString {
                     append(stringResource(Res.string.dont_have_an_account))
                     append(" ")
