@@ -5,8 +5,8 @@ import com.senior25.tzakar.data.local.model.StatusCode
 import com.senior25.tzakar.data.local.model.User
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.RegistrationRepository
-import com.senior25.tzakar.helper.authentication.AuthService
-import com.senior25.tzakar.helper.authentication.AuthServiceImpl
+import com.senior25.tzakar.helper.authentication.email.AuthService
+import com.senior25.tzakar.helper.authentication.email.AuthServiceImpl
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
@@ -38,7 +38,7 @@ class SignInScreenViewModel(
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser = _currentUser.asStateFlow()
 
-    private var authService:AuthService? = null
+    private var authService: AuthService? = null
 
     init {
         authService =  AuthServiceImpl(auth = Firebase.auth)

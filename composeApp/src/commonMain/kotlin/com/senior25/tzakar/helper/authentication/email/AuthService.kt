@@ -1,8 +1,7 @@
-package com.senior25.tzakar.helper.authentication
+package com.senior25.tzakar.helper.authentication.email
 
 import com.senior25.tzakar.data.local.model.FirebaseAuthRsp
 import com.senior25.tzakar.data.local.model.User
-import dev.gitlive.firebase.auth.AuthResult
 import kotlinx.coroutines.flow.Flow
 
 

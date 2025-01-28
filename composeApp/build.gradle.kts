@@ -7,7 +7,8 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.googleServices)
     alias(libs.plugins.kotlin.serialization)
-//    alias(libs.plugins.crashlytics)
+    alias(libs.plugins.firebase.crashlytics)
+    id("org.jetbrains.kotlin.native.cocoapods")
 
 }
 
@@ -29,16 +30,33 @@ kotlin {
         }
     }
 
+
+    cocoapods {
+        summary = "Some description for the Shared Module"
+        homepage = "Link to the Shared Module homepage"
+        version = "1.0"
+        ios.deploymentTarget = "16.0"
+
+        noPodspec()
+
+        framework {
+            baseName = "signin"
+            isStatic = true
+        }
+
+        pod("GoogleSignIn")
+    }
+
     sourceSets {
         androidMain.dependencies {
-
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.core.splashscreen)
-
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.crashlyticsKtx)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
-
+            implementation(libs.play.services.auth)
         }
 
         commonMain.dependencies {
@@ -50,9 +68,6 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
-            implementation(libs.firebase.auth)
-//            implementation(libs.firebase.crashlytics)
-
             implementation(libs.datastore.preferences)
             implementation(libs.datastore)
             implementation(libs.kotlinx.serialization.json)
@@ -64,8 +79,11 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
-            implementation("io.github.mirzemehdi:kmpauth-google:2.0.0")
-            implementation("io.github.mirzemehdi:kmpauth-uihelper:2.0.0")
+            implementation(libs.firebase.gitlive.common)
+            implementation(libs.firebase.gitlive.auth)
+
+//            implementation("io.github.mirzemehdi:kmpauth-google:2.0.0")
+//            implementation("io.github.mirzemehdi:kmpauth-uihelper:2.0.0")
         }
     }
 }

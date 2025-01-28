@@ -1,4 +1,4 @@
-package com.senior25.tzakar.helper.authentication
+package com.senior25.tzakar.helper.authentication.email
 
 import com.senior25.tzakar.data.local.model.FirebaseAuthRsp
 import com.senior25.tzakar.data.local.model.StatusCode
@@ -17,8 +17,6 @@ import dev.gitlive.firebase.auth.FirebaseAuthWebException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -103,7 +101,7 @@ class AuthServiceImpl(
         FirebaseTooManyRequestsException(10);
         companion object {
             private val VALUES = FirebaseException.values()
-            fun getByValue(value: Int?) = VALUES.firstOrNull { it.value == value }?:Unknown
+            fun getByValue(value: Int?) = VALUES.firstOrNull { it.value == value }?: Unknown
         }
     }
 

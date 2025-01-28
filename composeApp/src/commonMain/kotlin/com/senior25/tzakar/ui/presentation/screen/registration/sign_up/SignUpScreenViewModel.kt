@@ -1,12 +1,11 @@
 package com.senior25.tzakar.ui.presentation.screen.registration.sign_up
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.senior25.tzakar.data.local.model.StatusCode
 import com.senior25.tzakar.data.local.model.User
 import com.senior25.tzakar.domain.RegistrationRepository
-import com.senior25.tzakar.helper.authentication.AuthService
-import com.senior25.tzakar.helper.authentication.AuthServiceImpl
+import com.senior25.tzakar.helper.authentication.email.AuthService
+import com.senior25.tzakar.helper.authentication.email.AuthServiceImpl
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult

@@ -40,14 +40,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.mmk.kmpauth.google.GoogleAuthCredentials
-import com.mmk.kmpauth.google.GoogleAuthProvider
-import com.mmk.kmpauth.google.GoogleButtonUiContainer
+
 import com.senior25.tzakar.helper.AppLinks
+import com.senior25.tzakar.helper.authentication.google.GoogleAuthResponse
 import com.senior25.tzakar.helper.encode.encodeUrl
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
 import com.senior25.tzakar.ui.graph.screens.RoutingScreens
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
+import com.senior25.tzakar.ui.presentation.components.button.GoogleButtonUiContainer
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
 import com.senior25.tzakar.ui.presentation.components.debounce.withDebounceAction
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
@@ -62,6 +62,9 @@ import com.senior25.tzakar.ui.theme.fontLink
 import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphM
 import com.senior25.tzakar.ui.theme.fontParagraphS
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.GoogleAuthProvider
+import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -90,6 +93,7 @@ import tzakar_reminder.composeapp.generated.resources.lets_sign_up_and_join_the_
 import tzakar_reminder.composeapp.generated.resources.password
 import tzakar_reminder.composeapp.generated.resources.privacy_policy
 import tzakar_reminder.composeapp.generated.resources.sign_in
+import tzakar_reminder.composeapp.generated.resources.sign_in_with_google
 import tzakar_reminder.composeapp.generated.resources.sign_up
 import tzakar_reminder.composeapp.generated.resources.sign_up_with_google
 import tzakar_reminder.composeapp.generated.resources.terms_of_service
@@ -153,15 +157,15 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
     val usernameFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
 
-    var authReady by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        GoogleAuthProvider.create(
-            credentials = GoogleAuthCredentials(
-                serverId = "218251720662-1nhv6hko4d498otv72l3nvcqp5hcecf4.apps.googleusercontent.com"
-            )
-        )
-        authReady = true
-    }
+//    var authReady by remember { mutableStateOf(false) }
+//    LaunchedEffect(Unit) {
+//        GoogleAuthProvider.create(
+//            credentials = GoogleAuthCredentials(
+//                serverId = "218251720662-1nhv6hko4d498otv72l3nvcqp5hcecf4.apps.googleusercontent.com"
+//            )
+//        )
+//        authReady = true
+//    }
 
 
     Column(
@@ -286,20 +290,32 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                if (authReady) {
-                    GoogleButtonUiContainer(
-                        onGoogleSignInResult = { googleUser ->
-                            showToast(googleUser?.idToken.toString())
+                GoogleButtonUiContainer(
+                    onResponse = {response->
+                        when(response){
+                            GoogleAuthResponse.Cancelled ->{
+                                showToast("cancelled")
+                            }
+                            is GoogleAuthResponse.Error -> {
+                                showToast(response.message)
+
+                            }
+                            is GoogleAuthResponse.Success -> {
+                                showToast(response.account.toString())
+
+                            }
                         }
-                    ) {
-                        OutlinedCustomButton(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                            onClick = { this.onClick()/* interaction?.navigate(SignUpAction.GOOGLE)*/ },
-                            keepIconColor = true,
-                            startIcon = painterResource(Res.drawable.ic_google),
-                            text = stringResource(Res.string.sign_up_with_google)
-                        )
-                    }
+
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                ) {modifier, onclick->
+                    OutlinedCustomButton(
+                        modifier=modifier,
+                        onClick = { onclick.invoke() },
+                        keepIconColor = true,
+                        startIcon = painterResource(Res.drawable.ic_google),
+                        text = stringResource(Res.string.sign_up_with_google)
+                    )
                 }
 
                 val annotatedText = buildAnnotatedString {
