@@ -81,6 +81,8 @@ kotlin {
 
             implementation(libs.firebase.gitlive.common)
             implementation(libs.firebase.gitlive.auth)
+            implementation("io.github.kevinnzou:compose-webview-multiplatform:1.9.40")
+
 
 //            implementation("io.github.mirzemehdi:kmpauth-google:2.0.0")
 //            implementation("io.github.mirzemehdi:kmpauth-uihelper:2.0.0")
