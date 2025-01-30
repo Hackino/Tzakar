@@ -23,6 +23,8 @@ dependencyResolutionManagement {
                 includeGroupAndSubgroups("com.android")
                 includeGroupAndSubgroups("com.google")
                 maven(url = "https://jitpack.io")
+                maven("https://jogamp.org/deployment/maven")
+
 
             }
         }

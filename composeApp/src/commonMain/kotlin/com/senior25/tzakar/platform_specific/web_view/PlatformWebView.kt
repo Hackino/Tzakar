@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-expect fun WebView(
-    url: String,
+expect fun HtmlWebView(
+    htmlContent: String,
     modifier: Modifier = Modifier
 )

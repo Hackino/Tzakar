@@ -61,5 +61,20 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>bbbbbbbbb</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>test</string>
+	<key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>github.com</key> <!-- Replace with the domain you're trying to access -->
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <true/>
+            </dict>
+        </dict>
+    </dict>
 </dict>
 </plist>
