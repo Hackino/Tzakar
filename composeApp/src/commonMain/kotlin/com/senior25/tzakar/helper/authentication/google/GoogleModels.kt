@@ -1,6 +1,5 @@
 package com.senior25.tzakar.helper.authentication.google
 
-
 data class GoogleAccount(
     val idToken: String,
     val accessToken: String,

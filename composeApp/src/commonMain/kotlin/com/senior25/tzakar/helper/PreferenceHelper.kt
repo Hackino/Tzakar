@@ -36,9 +36,8 @@ object PreferenceHelper {
         }
     }
 
-
-
     fun DataStore<Preferences>.clearPreferencesDataStore() {
         CoroutineScope(Dispatchers.IO).launch { edit { preferences -> preferences.clear() } }
     }
+
 }

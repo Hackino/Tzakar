@@ -8,7 +8,6 @@ inline fun String.ifEmpty(default:()-> String?): String?{
     return if (isEmpty()) default()  else this
 }
 
-
 fun String?.removeDoubleQuotes(): String {
     if (isNullOrEmpty()) return ""
     var outputText = this
@@ -22,11 +21,8 @@ fun String?.removeDoubleQuotes(): String {
     return outputText
 }
 
-
 inline fun <reified T> String.decodeJson(default:T? = null): T? = this?.let{
     Json.decodeFromString<T?>(this)
 }?:default
 
 inline fun <reified T> T.encodeToJson()  = Json.encodeToString(this)
-
-

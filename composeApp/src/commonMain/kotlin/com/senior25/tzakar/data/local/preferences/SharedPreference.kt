@@ -1,11 +1,9 @@
 package com.senior25.tzakar.data.local.preferences
 
-import androidx.compose.runtime.Composable
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import okio.Path.Companion.toPath
-
 
 object PrefsDataStoreManager {
 
@@ -18,7 +16,6 @@ object PrefsDataStoreManager {
         return prefsDataStore!!
     }
 }
-
 
 typealias PrefsDataStore = DataStore<Preferences>
 fun createDataStore(producePath: () -> String): PrefsDataStore =

@@ -48,35 +48,33 @@ fun AppGraph(startDestination: RoutingScreens, navController: NavHostController)
 fun NavGraphBuilder.registrationGraph(
     navController: NavHostController
 ) {
+
     navigation(
         startDestination = RegistrationScreens.SignIn.route,
         route = RoutingScreens.Registration.route
     ) {
+
         composable(RegistrationScreens.SignIn.route) {
             val viewModel: RegistrationScreenViewModel = getViewModel(navController,RoutingScreens.Registration.route)
             SignInScreen(viewModel ,navController)
         }
+
         composable(RegistrationScreens.SignUp.route) {
-            val viewModel: RegistrationScreenViewModel =getViewModel(navController,RoutingScreens.Registration.route)
+            val viewModel: RegistrationScreenViewModel = getViewModel(navController,RoutingScreens.Registration.route)
             SignUpScreen(viewModel,navController)
         }
+
         composable(RegistrationScreens.Forgot.route) {
-            val viewModel: RegistrationScreenViewModel =getViewModel(navController,RoutingScreens.Registration.route)
-            ForgotPasswordScreen(viewModel,navController) }
+            val viewModel: RegistrationScreenViewModel = getViewModel(navController,RoutingScreens.Registration.route)
+            ForgotPasswordScreen(viewModel,navController)
+        }
     }
 }
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
 inline fun <reified T : ViewModel>  getViewModel(navController: NavHostController,route:String):T{
-    val backStackEntry = try {
-        navController.getBackStackEntry(route)
-    } catch (e: Exception) {
-        null
-    }
-    return backStackEntry?.let {
-        koinViewModel<T>(viewModelStoreOwner = it)
-    } ?: koinViewModel<T>()
-
+    val backStackEntry = try { navController.getBackStackEntry(route) } catch (e: Exception) { null }
+    return backStackEntry?.let {koinViewModel<T>(viewModelStoreOwner = it) } ?: koinViewModel<T>()
 }
 

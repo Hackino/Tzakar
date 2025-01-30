@@ -2,6 +2,7 @@ package com.senior25.tzakar.ui.graph.screens
 
 @kotlinx.serialization.Serializable
 sealed class RegistrationScreens(val route: String){
+
     @kotlinx.serialization.Serializable
     data object Parent: RegistrationScreens("RegistrationParent")
 
@@ -13,4 +14,5 @@ sealed class RegistrationScreens(val route: String){
 
     @kotlinx.serialization.Serializable
     data object Forgot: RegistrationScreens("Forgot")
+
 }

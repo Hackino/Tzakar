@@ -4,7 +4,6 @@ import com.senior25.tzakar.data.local.model.FirebaseAuthRsp
 import com.senior25.tzakar.data.local.model.User
 import kotlinx.coroutines.flow.Flow
 
-
 interface AuthService {
 
     val currentUserId: String

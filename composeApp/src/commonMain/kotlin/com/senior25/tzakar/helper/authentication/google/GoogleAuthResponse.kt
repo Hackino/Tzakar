@@ -1,6 +1,5 @@
 package com.senior25.tzakar.helper.authentication.google
 
-
 sealed interface GoogleAuthResponse {
     data class Success(val account: GoogleAccount) : GoogleAuthResponse
     data class Error(val message: String) : GoogleAuthResponse

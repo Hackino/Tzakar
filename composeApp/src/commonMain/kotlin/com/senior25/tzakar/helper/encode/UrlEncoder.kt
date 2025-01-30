@@ -1,7 +1,5 @@
 package com.senior25.tzakar.helper.encode
 
-
-
  fun String.encodeUrl(): String {
     return map {
         when (it) {

@@ -18,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -291,21 +290,12 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 GoogleButtonUiContainer(
-                    onResponse = {response->
+                    onResponse = { response->
                         when(response){
-                            GoogleAuthResponse.Cancelled ->{
-                                showToast("cancelled")
-                            }
-                            is GoogleAuthResponse.Error -> {
-                                showToast(response.message)
-
-                            }
-                            is GoogleAuthResponse.Success -> {
-                                showToast(response.account.toString())
-
-                            }
+                            GoogleAuthResponse.Cancelled ->showToast("cancelled")
+                            is GoogleAuthResponse.Error -> showToast(response.message)
+                            is GoogleAuthResponse.Success -> showToast(response.account.toString())
                         }
-
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 ) {modifier, onclick->

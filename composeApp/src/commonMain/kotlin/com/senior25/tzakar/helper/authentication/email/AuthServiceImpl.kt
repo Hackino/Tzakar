@@ -32,10 +32,8 @@ class AuthServiceImpl(
     override val currentUser: Flow<User> =
         auth.authStateChanged.map { it?.let { User(it.uid, it.isAnonymous) } ?: User() }
 
-    private suspend fun  <T> launchWithAwait(block : suspend  () -> T): T {
-        return block()
+    private suspend fun  <T> launchWithAwait(block : suspend  () -> T): T = block()
 
-    }
     override suspend fun authenticate(email: String, password: String): FirebaseAuthRsp {
         return  launchWithAwait {
             try {
@@ -104,6 +102,4 @@ class AuthServiceImpl(
             fun getByValue(value: Int?) = VALUES.firstOrNull { it.value == value }?: Unknown
         }
     }
-
-
 }
