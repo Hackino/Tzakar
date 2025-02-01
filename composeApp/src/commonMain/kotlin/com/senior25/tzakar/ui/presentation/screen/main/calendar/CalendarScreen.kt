@@ -1,33 +1,28 @@
-package com.senior25.tzakar.ui.presentation.screen.main._page
+package com.senior25.tzakar.ui.presentation.screen.main.calendar
 
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import cafe.adriel.voyager.transitions.SlideTransition
 import com.senior25.tzakar.ui.presentation.components.toolbar.BackPressInteraction
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBarBack
-import com.senior25.tzakar.ui.presentation.screen.main.home.HomeScreen
 
-data class MainScreen(val test:String? = null):Screen {
+class CalendarScreen:Screen {
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-
         Scaffold(
             topBar = {
-                MyTopAppBarBack("mainPage", interaction =object : BackPressInteraction {
+                MyTopAppBarBack("Calendar", interaction =object : BackPressInteraction {
                     override fun onBackPress() {
                         navigator.pop()
                     }
                 })
             }
-        ) { padding ->
-            Navigator(HomeScreen()) { navigator ->
-                SlideTransition(navigator)
-            }
+        ) {padding->
+
         }
     }
 }

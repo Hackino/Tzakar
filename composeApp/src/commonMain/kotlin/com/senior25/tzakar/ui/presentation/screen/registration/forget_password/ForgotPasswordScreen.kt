@@ -34,6 +34,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.debounce.debounceClick
 import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceClick
@@ -60,21 +63,28 @@ import tzakar_reminder.composeapp.generated.resources.ic_email
 import tzakar_reminder.composeapp.generated.resources.reset_password
 import tzakar_reminder.composeapp.generated.resources.reset_your_password
 
-@OptIn(KoinExperimentalAPI::class)
-@Composable
-fun ForgotPasswordScreen(sharedViewModel: RegistrationScreenViewModel? = null, navController: NavHostController? = null) {
-    val viewModel = koinViewModel<ForgotPasswordScreenViewModel>()
-    ForgotPasswordScreen(interaction = object : ForgotPasswordScreenInteraction {
-        override fun getEmail() = viewModel.email?:""
-        override fun onUIEvent(event: ForgotPasswordPageEvent) { viewModel.onUIEvent(event) }
-        override fun getUiState(): StateFlow<ForgotPasswordPageUiState?> = viewModel.uiState
-        override fun navigate(action: ForgotPasswordAction) {
-            when (action) {
-                ForgotPasswordAction.GO_BACK_TO_LOGIN -> {navController?.navigateUp()}
-                ForgotPasswordAction.RESET -> {}
+
+data class ForgotPasswordScreen(val sharedViewModel: RegistrationScreenViewModel? = null):Screen {
+    @Composable
+    override fun Content() {
+        val localNavigator = LocalNavigator.currentOrThrow
+
+        val viewModel = koinViewModel<ForgotPasswordScreenViewModel>()
+        ForgotPasswordScreen(interaction = object : ForgotPasswordScreenInteraction {
+            override fun getEmail() = viewModel.email ?: ""
+            override fun onUIEvent(event: ForgotPasswordPageEvent) {
+                viewModel.onUIEvent(event)
             }
-        }
-    })
+
+            override fun getUiState(): StateFlow<ForgotPasswordPageUiState?> = viewModel.uiState
+            override fun navigate(action: ForgotPasswordAction) {
+                when (action) {
+                    ForgotPasswordAction.GO_BACK_TO_LOGIN -> { localNavigator.pop() }
+                    ForgotPasswordAction.RESET -> {}
+                }
+            }
+        })
+    }
 }
 
 @Composable

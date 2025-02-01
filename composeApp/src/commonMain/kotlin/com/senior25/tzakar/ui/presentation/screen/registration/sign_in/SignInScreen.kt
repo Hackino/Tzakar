@@ -36,14 +36,14 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import com.senior25.tzakar.data.local.preferences.SharedPref
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.authentication.google.GoogleAuthResponse
 import com.senior25.tzakar.helper.encode.encodeUrl
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
-import com.senior25.tzakar.ui.graph.screens.RegistrationScreens
-import com.senior25.tzakar.ui.graph.screens.RoutingScreens
+
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.GoogleButtonUiContainer
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
@@ -54,7 +54,11 @@ import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
 import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
 import com.senior25.tzakar.ui.presentation.dialog.ShowDialog
+import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreen
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreen
+import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpScreen
+import com.senior25.tzakar.ui.presentation.screen.web.WebViewScreen
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
@@ -97,63 +101,69 @@ import tzakar_reminder.composeapp.generated.resources.sign_up
 import tzakar_reminder.composeapp.generated.resources.terms_of_service
 import tzakar_reminder.composeapp.generated.resources.welcome_back
 
-@OptIn(KoinExperimentalAPI::class)
-@Composable
-fun SignInScreen(sharedViewModel: RegistrationScreenViewModel? = null, navController: NavHostController? = null) {
-    val viewModel = koinViewModel<SignInScreenViewModel>()
-    val statusCode = viewModel.errorStatusCode.collectAsState()
-    val isLoading = viewModel.isLoading.collectAsState()
-    val terms =  stringResource(Res.string.terms_of_service)
-    val privacy =  stringResource(Res.string.privacy_policy)
+data class SignInScreen(val sharedViewModel: RegistrationScreenViewModel? = null):Screen {
 
-    SignInScreen(interaction = object :SignInScreenInteraction{
-        override fun getEmail()  = viewModel.email?:""
-        override fun getPassword()  = viewModel.password?:""
-        override fun isRememberMe()  = viewModel.isRememberMe == true
-        override fun onUIEvent(event: SignInPageEvent) { viewModel.onUIEvent(event) }
-        override fun getUiState(): StateFlow<SignInPageUiState?> = viewModel.uiState
-        override fun navigate(action: SignInAction) {
-            when (action) {
-                SignInAction.APP -> {
-                    viewModel.onSignInClick{
-                        SharedPref.isRememberMeChecked = viewModel.isRememberMe == true
-                        showToast("login success")
+    @Composable
+    override fun Content() {
+
+        val localNavigator = LocalNavigator.currentOrThrow
+        val viewModel = koinViewModel<SignInScreenViewModel>()
+        val statusCode = viewModel.errorStatusCode.collectAsState()
+        val isLoading = viewModel.isLoading.collectAsState()
+        val terms =  stringResource(Res.string.terms_of_service)
+        val privacy =  stringResource(Res.string.privacy_policy)
+
+        SignInScreen(interaction = object :SignInScreenInteraction{
+            override fun getEmail()  = viewModel.email?:""
+            override fun getPassword()  = viewModel.password?:""
+            override fun isRememberMe()  = viewModel.isRememberMe == true
+            override fun onUIEvent(event: SignInPageEvent) { viewModel.onUIEvent(event) }
+            override fun getUiState(): StateFlow<SignInPageUiState?> = viewModel.uiState
+            override fun navigate(action: SignInAction) {
+                when (action) {
+                    SignInAction.APP -> {
+//                    viewModel.onSignInClick{
+//                        SharedPref.isRememberMeChecked = viewModel.isRememberMe == true
+//                        showToast("login success")
+//                    }
+                        localNavigator.push(MainScreen())
+
                     }
-                }
-                SignInAction.GOOGLE -> {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        showToast(getString( Res.string.sign_in_with_google))
+                    SignInAction.GOOGLE -> {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            showToast(getString( Res.string.sign_in_with_google))
+                        }
                     }
-                }
 
-                SignInAction.PRIVACY_POLICY -> {
-                    navController?.navigate(RoutingScreens.Web.route+"/${privacy}/${AppLinks.PRIVACY.link.encodeUrl()}")
-                }
+                    SignInAction.PRIVACY_POLICY -> {
+                        localNavigator.push(WebViewScreen(title = privacy, link = AppLinks.PRIVACY.link.encodeUrl()))
+                    }
 
-                SignInAction.TERMS_AND_CONDITION -> {
-                    navController?.navigate(RoutingScreens.Web.route+"/${terms}/${AppLinks.TERMS.link.encodeUrl()}")
-                }
+                    SignInAction.TERMS_AND_CONDITION -> {
+                        localNavigator.push(WebViewScreen(title =terms,link = AppLinks.PRIVACY.link.encodeUrl() ))
+                    }
 
-                SignInAction.FORGOT_PASSWORD -> {
-                    navController?.navigate(RegistrationScreens.Forgot.route)
-                }
+                    SignInAction.FORGOT_PASSWORD -> {
+                        localNavigator.push(ForgotPasswordScreen())
+                    }
 
-                SignInAction.SIGN_UP -> {
-                    navController?.navigate(RegistrationScreens.SignUp.route)
+                    SignInAction.SIGN_UP -> {
+                        localNavigator.push(SignUpScreen())
+                    }
                 }
             }
-        }
-    })
+        })
 
-    statusCode.value?.let {
-        ShowDialog(
-            title = stringResource(Res.string.failed),
-            message = it.errorMessage.toString(),
-            onConfirm = { viewModel._errorStatusCode.value = null },
-            confirmText = stringResource(Res.string.close)
-        )
+        statusCode.value?.let {
+            ShowDialog(
+                title = stringResource(Res.string.failed),
+                message = it.errorMessage.toString(),
+                onConfirm = { viewModel._errorStatusCode.value = null },
+                confirmText = stringResource(Res.string.close)
+            )
+        }
+        isLoading.value?.let { FullScreenLoader() }
     }
-    isLoading.value?.let { FullScreenLoader() }
 }
 
 @Composable

@@ -32,7 +32,6 @@ sealed class ForgotPasswordPageEvent {
     data class UpdateEmail(var email:String?):ForgotPasswordPageEvent()
     data object Success:ForgotPasswordPageEvent()
     data object LoaderView:ForgotPasswordPageEvent()
-
 }
 
 sealed class ForgotPasswordPageUiState {

@@ -38,13 +38,13 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.authentication.google.GoogleAuthResponse
 import com.senior25.tzakar.helper.encode.encodeUrl
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
-import com.senior25.tzakar.ui.graph.screens.RoutingScreens
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.GoogleButtonUiContainer
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
@@ -55,20 +55,17 @@ import com.senior25.tzakar.ui.presentation.components.fields.userNameField
 import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
 import com.senior25.tzakar.ui.presentation.dialog.ShowDialog
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.web.WebViewScreen
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
 import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphM
 import com.senior25.tzakar.ui.theme.fontParagraphS
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.GoogleAuthProvider
-import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.annotation.KoinExperimentalAPI
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.already_have_an_account
 import tzakar_reminder.composeapp.generated.resources.and_our
@@ -92,57 +89,61 @@ import tzakar_reminder.composeapp.generated.resources.lets_sign_up_and_join_the_
 import tzakar_reminder.composeapp.generated.resources.password
 import tzakar_reminder.composeapp.generated.resources.privacy_policy
 import tzakar_reminder.composeapp.generated.resources.sign_in
-import tzakar_reminder.composeapp.generated.resources.sign_in_with_google
 import tzakar_reminder.composeapp.generated.resources.sign_up
 import tzakar_reminder.composeapp.generated.resources.sign_up_with_google
 import tzakar_reminder.composeapp.generated.resources.terms_of_service
 import tzakar_reminder.composeapp.generated.resources.username
 
-@OptIn(KoinExperimentalAPI::class)
-@Composable
-fun SignUpScreen(sharedViewModel: RegistrationScreenViewModel? = null, navController: NavHostController? = null) {
-    val viewModel = koinViewModel<SignUpScreenViewModel>()
-    val statusCode = viewModel.errorStatusCode.collectAsState()
-    val isLoading = viewModel.isLoading.collectAsState()
-    val terms =  stringResource(Res.string.terms_of_service)
-    val privacy =  stringResource(Res.string.privacy_policy)
 
-    SignUpScreen(interaction = object : SignUpScreenInteraction {
-        override fun getEmail() = viewModel.email?:"ramsiskhortoum1@gmail.com"
-        override fun getUsername() = viewModel.username?:"ramsis"
-        override fun getPassword() = viewModel.password?:"Test@123"
-        override fun onUIEvent(event: SignUpPageEvent) { viewModel.onUIEvent(event) }
-        override fun getUiState(): StateFlow<SignUpPageUiState?> = viewModel.uiState
-        override fun navigate(action: SignUpAction) {
-            when (action) {
-                SignUpAction.SIGN_UP -> {
-                    viewModel.createUser{
-                        showToast("created")
+data class SignUpScreen(val sharedViewModel: RegistrationScreenViewModel? = null):Screen {
+    @Composable
+    override fun Content() {
+        val localNavigator = LocalNavigator.currentOrThrow
+
+        val viewModel = koinViewModel<SignUpScreenViewModel>()
+        val statusCode = viewModel.errorStatusCode.collectAsState()
+        val isLoading = viewModel.isLoading.collectAsState()
+        val terms =  stringResource(Res.string.terms_of_service)
+        val privacy =  stringResource(Res.string.privacy_policy)
+
+        SignUpScreen(interaction = object : SignUpScreenInteraction {
+            override fun getEmail() = viewModel.email?:"ramsiskhortoum1@gmail.com"
+            override fun getUsername() = viewModel.username?:"ramsis"
+            override fun getPassword() = viewModel.password?:"Test@123"
+            override fun onUIEvent(event: SignUpPageEvent) { viewModel.onUIEvent(event) }
+            override fun getUiState(): StateFlow<SignUpPageUiState?> = viewModel.uiState
+            override fun navigate(action: SignUpAction) {
+                when (action) {
+                    SignUpAction.SIGN_UP -> {
+                        viewModel.createUser{ showToast("created") }
+                    }
+                    SignUpAction.SIGN_IN -> {
+                        localNavigator.pop()
+                    }
+                    SignUpAction.GOOGLE -> {}
+
+                    SignUpAction.PRIVACY_POLICY -> {
+                        localNavigator.push(WebViewScreen(title = privacy, link = AppLinks.PRIVACY.link.encodeUrl()))
+                    }
+
+                    SignUpAction.TERMS_AND_CONDITION -> {
+                        localNavigator.push(WebViewScreen(title =terms,link = AppLinks.PRIVACY.link.encodeUrl() ))
                     }
                 }
-                SignUpAction.SIGN_IN -> {navController?.navigateUp()}
-                SignUpAction.GOOGLE -> {}
-
-                SignUpAction.PRIVACY_POLICY -> {
-                    navController?.navigate(RoutingScreens.Web.route+"/${privacy}/${AppLinks.PRIVACY.link.encodeUrl()}")
-                }
-
-                SignUpAction.TERMS_AND_CONDITION -> {
-                    navController?.navigate(RoutingScreens.Web.route+"/${terms}/${AppLinks.TERMS.link.encodeUrl()}")
-                }
             }
-        }
-    })
+        })
 
-    statusCode.value?.let {
-        ShowDialog(
-            title = stringResource(Res.string.failed),
-            message = it.errorMessage.toString(),
-            onConfirm = { viewModel._errorStatusCode.value = null },
-            confirmText = stringResource(Res.string.close)
-        )
+        statusCode.value?.let {
+            ShowDialog(
+                title = stringResource(Res.string.failed),
+                message = it.errorMessage.toString(),
+                onConfirm = { viewModel._errorStatusCode.value = null },
+                confirmText = stringResource(Res.string.close)
+            )
+        }
+        isLoading.value?.let { FullScreenLoader() }
+
     }
-    isLoading.value?.let { FullScreenLoader() }
 }
 
 @Composable
