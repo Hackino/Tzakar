@@ -17,8 +17,7 @@ class ForgotPasswordScreenViewModel(
     private val _uiState = MutableStateFlow<ForgotPasswordPageUiState?>(ForgotPasswordPageUiState.Success)
     val uiState: StateFlow<ForgotPasswordPageUiState?> get() = _uiState.asStateFlow()
 
-    var email:String? = null
-    var password:String? = null
+    var email:String? = "ramsiskhortoum1@gmail.com"
 
     fun onUIEvent(uiEvent: ForgotPasswordPageEvent) = screenModelScope.launch {
         when (uiEvent) {
@@ -27,7 +26,6 @@ class ForgotPasswordScreenViewModel(
             ForgotPasswordPageEvent.LoaderView ->  _uiState.value = ForgotPasswordPageUiState.ProgressLoader
         }
     }
-
 }
 
 sealed class ForgotPasswordPageEvent {

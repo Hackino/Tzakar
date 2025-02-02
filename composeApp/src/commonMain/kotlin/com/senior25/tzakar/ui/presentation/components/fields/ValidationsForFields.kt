@@ -6,6 +6,7 @@ import com.senior25.tzakar.helper.validator.PasswordValidator
 import org.jetbrains.compose.resources.stringResource
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.invalid_email_address
+import tzakar_reminder.composeapp.generated.resources.password_not_matching
 import tzakar_reminder.composeapp.generated.resources.password_not_validated
 
 
@@ -40,14 +41,15 @@ fun isPasswordValid(text:String):Pair<Boolean,String>{
     }
 }
 
-//fun isConfirmPasswordValid(context: Context, text:String,password:String):Pair<Boolean,String>{
-//    return if (text.isBlank() || text.isEmpty()) {
-//        Pair(false,""/* context.getString(com.base.commons.R.string.invalid_password)*/)
-//    }else if (password != text){
-//        Pair(false, context.getString(com.base.commons.R.string.password_not_matching))
-//    } else{
-//        Pair(true,"")
-//    }
-//}
-//
-//
+@Composable
+fun isConfirmPasswordValid(text:String,password:String?):Pair<Boolean,String>{
+    return if (text.isBlank() || text.isEmpty()) {
+        Pair(false,"")
+    }else if (password != text){
+        Pair(false, stringResource(Res.string.password_not_matching))
+    } else{
+        Pair(true,"")
+    }
+}
+
+

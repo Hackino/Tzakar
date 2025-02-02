@@ -151,36 +151,41 @@ fun PasswordField(
     )
 }
 
-//@Composable
-//fun ConfirmPasswordField(
-//    label: String? = null,
-//    value:String? = null,
-//    password:String? = null,
-//    placeHolder: String? = stringResource(com.base.commons.R.string.confirm_password),
-//    onValueChange: (String) -> Unit = {},
-//    isInputValid:(Boolean)->Unit = {},
-//    imeAction: ImeAction? = null,
-//    focusRequester:FocusRequester? = null,
-//    onKeyPressed:()->Unit = {}
-//) {
-//    val context = LocalContext.current
-//    BaseTextField(
-//        value = value,
-//        placeHolder =placeHolder,
-//        keyboardType = KeyboardType.Password,
-//        onValueChange =onValueChange,
-//        validate = {
-//            val isValid = isConfirmPasswordValid(context,it,password?:"")
-//            isInputValid(isValid.first)
-//            isValid
-//        },
-//        imeAction =  imeAction,
-//        focusRequester = focusRequester,
-//        onKeyPressed = onKeyPressed,
-//        label = label,
-//
-//        )
-//}
+@Composable
+fun ConfirmPasswordField(
+    modifier: Modifier = Modifier,
+    label: String? = null,
+    placeHolder: String? = stringResource(Res.string.enter_password),
+    value:String? = null,
+    onValueChange: (String) -> Unit = {},
+    isInputValid:(Boolean)->Unit = {},
+    imeAction: ImeAction? = null,
+    focusRequester:FocusRequester? = null,
+    onKeyPressed:()->Unit = {},
+    password:String? = null,
+    leadingIcon: Painter?=  null,
+    trailingIcon: Painter?=  null
+) {
+    BaseTextField(
+        modifier = modifier,
+        value = value,
+        placeHolder = placeHolder,
+        keyboardType = KeyboardType.Password,
+        onValueChange =onValueChange,
+        validate = {
+            val isValid =  isConfirmPasswordValid(it,password)
+            isInputValid(isValid.first)
+            isValid
+        },
+        label = label,
+        imeAction =  imeAction,
+        focusRequester = focusRequester,
+        onKeyPressed = onKeyPressed,
+        trailingIcon = trailingIcon,
+        leadingIcon = leadingIcon
+    )
+}
+
 
 //@Composable
 //fun BaseTextFieldWithDatePicker(
@@ -296,7 +301,7 @@ fun BaseTextField(
     onKeyPressed:()->Unit = {},
     leadingIcon: Painter? = null,
     trailingIcon: Painter? = null,
-    ) {
+) {
     var content by remember(value) { mutableStateOf(value?:"") }
     var error by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) } // State to toggle password visibility

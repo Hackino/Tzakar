@@ -1,4 +1,4 @@
-package com.senior25.tzakar.ui.presentation.screen.registration.forget_password
+package com.senior25.tzakar.ui.presentation.screen.registration.pincode
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -18,6 +18,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,14 +26,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -43,12 +49,15 @@ import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.debounce.debounceClick
 import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceClick
+import com.senior25.tzakar.ui.presentation.components.debounce.withDebounceAction
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
+import com.senior25.tzakar.ui.presentation.components.fields.OtpTextField
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreen
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreen
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
-import com.senior25.tzakar.ui.presentation.screen.registration.pincode.PinCodeScreen
+import com.senior25.tzakar.ui.presentation.screen.registration.reset_password.ResetPasswordScreen
+import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInAction
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpAction
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
@@ -61,57 +70,56 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.app_icon
+import tzakar_reminder.composeapp.generated.resources.back
 import tzakar_reminder.composeapp.generated.resources.back_to_login_screen
+import tzakar_reminder.composeapp.generated.resources.code_verification
+import tzakar_reminder.composeapp.generated.resources.dont_have_an_account
 import tzakar_reminder.composeapp.generated.resources.dont_worry_we_can_restore_it
 import tzakar_reminder.composeapp.generated.resources.email_address
 import tzakar_reminder.composeapp.generated.resources.enter_email_address
-import tzakar_reminder.composeapp.generated.resources.forgot_password
 import tzakar_reminder.composeapp.generated.resources.ic_back
 import tzakar_reminder.composeapp.generated.resources.ic_email
 import tzakar_reminder.composeapp.generated.resources.reset_password
 import tzakar_reminder.composeapp.generated.resources.reset_your_password
-import tzakar_reminder.composeapp.generated.resources.send_code
+import tzakar_reminder.composeapp.generated.resources.sign_up
+import tzakar_reminder.composeapp.generated.resources.verify
+import tzakar_reminder.composeapp.generated.resources.we_have_sent_a_code_to
 
-
-class ForgotPasswordScreen:Screen {
-
+class PinCodeScreen:Screen {
     @Composable
     override fun Content() {
         val localNavigator = LocalNavigator.currentOrThrow
-        val viewModel = koinScreenModel<ForgotPasswordScreenViewModel>()
+
+        val viewModel = koinScreenModel<PinCodeScreenViewModel>()
+
         val sharedViewModel = localNavigator?.koinParentScreenModel<RegistrationScreenViewModel>(
             parentName = RegistrationScreen::class.simpleName
         )?:koinScreenModel()
 
-        ForgotPasswordScreen(interaction = object : ForgotPasswordScreenInteraction {
-            override fun getEmail() = viewModel.email ?: ""
+        PinCodeScreen(interaction = object : PinCodeScreenInteraction {
 
-            override fun onUIEvent(event: ForgotPasswordPageEvent) {
-                viewModel.onUIEvent(event)
-            }
+            override fun getEmail(): String = sharedViewModel.registrationData.email?:""
 
-            override fun getUiState(): StateFlow<ForgotPasswordPageUiState?> = viewModel.uiState
-            override fun navigate(action: ForgotPasswordAction) {
+            override fun onUIEvent(event: PinCodeScreenPageEvent) { viewModel.onUIEvent(event) }
+
+            override fun getUiState(): StateFlow<PinCodeScreenPageUiState?> = viewModel.uiState
+
+            override fun navigate(action: PinCodeScreenAction) {
                 when (action) {
-                    ForgotPasswordAction.GO_BACK_TO_LOGIN -> { localNavigator.pop() }
-                    ForgotPasswordAction.RESET -> {
-                        sharedViewModel.registrationData = sharedViewModel.registrationData.copy(
-                            email = viewModel.email,
-                        )
-                        localNavigator.push(PinCodeScreen())
-                    }
+                    PinCodeScreenAction.VALIDATE ->localNavigator.push(ResetPasswordScreen())
+                    PinCodeScreenAction.GO_BACK -> localNavigator.pop()
                 }
             }
+
+            override fun getPinCodeMap(): String?  =  viewModel.pinCodeMap
         })
     }
-
 }
 
 @Composable
-private fun ForgotPasswordScreen(interaction: ForgotPasswordScreenInteraction? = null) {
-    var isValidEmail by remember { mutableStateOf(false) }
+private fun PinCodeScreen(interaction: PinCodeScreenInteraction? = null) {
+    var isValidPinCode by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val emailFocusRequester = remember { FocusRequester() }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -164,17 +172,26 @@ private fun ForgotPasswordScreen(interaction: ForgotPasswordScreenInteraction? =
 
                     Text(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                        text = stringResource(Res.string.forgot_password),
+                        text = stringResource(Res.string.code_verification),
                         color = MyColors.colorDarkBlue,
                         textAlign = TextAlign.Center,
                         style = fontH1.copy(fontSize = 34.sp)
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
-
+                    val annotatedText = buildAnnotatedString {
+                        append(stringResource(Res.string.we_have_sent_a_code_to))
+                        append(":\n")
+                        withDebounceAction(
+                            tag = "",
+                            styles = TextLinkStyles(style =SpanStyle( color = MyColors.colorPurple),),
+                            action = {  },
+                            stringToAppend  = interaction?.getEmail()?:""
+                        )
+                    }
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(Res.string.dont_worry_we_can_restore_it),
+                        text = annotatedText,
                         color = MyColors.colorLightDarkBlue,
                         textAlign = TextAlign.Center,
                         style = fontParagraphL
@@ -182,38 +199,39 @@ private fun ForgotPasswordScreen(interaction: ForgotPasswordScreenInteraction? =
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    EmailField(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                        label = stringResource(Res.string.email_address),
-                        placeHolder = stringResource(Res.string.enter_email_address),
-                        value = interaction?.getEmail(),
-                        onValueChange = { interaction?.onUIEvent(ForgotPasswordPageEvent.UpdateEmail(it)) },
-                        isInputValid = { isValidEmail = it },
-                        imeAction = ImeAction.Done,
-                        focusRequester = emailFocusRequester,
-                        onKeyPressed = {
-                            emailFocusRequester.freeFocus()
-                            keyboardController?.hide()
-                        },
-                        leadingIcon = painterResource(Res.drawable.ic_email)
-                    )
+                    var otpValue by remember { mutableStateOf("") }
+                    CompositionLocalProvider(
+                        LocalLifecycleOwner provides androidx.compose.ui.platform.LocalLifecycleOwner.current,
+                        LocalLayoutDirection provides LayoutDirection.Ltr
+                    ) {
+                        OtpTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            otpText = otpValue,
+                            onOtpTextChange = { value, otpInputFilled ->
+                                otpValue = value
+                                isValidPinCode = (otpValue.length ==6)
+                                if (isValidPinCode) keyboardController?.hide()
+                                interaction?.onUIEvent(PinCodeScreenPageEvent.UpdatePinCodeMap(otpValue))
+                            }
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     CustomButton(
-                        isEnabled = isValidEmail ,
+                        isEnabled = isValidPinCode ,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                         onClick = {
-                            interaction?.navigate(ForgotPasswordAction.RESET)
+                            interaction?.navigate(PinCodeScreenAction.VALIDATE)
                         },
-                        text = stringResource(Res.string.send_code)
+                        text = stringResource(Res.string.verify)
                     )
                 }
             }
 
             Row(
                 modifier = Modifier.fillMaxWidth().debounceClick {
-                    interaction?.navigate(ForgotPasswordAction.GO_BACK_TO_LOGIN)
+                    interaction?.navigate(PinCodeScreenAction.GO_BACK)
                 },
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
@@ -226,7 +244,7 @@ private fun ForgotPasswordScreen(interaction: ForgotPasswordScreenInteraction? =
                 )
                 Text(
                     modifier = Modifier,
-                    text = stringResource(Res.string.back_to_login_screen),
+                    text = stringResource(Res.string.back),
                     style = fontLink.copy(
                         color = MyColors.colorPurple,
                         textAlign = TextAlign.Center,
@@ -238,15 +256,15 @@ private fun ForgotPasswordScreen(interaction: ForgotPasswordScreenInteraction? =
     }
 }
 
-interface ForgotPasswordScreenInteraction{
+interface PinCodeScreenInteraction{
     fun getEmail():String
-    fun onUIEvent(event: ForgotPasswordPageEvent)
-    fun getUiState(): StateFlow<ForgotPasswordPageUiState?>
-    fun navigate(action: ForgotPasswordAction)
+    fun onUIEvent(event: PinCodeScreenPageEvent)
+    fun getUiState(): StateFlow<PinCodeScreenPageUiState?>
+    fun navigate(action: PinCodeScreenAction)
+    fun getPinCodeMap():String?
 }
 
-enum class ForgotPasswordAction {
-    GO_BACK_TO_LOGIN,
-    RESET
-
+enum class PinCodeScreenAction {
+    VALIDATE,
+    GO_BACK
 }

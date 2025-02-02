@@ -66,6 +66,7 @@ import com.senior25.tzakar.ui.presentation.screen.registration._page.Registratio
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreen
 import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.registration.reset_password.ResetPasswordScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpScreen
 import com.senior25.tzakar.ui.presentation.screen.web.WebViewScreen
 import com.senior25.tzakar.ui.theme.MyColors
@@ -112,12 +113,12 @@ import tzakar_reminder.composeapp.generated.resources.sign_up
 import tzakar_reminder.composeapp.generated.resources.terms_of_service
 import tzakar_reminder.composeapp.generated.resources.welcome_back
 
-data class SignInScreen(val sharedViewModel: RegistrationScreenViewModel? = null):Screen {
+ class SignInScreen:Screen {
 
     @Composable
     override fun Content() {
         val localNavigator = LocalNavigator.currentOrThrow
-        val sharedViewModel = localNavigator?.koinParentScreenModel<ForgotPasswordScreenViewModel>(
+        val sharedViewModel = localNavigator?.koinParentScreenModel<ResetPasswordScreenViewModel>(
             parentName = RegistrationScreen::class.simpleName
         )?:koinScreenModel()
         val viewModel = koinScreenModel<SignInScreenViewModel>()

@@ -44,7 +44,6 @@ class SignUpScreenViewModel(
     var password:String? = null
     var username:String? = null
 
-
     private var authService: AuthService? = null
 
     init {

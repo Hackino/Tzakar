@@ -40,4 +40,22 @@
     <string name="close">Close</string>
     <string name="too_many_request">Too many request</string>
     <string name="email_already_exist">Email already exist</string>
+    <string name="back">Go Back</string>
+
+    <string name="verify">Verify</string>
+    <string name="code_verification">Code Verification</string>
+    <string name="we_have_sent_a_code_to">We have sent a code to</string>
+
+    <string name="please_enter_the_code">Please enter the code</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="password_not_matching">Password not matching</string>
+
+    <string name="send_code">Send code</string>
+
+    <string name="dont_worry_resetting_your_passowrd_is_easy">Don't worry, resetting your password is easy!</string>
+
+
+
+
+
 </resources>
