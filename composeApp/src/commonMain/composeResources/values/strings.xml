@@ -58,6 +58,7 @@
     <string name="success">Success</string>
 
     <string name="password_reset_successfully">Password reset successfully</string>
+    <string name="user_doesnt_exist">User doesn't exist</string>
 
 
 </resources>

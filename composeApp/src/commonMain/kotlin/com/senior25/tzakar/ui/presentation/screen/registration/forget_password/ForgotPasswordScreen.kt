@@ -1,6 +1,5 @@
 package com.senior25.tzakar.ui.presentation.screen.registration.forget_password
 
-//import com.senior25.tzakar.ktx.getScreenModel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

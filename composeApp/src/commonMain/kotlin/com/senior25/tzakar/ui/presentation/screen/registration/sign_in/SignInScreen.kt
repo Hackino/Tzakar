@@ -150,7 +150,7 @@ import tzakar_reminder.composeapp.generated.resources.welcome_back
                     }
 
                     SignInAction.TERMS_AND_CONDITION -> {
-                        localNavigator.push(WebViewScreen(title =terms,link = AppLinks.PRIVACY.link.encodeUrl() ))
+                        localNavigator.push(WebViewScreen(title =terms,link = AppLinks.TERMS.link.encodeUrl() ))
                     }
 
                     SignInAction.FORGOT_PASSWORD -> {

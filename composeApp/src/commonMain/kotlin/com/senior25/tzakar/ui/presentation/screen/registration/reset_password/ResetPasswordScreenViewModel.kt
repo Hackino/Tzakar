@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ResetPasswordScreenViewModel(
@@ -44,6 +45,7 @@ class ResetPasswordScreenViewModel(
 
     fun resetPassword(email:String?,onSuccess:()->Unit) {
         screenModelScope.launch{
+            _isLoading.update { true }
             email?.let {
                 val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64())
                 val userJson = ref.valueEvents.first().value
@@ -52,10 +54,12 @@ class ResetPasswordScreenViewModel(
                     ref.setValue(user?.copy(
                         password = _password.value
                     ).encodeToJson())
+                    _isLoading.update { null }
                     onSuccess()
                     return@launch
                 }
             }
+            _isLoading.update { null }
         }
     }
 }

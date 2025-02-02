@@ -155,7 +155,7 @@ data class SignUpScreen(val sharedViewModel: RegistrationScreenViewModel? = null
                     }
 
                     SignUpAction.TERMS_AND_CONDITION -> {
-                        localNavigator.push(WebViewScreen(title =terms,link = AppLinks.PRIVACY.link.encodeUrl() ))
+                        localNavigator.push(WebViewScreen(title =terms,link = AppLinks.TERMS.link.encodeUrl() ))
                     }
                 }
             }

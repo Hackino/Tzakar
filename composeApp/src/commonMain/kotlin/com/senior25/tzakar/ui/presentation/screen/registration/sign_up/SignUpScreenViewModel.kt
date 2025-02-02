@@ -125,6 +125,7 @@ class SignUpScreenViewModel(
                         val userJson = ref.valueEvents.first().value
                         val user =  userJson.toString().decodeJson(UserProfile())
                         ref.setValue(user?.copy(
+                            userName = username,
                             email = email,
                             password = password
                         ).encodeToJson())

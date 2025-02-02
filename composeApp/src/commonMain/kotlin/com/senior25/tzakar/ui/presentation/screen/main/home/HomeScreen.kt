@@ -1,10 +1,5 @@
 package com.senior25.tzakar.ui.presentation.screen.main.home
 
-//import cafe.adriel.voyager.koin.getNavigatorScreenModel
-//import cafe.adriel.voyager.koin.koinNavigatorScreenModel
-//import cafe.adriel.voyager.koin.koinScreenModel
-//import com.senior25.tzakar.ktx.getNavigatorScreenModel
-//import com.senior25.tzakar.ktx.getScreenModel
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -38,11 +33,12 @@ import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
 import kotlinx.coroutines.flow.first
 
-class HomeScreen:Screen {
+class HomeScreen: Screen {
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = navigator?.koinParentScreenModel<MainScreenViewModel>(
+        val screenModel = navigator.koinParentScreenModel<MainScreenViewModel>(
             parentName = MainScreen::class.simpleName
         )?:koinScreenModel()
 
@@ -54,7 +50,6 @@ class HomeScreen:Screen {
                     .child(it.encodeBase64()).valueEvents.first().value.toString().decodeJson(UserProfile())?:UserProfile()
             }
         }
-
         Scaffold {padding->
             Column {
                 CustomButton(
@@ -66,8 +61,7 @@ class HomeScreen:Screen {
                     isEnabled = true,
                     text ="navigate to profile"
                 )
-
-                user?.let {
+                user.let {
                     Text(text = user.email?:"",color = Color.Black)
                     Divider(modifier = Modifier.fillMaxWidth(), color = Color.Black, thickness = 2.dp)
                     Text(text = user.id?:"",color = Color.Black)

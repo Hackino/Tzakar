@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.invalid_email_address
+import tzakar_reminder.composeapp.generated.resources.user_doesnt_exist
 
 class ForgotPasswordScreenViewModel(
     private val registrationRepository: RegistrationRepository
@@ -29,16 +30,18 @@ class ForgotPasswordScreenViewModel(
 
     fun checkEmail(email:String?,proceed:()->Unit){
         screenModelScope.launch {
+            _isLoading.update { true }
             email?.encodeBase64()?.let {
                 val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it)
                 val exist =ref.valueEvents.first().value != null
                 if (exist) proceed()
                 else{
                     _errorStatusCode.update {
-                        StatusCode(errorMessage = getString(Res.string.invalid_email_address))
+                        StatusCode(errorMessage = getString(Res.string.user_doesnt_exist))
                     }
                 }
             }
+            _isLoading.update { null }
         }
     }
 

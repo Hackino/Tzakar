@@ -95,7 +95,7 @@ class ResetPasswordScreen:Screen {
                 when (action) {
                     ResetPasswordAction.RESET ->{
                         viewModel.resetPassword(sharedViewModel.registrationData.email){
-
+                            viewModel._dialogType.value = ResetPasswordActionDialogType.PASSWORD_RESET
                         }
                     }
                     ResetPasswordAction.BACK -> localNavigator.popUntil { it::class.simpleName == ForgotPasswordScreen::class.simpleName }
