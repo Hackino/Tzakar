@@ -37,17 +37,20 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
-//import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.senior25.tzakar.data.local.model.profile.UserProfile
+import com.senior25.tzakar.data.local.preferences.SharedPref
+import com.senior25.tzakar.data.mapper.profile.toUserProfileMapper
 import com.senior25.tzakar.helper.AppLinks
+import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.helper.authentication.google.GoogleAuthResponse
 import com.senior25.tzakar.helper.encode.encodeUrl
+import com.senior25.tzakar.ktx.decodeJson
+import com.senior25.tzakar.ktx.encodeToJson
 import com.senior25.tzakar.ktx.koinParentScreenModel
-//import com.senior25.tzakar.ktx.getScreenModel
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
-
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.GoogleButtonUiContainer
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
@@ -58,7 +61,6 @@ import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
 import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
 import com.senior25.tzakar.ui.presentation.dialog.ShowDialog
-import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreen
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenLauncher
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreen
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
@@ -72,15 +74,17 @@ import com.senior25.tzakar.ui.theme.fontLink
 import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphM
 import com.senior25.tzakar.ui.theme.fontParagraphS
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
+import dev.gitlive.firebase.database.database
+import io.ktor.util.encodeBase64
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.annotation.KoinExperimentalAPI
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.and_our
 import tzakar_reminder.composeapp.generated.resources.app_icon
@@ -131,17 +135,16 @@ data class SignInScreen(val sharedViewModel: RegistrationScreenViewModel? = null
             override fun navigate(action: SignInAction) {
                 when (action) {
                     SignInAction.APP -> {
-//                    viewModel.onSignInClick{
-//                        SharedPref.isRememberMeChecked = viewModel.isRememberMe == true
-//                        showToast("login success")
-//                    }
-                        localNavigator.push(MainScreenLauncher())
-
-                    }
-                    SignInAction.GOOGLE -> {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            showToast(getString( Res.string.sign_in_with_google))
+                        viewModel.onSignInClick{
+                            SharedPref.isRememberMeChecked = viewModel.isRememberMe == true
+                            SharedPref.loggedInEmail = viewModel.email
+                            signOut()
+                            localNavigator.push(MainScreenLauncher())
                         }
+                    }
+
+                    SignInAction.GOOGLE -> {
+                        localNavigator.push(MainScreenLauncher())
                     }
 
                     SignInAction.PRIVACY_POLICY -> {
@@ -160,6 +163,10 @@ data class SignInScreen(val sharedViewModel: RegistrationScreenViewModel? = null
                         localNavigator.push(SignUpScreen())
                     }
                 }
+            }
+
+            override fun signOut() {
+                viewModel.onSignOut()
             }
         })
 
@@ -323,19 +330,21 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                 GoogleButtonUiContainer(
                     onResponse = {response->
                         when(response){
-                            GoogleAuthResponse.Cancelled ->{
-                                showToast("cancelled")
-                            }
-                            is GoogleAuthResponse.Error -> {
-                                showToast(response.message)
-
-                            }
+                            GoogleAuthResponse.Cancelled ->showToast("cancelled")
+                            is GoogleAuthResponse.Error -> showToast(response.message)
                             is GoogleAuthResponse.Success -> {
-                                showToast(response.account.toString())
-
+                                CoroutineScope(Dispatchers.Main).launch{
+                                    val email = response.account.profile.email
+                                    val ref  = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(email.encodeBase64())
+                                    val userJson  = ref.valueEvents.first().value
+                                    val user =  userJson.toString().decodeJson(UserProfile())
+                                    ref.setValue(user?.copy(email = email).encodeToJson())
+                                    SharedPref.loggedInEmail = email
+                                    interaction?.signOut()
+                                    interaction?.navigate(SignInAction.GOOGLE)
+                                }
                             }
                         }
-
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 ) {modifier, onclick->
@@ -431,6 +440,7 @@ interface SignInScreenInteraction{
     fun onUIEvent(event: SignInPageEvent)
     fun getUiState(): StateFlow<SignInPageUiState?>
     fun navigate(action: SignInAction)
+    fun signOut()
 }
 
 enum class SignInAction {

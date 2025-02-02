@@ -1,8 +1,8 @@
 package com.senior25.tzakar.helper.authentication.email
 
-import com.senior25.tzakar.data.local.model.FirebaseAuthRsp
-import com.senior25.tzakar.data.local.model.StatusCode
-import com.senior25.tzakar.data.local.model.User
+import com.senior25.tzakar.data.local.model.firebase.FirebaseAuthRsp
+import com.senior25.tzakar.data.local.model.firebase.StatusCode
+import com.senior25.tzakar.data.local.model.firebase.FirebaseUser
 import dev.gitlive.firebase.FirebaseTooManyRequestsException
 import dev.gitlive.firebase.auth.FirebaseAuth
 import dev.gitlive.firebase.auth.FirebaseAuthActionCodeException
@@ -29,8 +29,8 @@ class AuthServiceImpl(
 
     override val isAuthenticated: Boolean get() = auth.currentUser != null && auth.currentUser?.isAnonymous == false
 
-    override val currentUser: Flow<User> =
-        auth.authStateChanged.map { it?.let { User(it.uid, it.isAnonymous) } ?: User() }
+    override val currentUser: Flow<FirebaseUser> =
+        auth.authStateChanged.map { it?.let { FirebaseUser(it.uid, it.isAnonymous) } ?: FirebaseUser() }
 
     private suspend fun  <T> launchWithAwait(block : suspend  () -> T): T = block()
 
@@ -50,7 +50,7 @@ class AuthServiceImpl(
         }
     }
 
-    override suspend fun createUser(email: String, password: String):FirebaseAuthRsp {
+    override suspend fun createUser(email: String, password: String): FirebaseAuthRsp {
         return launchWithAwait {
             try {
                 FirebaseAuthRsp(auth.createUserWithEmailAndPassword(email, password))
@@ -67,7 +67,7 @@ class AuthServiceImpl(
         auth.signOut()
     }
 
-    private fun getException(e:Exception):StatusCode{
+    private fun getException(e:Exception): StatusCode {
         val code= when(e){
             is FirebaseAuthActionCodeException ->1
             is FirebaseAuthEmailException ->2

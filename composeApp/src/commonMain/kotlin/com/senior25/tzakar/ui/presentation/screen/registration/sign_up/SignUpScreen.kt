@@ -1,5 +1,8 @@
 package com.senior25.tzakar.ui.presentation.screen.registration.sign_up
 
+//import cafe.adriel.voyager.koin.koinScreenModel
+//import com.senior25.tzakar.ktx.getNavigatorScreenModel
+//import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,14 +42,17 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
-//import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.senior25.tzakar.data.local.model.profile.UserProfile
+import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.helper.AppLinks
+import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.helper.authentication.google.GoogleAuthResponse
 import com.senior25.tzakar.helper.encode.encodeUrl
+import com.senior25.tzakar.ktx.decodeJson
+import com.senior25.tzakar.ktx.encodeToJson
 import com.senior25.tzakar.ktx.koinParentScreenModel
-//import com.senior25.tzakar.ktx.getNavigatorScreenModel
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
@@ -58,10 +64,9 @@ import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
 import com.senior25.tzakar.ui.presentation.components.fields.userNameField
 import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
 import com.senior25.tzakar.ui.presentation.dialog.ShowDialog
+import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenLauncher
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreen
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
-import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreenViewModel
-//import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.web.WebViewScreen
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
@@ -69,10 +74,17 @@ import com.senior25.tzakar.ui.theme.fontLink
 import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphM
 import com.senior25.tzakar.ui.theme.fontParagraphS
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
+import dev.gitlive.firebase.database.database
+import io.ktor.util.encodeBase64
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.already_have_an_account
 import tzakar_reminder.composeapp.generated.resources.and_our
@@ -106,7 +118,7 @@ data class SignUpScreen(val sharedViewModel: RegistrationScreenViewModel? = null
     @Composable
     override fun Content() {
         val localNavigator = LocalNavigator.currentOrThrow
-        val sharedViewModel = localNavigator?.koinParentScreenModel<ForgotPasswordScreenViewModel>(
+        val sharedViewModel = localNavigator?.koinParentScreenModel<RegistrationScreenViewModel>(
             parentName = RegistrationScreen::class.simpleName
         )?:koinScreenModel()
         val viewModel = koinScreenModel<SignUpScreenViewModel>()
@@ -124,12 +136,18 @@ data class SignUpScreen(val sharedViewModel: RegistrationScreenViewModel? = null
             override fun navigate(action: SignUpAction) {
                 when (action) {
                     SignUpAction.SIGN_UP -> {
-                        viewModel.createUser{ showToast("created") }
+                        viewModel.createUser{
+                            SharedPref.loggedInEmail = viewModel.email
+                            signOut()
+                            localNavigator.push(MainScreenLauncher())
+                        }
                     }
                     SignUpAction.SIGN_IN -> {
                         localNavigator.pop()
                     }
-                    SignUpAction.GOOGLE -> {}
+                    SignUpAction.GOOGLE -> {
+                        localNavigator.push(MainScreenLauncher())
+                    }
 
                     SignUpAction.PRIVACY_POLICY -> {
                         localNavigator.push(WebViewScreen(title = privacy, link = AppLinks.PRIVACY.link.encodeUrl()))
@@ -140,6 +158,10 @@ data class SignUpScreen(val sharedViewModel: RegistrationScreenViewModel? = null
                     }
                 }
             }
+            override fun signOut() {
+                viewModel.onSignOut()
+            }
+
         })
 
         statusCode.value?.let {
@@ -166,23 +188,11 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
     val usernameFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
 
-//    var authReady by remember { mutableStateOf(false) }
-//    LaunchedEffect(Unit) {
-//        GoogleAuthProvider.create(
-//            credentials = GoogleAuthCredentials(
-//                serverId = "218251720662-1nhv6hko4d498otv72l3nvcqp5hcecf4.apps.googleusercontent.com"
-//            )
-//        )
-//        authReady = true
-//    }
-
-
     Column(
         modifier =  Modifier.fillMaxSize()
             .background(MyColors.colorOffWhite)
             .verticalScroll(rememberScrollState())
-            .padding(bottom = 24.dp, top = 48.dp)
-        ,
+            .padding(bottom = 24.dp, top = 48.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -304,7 +314,18 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                         when(response){
                             GoogleAuthResponse.Cancelled ->showToast("cancelled")
                             is GoogleAuthResponse.Error -> showToast(response.message)
-                            is GoogleAuthResponse.Success -> showToast(response.account.toString())
+                            is GoogleAuthResponse.Success -> {
+                                CoroutineScope(Dispatchers.Main).launch{
+                                    val email = response.account.profile.email
+                                    val ref  = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(email.encodeBase64())
+                                    val userJson  = ref.valueEvents.first().value
+                                    val user =  userJson.toString().decodeJson(UserProfile())
+                                    ref.setValue(user?.copy(email = email).encodeToJson())
+                                    SharedPref.loggedInEmail = email
+                                    Firebase.auth.signOut()
+                                    interaction?.navigate(SignUpAction.GOOGLE)
+                                }
+                            }
                         }
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -409,6 +430,8 @@ interface SignUpScreenInteraction{
     fun onUIEvent(event: SignUpPageEvent)
     fun getUiState(): StateFlow<SignUpPageUiState?>
     fun navigate(action: SignUpAction)
+    fun signOut()
+
 }
 
 enum class SignUpAction {

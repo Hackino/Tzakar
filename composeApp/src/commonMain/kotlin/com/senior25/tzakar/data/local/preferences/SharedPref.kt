@@ -4,7 +4,10 @@ import com.senior25.tzakar.data.local.preferences.PrefsDataStoreManager.getShare
 import com.senior25.tzakar.helper.PreferenceHelper.clearPreferencesDataStore
 import com.senior25.tzakar.helper.PreferenceHelper.getFromDataStore
 import com.senior25.tzakar.helper.PreferenceHelper.saveToDataStore
+import com.senior25.tzakar.ktx.ifEmpty
 import com.senior25.tzakar.platform_specific.getApplicationConfig
+import io.ktor.util.decodeBase64String
+import okio.ByteString.Companion.decodeBase64
 
 object SharedPref {
 
@@ -35,9 +38,7 @@ object SharedPref {
 
     private fun selectedLanguage() = getSharedPreference().getFromDataStore(keyLanguageSelected())?:"en"
 
-
     private fun keyIsRememberMe()  = "${getApplicationConfig().id}.pref_language_selected"
-
     var isRememberMeChecked: Boolean
         set(id) = getSharedPreference().saveToDataStore(keyIsRememberMe(),id)
         get() = isRememberMe()
@@ -51,6 +52,12 @@ object SharedPref {
 
     private fun notificationPermissionStatus() =
         getSharedPreference().getFromDataStore(notificationStatus())?: NotificationStatus.UNKNOWN.value
+
+    private fun keyLoggedInEmail()  = "${getApplicationConfig().id}.pref_logged_in_email"
+    var loggedInEmail: String?
+        set(email) = getSharedPreference().saveToDataStore(keyLoggedInEmail(),email)
+        get() = getLoggedInEmailValue().ifEmpty { null }
+    private fun getLoggedInEmailValue() = getSharedPreference().getFromDataStore(keyLoggedInEmail())?:""
 }
 
 enum class AppState { REGISTRATION, MAIN_ACTIVITY, NONE }

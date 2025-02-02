@@ -1,13 +1,10 @@
 package com.senior25.tzakar.ui.presentation.screen.common
 
 import androidx.core.bundle.Bundle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.senior25.tzakar.data.local.model.StatusCode
+import com.senior25.tzakar.data.local.model.firebase.StatusCode
 import com.senior25.tzakar.ui.graph.NavigationModel
-import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInPageUiState
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

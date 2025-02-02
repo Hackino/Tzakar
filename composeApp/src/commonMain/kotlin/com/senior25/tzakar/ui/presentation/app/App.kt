@@ -6,14 +6,22 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.senior25.tzakar.data.local.preferences.AppState
 import com.senior25.tzakar.data.local.preferences.SharedPref
+import com.senior25.tzakar.platform_specific.toast_helper.showToast
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenLauncher
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationLauncher
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.database.database
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
 
 @Preview
 @Composable
 fun App() {
+
     KoinContext {
         MaterialTheme {
             RoutingScreen(interaction = object : RoutingScreenInteraction {

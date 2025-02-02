@@ -1,4 +1,4 @@
-package com.senior25.tzakar.data.local.model
+package com.senior25.tzakar.data.local.model.firebase
 
 import dev.gitlive.firebase.auth.AuthResult
 

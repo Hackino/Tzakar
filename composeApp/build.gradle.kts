@@ -15,7 +15,7 @@ plugins {
 kotlin {
     androidTarget {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 
@@ -81,18 +81,13 @@ kotlin {
 
             implementation(libs.firebase.gitlive.common)
             implementation(libs.firebase.gitlive.auth)
-            implementation("io.github.kevinnzou:compose-webview-multiplatform:1.9.40")
-
-
-            val voyagerVersion = "1.1.0-beta03"
-            implementation ("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
-            implementation ("cafe.adriel.voyager:voyager-tab-navigator:$voyagerVersion")
-            implementation ("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
-            implementation("cafe.adriel.voyager:voyager-screenmodel:$voyagerVersion")
-
-
-//            implementation("io.github.mirzemehdi:kmpauth-google:2.0.0")
-//            implementation("io.github.mirzemehdi:kmpauth-uihelper:2.0.0")
+            implementation(libs.firebase.gitlive.database)
+            implementation(libs.github.kevinnzou.webview)
+            implementation(libs.cafe.adriel.voyager.navigator)
+            implementation(libs.cafe.adriel.voyager.tab)
+            implementation(libs.cafe.adriel.voyager.transitions)
+            implementation(libs.cafe.adriel.voyager.screenmodel)
+            implementation("io.ktor:ktor-utils:3.0.1")
         }
     }
 }
@@ -134,8 +129,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 

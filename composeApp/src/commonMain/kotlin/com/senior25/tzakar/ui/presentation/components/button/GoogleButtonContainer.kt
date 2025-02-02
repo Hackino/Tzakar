@@ -34,11 +34,9 @@ fun GoogleButtonUiContainer(
             coroutineScope.launch(Dispatchers.IO) {
                 response.doOnSuccess { account ->
                     Firebase.auth.signInWithCredential(
-
                         GoogleAuthProvider.credential(account.idToken, account.accessToken.ifEmpty { null })
                     )
                 }
-
                 withContext(Dispatchers.Main) { onResponse(response) }
             }
         },

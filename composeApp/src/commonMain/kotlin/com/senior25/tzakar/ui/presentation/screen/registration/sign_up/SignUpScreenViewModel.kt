@@ -1,19 +1,27 @@
 package com.senior25.tzakar.ui.presentation.screen.registration.sign_up
 
-import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.senior25.tzakar.data.local.model.StatusCode
-import com.senior25.tzakar.data.local.model.User
+import com.senior25.tzakar.data.local.model.firebase.FirebaseAuthRsp
+import com.senior25.tzakar.data.local.model.firebase.StatusCode
+import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.domain.RegistrationRepository
+import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.helper.authentication.email.AuthService
 import com.senior25.tzakar.helper.authentication.email.AuthServiceImpl
+import com.senior25.tzakar.ktx.decodeJson
+import com.senior25.tzakar.ktx.encodeToJson
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.auth.auth
+import dev.gitlive.firebase.database.database
+import io.ktor.util.encodeBase64
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
@@ -36,18 +44,11 @@ class SignUpScreenViewModel(
     var password:String? = null
     var username:String? = null
 
-    private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser = _currentUser.asStateFlow()
 
     private var authService: AuthService? = null
 
     init {
         authService =  AuthServiceImpl(auth = Firebase.auth)
-        launchWithCatchingException {
-            authService?.currentUser?.collect {
-                _currentUser.value = it
-            }
-        }
     }
 
     fun onUIEvent(uiEvent: SignUpPageEvent) = screenModelScope.launch {
@@ -60,8 +61,24 @@ class SignUpScreenViewModel(
         }
     }
 
-    fun createUser(onSuccess:(AuthResult)->Unit) {
+    fun createUser(onSuccess:(AuthResult?)->Unit) {
         screenModelScope.launch{
+            email?.let {
+                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64())
+                val userJson  = ref.valueEvents.first().value
+                if (userJson != null) {
+                    val user =  userJson.toString().decodeJson(UserProfile())
+                    if (user?.password == null){
+                        email?.let {
+                            ref.setValue(user?.copy(email = email, password = password).encodeToJson())
+                            onSuccess(FirebaseAuthRsp().authResult)
+                        }
+                    }else{
+                        _errorStatusCode.update { StatusCode(errorMessage = getString(Res.string.email_already_exist)) }
+                    }
+                    return@launch
+                }
+            }
             _isLoading.update { true }
             val result =authService?.createUser(email?:"", password?:"")
             if (result?.authResult == null){
@@ -103,12 +120,27 @@ class SignUpScreenViewModel(
                 }
                 _errorStatusCode.update { StatusCode(errorMessage = getString(errorText)) }
             }else{
-                onSuccess(result.authResult)
+                CoroutineScope(Dispatchers.Main).launch{
+                    email?.encodeBase64()?.let {
+                        val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it)
+                        val userJson = ref.valueEvents.first().value
+                        val user =  userJson.toString().decodeJson(UserProfile())
+                        ref.setValue(user?.copy(
+                            email = email,
+                            password = password
+                        ).encodeToJson())
+                        onSuccess(result.authResult)
+                    }
+                }
             }
             _isLoading.update { null }
         }
     }
-
+    fun onSignOut() {
+        launchWithCatchingException {
+            authService?.signOut()
+        }
+    }
 }
 
 sealed class SignUpPageEvent {
