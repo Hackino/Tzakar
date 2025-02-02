@@ -41,13 +41,13 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.preferences.SharedPref
-import com.senior25.tzakar.data.mapper.profile.toUserProfileMapper
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.helper.authentication.google.GoogleAuthResponse
 import com.senior25.tzakar.helper.encode.encodeUrl
 import com.senior25.tzakar.ktx.decodeJson
 import com.senior25.tzakar.ktx.encodeToJson
+import com.senior25.tzakar.ktx.ifEmpty
 import com.senior25.tzakar.ktx.koinParentScreenModel
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
@@ -60,12 +60,10 @@ import com.senior25.tzakar.ui.presentation.components.debounce.withDebounceActio
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
 import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
-import com.senior25.tzakar.ui.presentation.dialog.ShowDialog
+import com.senior25.tzakar.ui.presentation.dialog.error.ShowErrorDialog
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenLauncher
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreen
-import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreen
-import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.reset_password.ResetPasswordScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpScreen
 import com.senior25.tzakar.ui.presentation.screen.web.WebViewScreen
@@ -76,7 +74,6 @@ import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphM
 import com.senior25.tzakar.ui.theme.fontParagraphS
 import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
 import kotlinx.coroutines.CoroutineScope
@@ -172,7 +169,7 @@ import tzakar_reminder.composeapp.generated.resources.welcome_back
         })
 
         statusCode.value?.let {
-            ShowDialog(
+            ShowErrorDialog(
                 title = stringResource(Res.string.failed),
                 message = it.errorMessage.toString(),
                 onConfirm = { viewModel._errorStatusCode.value = null },
@@ -339,7 +336,10 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                                     val ref  = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(email.encodeBase64())
                                     val userJson  = ref.valueEvents.first().value
                                     val user =  userJson.toString().decodeJson(UserProfile())
-                                    ref.setValue(user?.copy(email = email).encodeToJson())
+                                    ref.setValue(user?.copy(
+                                        email = email,
+                                        userName = user.userName?.ifEmpty { null }?:response.account.profile.name
+                                        ).encodeToJson())
                                     SharedPref.loggedInEmail = email
                                     interaction?.signOut()
                                     interaction?.navigate(SignInAction.GOOGLE)

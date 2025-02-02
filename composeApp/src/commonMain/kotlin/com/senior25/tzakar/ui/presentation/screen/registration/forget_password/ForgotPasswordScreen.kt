@@ -1,9 +1,9 @@
 package com.senior25.tzakar.ui.presentation.screen.registration.forget_password
 
+//import com.senior25.tzakar.ktx.getScreenModel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +18,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,23 +34,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.ktx.koinParentScreenModel
-//import com.senior25.tzakar.ktx.getScreenModel
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.debounce.debounceClick
-import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceClick
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
-import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreen
-import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
+import com.senior25.tzakar.ui.presentation.dialog.error.ShowErrorDialog
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreen
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.pincode.PinCodeScreen
-import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpAction
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontLink
@@ -57,19 +54,17 @@ import com.senior25.tzakar.ui.theme.fontParagraphL
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.annotation.KoinExperimentalAPI
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.app_icon
 import tzakar_reminder.composeapp.generated.resources.back_to_login_screen
+import tzakar_reminder.composeapp.generated.resources.close
 import tzakar_reminder.composeapp.generated.resources.dont_worry_we_can_restore_it
 import tzakar_reminder.composeapp.generated.resources.email_address
 import tzakar_reminder.composeapp.generated.resources.enter_email_address
+import tzakar_reminder.composeapp.generated.resources.failed
 import tzakar_reminder.composeapp.generated.resources.forgot_password
 import tzakar_reminder.composeapp.generated.resources.ic_back
 import tzakar_reminder.composeapp.generated.resources.ic_email
-import tzakar_reminder.composeapp.generated.resources.reset_password
-import tzakar_reminder.composeapp.generated.resources.reset_your_password
 import tzakar_reminder.composeapp.generated.resources.send_code
 
 
@@ -82,6 +77,8 @@ class ForgotPasswordScreen:Screen {
         val sharedViewModel = localNavigator?.koinParentScreenModel<RegistrationScreenViewModel>(
             parentName = RegistrationScreen::class.simpleName
         )?:koinScreenModel()
+        val statusCode = viewModel.errorStatusCode.collectAsState()
+        val isLoading = viewModel.isLoading.collectAsState()
 
         ForgotPasswordScreen(interaction = object : ForgotPasswordScreenInteraction {
             override fun getEmail() = viewModel.email ?: ""
@@ -95,16 +92,27 @@ class ForgotPasswordScreen:Screen {
                 when (action) {
                     ForgotPasswordAction.GO_BACK_TO_LOGIN -> { localNavigator.pop() }
                     ForgotPasswordAction.RESET -> {
-                        sharedViewModel.registrationData = sharedViewModel.registrationData.copy(
-                            email = viewModel.email,
-                        )
-                        localNavigator.push(PinCodeScreen())
+                        viewModel.checkEmail(viewModel.email){
+                            sharedViewModel.registrationData = sharedViewModel.registrationData.copy(
+                                email = viewModel.email,
+                            )
+                            localNavigator.push(PinCodeScreen())
+                        }
                     }
                 }
             }
         })
-    }
 
+        statusCode.value?.let {
+            ShowErrorDialog(
+                title = stringResource(Res.string.failed),
+                message = it.errorMessage.toString(),
+                onConfirm = { viewModel._errorStatusCode.value = null },
+                confirmText = stringResource(Res.string.close)
+            )
+        }
+        isLoading.value?.let { FullScreenLoader() }
+    }
 }
 
 @Composable

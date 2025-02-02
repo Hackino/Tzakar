@@ -36,12 +36,13 @@ fun CustomButton(
     startIcon:Painter? = null,
     endIcon:Painter? = null,
     keepIconColor:Boolean? = null,
+    buttonColor:Color = MyColors.colorPurple
 
 ){
     Row(
         modifier.alpha(if (isEnabled==true)1f else 0.7f)
             .clip(CircleShape)
-            .background(MyColors.colorPurple)
+            .background(buttonColor)
             .let {
                 return@let if (isEnabled == true)  it.debounceClick { onClick()} else it
             }

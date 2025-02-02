@@ -1,14 +1,22 @@
 package com.senior25.tzakar.ui.presentation.screen.registration.forget_password
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.senior25.tzakar.data.local.model.firebase.StatusCode
 import com.senior25.tzakar.domain.RegistrationRepository
+import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.database.database
+import io.ktor.util.encodeBase64
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
+import tzakar_reminder.composeapp.generated.resources.Res
+import tzakar_reminder.composeapp.generated.resources.invalid_email_address
 
 class ForgotPasswordScreenViewModel(
     private val registrationRepository: RegistrationRepository
@@ -18,6 +26,21 @@ class ForgotPasswordScreenViewModel(
     val uiState: StateFlow<ForgotPasswordPageUiState?> get() = _uiState.asStateFlow()
 
     var email:String? = "ramsiskhortoum1@gmail.com"
+
+    fun checkEmail(email:String?,proceed:()->Unit){
+        screenModelScope.launch {
+            email?.encodeBase64()?.let {
+                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it)
+                val exist =ref.valueEvents.first().value != null
+                if (exist) proceed()
+                else{
+                    _errorStatusCode.update {
+                        StatusCode(errorMessage = getString(Res.string.invalid_email_address))
+                    }
+                }
+            }
+        }
+    }
 
     fun onUIEvent(uiEvent: ForgotPasswordPageEvent) = screenModelScope.launch {
         when (uiEvent) {

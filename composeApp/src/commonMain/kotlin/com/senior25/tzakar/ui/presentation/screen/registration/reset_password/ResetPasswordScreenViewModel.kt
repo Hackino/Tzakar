@@ -1,8 +1,6 @@
 package com.senior25.tzakar.ui.presentation.screen.registration.reset_password
 
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.senior25.tzakar.data.local.model.firebase.FirebaseAuthRsp
-import com.senior25.tzakar.data.local.model.firebase.StatusCode
 import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.domain.RegistrationRepository
 import com.senior25.tzakar.helper.DataBaseReference
@@ -10,20 +8,13 @@ import com.senior25.tzakar.ktx.decodeJson
 import com.senior25.tzakar.ktx.encodeToJson
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.getString
-import tzakar_reminder.composeapp.generated.resources.Res
-import tzakar_reminder.composeapp.generated.resources.invalid_credentials
 
 class ResetPasswordScreenViewModel(
     private val registrationRepository: RegistrationRepository
@@ -31,6 +22,10 @@ class ResetPasswordScreenViewModel(
 
     private val _uiState = MutableStateFlow<ResetPasswordPageUiState?>(ResetPasswordPageUiState.Success)
     val uiState: StateFlow<ResetPasswordPageUiState?> get() = _uiState.asStateFlow()
+
+
+    val _dialogType = MutableStateFlow<ResetPasswordActionDialogType?>(null)
+    val dialogType: StateFlow<ResetPasswordActionDialogType?> get() = _dialogType.asStateFlow()
 
     private val _password = MutableStateFlow("Test@123")
     val password: StateFlow<String> get() = _password.asStateFlow()
@@ -47,7 +42,7 @@ class ResetPasswordScreenViewModel(
         }
     }
 
-    fun resetPassword(email:String?,onSuccess:(AuthResult?)->Unit) {
+    fun resetPassword(email:String?,onSuccess:()->Unit) {
         screenModelScope.launch{
             email?.let {
                 val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64())
@@ -57,7 +52,7 @@ class ResetPasswordScreenViewModel(
                     ref.setValue(user?.copy(
                         password = _password.value
                     ).encodeToJson())
-                    onSuccess(FirebaseAuthRsp().authResult)
+                    onSuccess()
                     return@launch
                 }
             }

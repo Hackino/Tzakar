@@ -55,7 +55,9 @@
     <string name="dont_worry_resetting_your_passowrd_is_easy">Don't worry, resetting your password is easy!</string>
 
 
+    <string name="success">Success</string>
 
+    <string name="password_reset_successfully">Password reset successfully</string>
 
 
 </resources>

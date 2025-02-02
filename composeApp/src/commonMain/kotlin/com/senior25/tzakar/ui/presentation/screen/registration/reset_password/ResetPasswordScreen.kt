@@ -39,16 +39,16 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.ktx.koinParentScreenModel
 import com.senior25.tzakar.ktx.koinScreenModel
-import com.senior25.tzakar.platform_specific.log.LoggingError
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.debounce.debounceClick
 import com.senior25.tzakar.ui.presentation.components.fields.ConfirmPasswordField
 import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
 import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
-import com.senior25.tzakar.ui.presentation.dialog.ShowDialog
+import com.senior25.tzakar.ui.presentation.dialog.error.ShowErrorDialog
+import com.senior25.tzakar.ui.presentation.dialog.pasword_reset.showPasswordResetDialog
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreen
+import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreen
-import com.senior25.tzakar.ui.presentation.screen.registration.pincode.PinCodeScreen
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInScreen
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
@@ -68,25 +68,23 @@ import tzakar_reminder.composeapp.generated.resources.failed
 import tzakar_reminder.composeapp.generated.resources.ic_back
 import tzakar_reminder.composeapp.generated.resources.ic_eye_off
 import tzakar_reminder.composeapp.generated.resources.ic_lock
-import tzakar_reminder.composeapp.generated.resources.ic_sign_in
-import tzakar_reminder.composeapp.generated.resources.lets_sign_in_and_get_starter
 import tzakar_reminder.composeapp.generated.resources.password
 import tzakar_reminder.composeapp.generated.resources.reset_password
-import tzakar_reminder.composeapp.generated.resources.sign_in
-import tzakar_reminder.composeapp.generated.resources.welcome_back
 
 class ResetPasswordScreen:Screen {
 
     @Composable
     override fun Content() {
         val localNavigator = LocalNavigator.currentOrThrow
-        val sharedViewModel = localNavigator?.koinParentScreenModel<ResetPasswordScreenViewModel>(
+        val sharedViewModel = localNavigator?.koinParentScreenModel<RegistrationScreenViewModel>(
             parentName = RegistrationScreen::class.simpleName
         )?:koinScreenModel()
 
         val viewModel = koinScreenModel<ResetPasswordScreenViewModel>()
         val statusCode = viewModel.errorStatusCode.collectAsState()
         val isLoading = viewModel.isLoading.collectAsState()
+        val dialogType = viewModel.dialogType.collectAsState()
+
 
         SignInScreen(interaction = object :ResetPasswordScreenInteraction{
             override fun getPassword():  StateFlow<String> = viewModel.password
@@ -95,20 +93,35 @@ class ResetPasswordScreen:Screen {
             override fun getUiState(): StateFlow<ResetPasswordPageUiState?> = viewModel.uiState
             override fun navigate(action: ResetPasswordAction) {
                 when (action) {
-                    ResetPasswordAction.RESET ->localNavigator.popUntil { it::class.simpleName == SignInScreen::class.simpleName }
+                    ResetPasswordAction.RESET ->{
+                        viewModel.resetPassword(sharedViewModel.registrationData.email){
+
+                        }
+                    }
                     ResetPasswordAction.BACK -> localNavigator.popUntil { it::class.simpleName == ForgotPasswordScreen::class.simpleName }
                 }
             }
         })
 
         statusCode.value?.let {
-            ShowDialog(
+            ShowErrorDialog(
                 title = stringResource(Res.string.failed),
                 message = it.errorMessage.toString(),
                 onConfirm = { viewModel._errorStatusCode.value = null },
                 confirmText = stringResource(Res.string.close)
             )
         }
+
+        when(dialogType.value){
+            ResetPasswordActionDialogType.PASSWORD_RESET -> {
+                showPasswordResetDialog{
+                    localNavigator.popUntil { it::class.simpleName == SignInScreen::class.simpleName }
+                    viewModel._dialogType.value = null
+                }
+            }
+            null ->Unit
+        }
+
         isLoading.value?.let { FullScreenLoader() }
     }
 }
@@ -271,5 +284,9 @@ interface ResetPasswordScreenInteraction{
 enum class ResetPasswordAction {
     RESET,
     BACK
+}
 
+
+enum class ResetPasswordActionDialogType {
+    PASSWORD_RESET
 }

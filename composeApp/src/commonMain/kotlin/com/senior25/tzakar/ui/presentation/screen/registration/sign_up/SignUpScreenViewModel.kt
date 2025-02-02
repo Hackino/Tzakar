@@ -67,9 +67,9 @@ class SignUpScreenViewModel(
                 val userJson  = ref.valueEvents.first().value
                 if (userJson != null) {
                     val user =  userJson.toString().decodeJson(UserProfile())
-                    if (user?.password == null){
+                    if (user?.password == null && user?.email == null){
                         email?.let {
-                            ref.setValue(user?.copy(email = email, password = password).encodeToJson())
+                            ref.setValue(user?.copy(userName = username,email = email, password = password).encodeToJson())
                             onSuccess(FirebaseAuthRsp().authResult)
                         }
                     }else{
