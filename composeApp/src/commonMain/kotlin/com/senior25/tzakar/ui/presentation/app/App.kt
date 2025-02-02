@@ -2,12 +2,12 @@ package com.senior25.tzakar.ui.presentation.app
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.senior25.tzakar.data.local.preferences.AppState
 import com.senior25.tzakar.data.local.preferences.SharedPref
-import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInScreen
+import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenLauncher
+import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationLauncher
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
 
@@ -16,26 +16,22 @@ import org.koin.compose.KoinContext
 fun App() {
     KoinContext {
         MaterialTheme {
-           val routingPage  =  RoutingScreen(interaction = object : RoutingScreenInteraction {
+            RoutingScreen(interaction = object : RoutingScreenInteraction {
                 override fun getAppState(): AppState  = SharedPref.appState
             })
-
-            Navigator(SignInScreen()){navigator->
-                SlideTransition(navigator)
-            }
         }
     }
 }
 
-data class RoutingScreen(val interaction: RoutingScreenInteraction? = null):Screen {
-
-    @Composable
-    override fun Content() {
-//        val routingNavController = rememberNavController()
-//        when (interaction?.getAppState()) {
-//            AppState.NONE -> //AppGraph(RoutingScreens.Registration,routingNavController)
-//            else -> //AppGraph(RoutingScreens.Registration,routingNavController)
-//        }
+@Composable
+fun RoutingScreen(interaction: RoutingScreenInteraction? = null) {
+    val launcher = when (interaction?.getAppState()) {
+        AppState.NONE -> RegistrationLauncher()
+        AppState.MAIN_ACTIVITY->MainScreenLauncher()
+        else -> RegistrationLauncher()
+    }
+    Navigator(launcher){ navigator->
+        SlideTransition(navigator)
     }
 }
 

@@ -3,6 +3,8 @@ package com.senior25.tzakar.ui.presentation.screen.common
 import androidx.core.bundle.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.StatusCode
 import com.senior25.tzakar.ui.graph.NavigationModel
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInPageUiState
@@ -15,7 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-open class CommonViewModel: ViewModel(){
+open class CommonViewModel: ScreenModel{
 
     internal val _errorStatusCode = MutableStateFlow<StatusCode?>(null)
     val errorStatusCode: StateFlow<StatusCode?> get() = _errorStatusCode.asStateFlow()
@@ -38,17 +40,17 @@ open class CommonViewModel: ViewModel(){
     private var job: Job? =  null
 
     fun launchWithCatchingException(block: suspend CoroutineScope.() -> Unit) {
-        job = viewModelScope.launch(
+        job = screenModelScope.launch(
             context = coroutineContext,
             block = block
         )
     }
 
-    override fun onCleared() {
-        super.onCleared()
+
+    override fun onDispose() {
+        super.onDispose()
         job?.cancel()
     }
-
 }
 
 

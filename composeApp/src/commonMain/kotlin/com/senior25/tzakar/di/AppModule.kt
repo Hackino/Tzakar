@@ -9,8 +9,14 @@ import com.senior25.tzakar.ui.presentation.screen.registration._page.Registratio
 import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpScreenViewModel
+//import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+//import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
+//import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreenViewModel
+//import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInScreenViewModel
+//import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpScreenViewModel
 import org.koin.compose.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
+import org.koin.core.qualifier.named
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
@@ -18,12 +24,14 @@ val appModule = module {
     single<RegistrationRepository> { RegistrationRepositoryImpl() }
     single<MainRepository> { MainRepositoryImpl() }
 
-    viewModel { SignInScreenViewModel(get()) }
-    viewModel { ForgotPasswordScreenViewModel(get()) }
-    viewModel { SignUpScreenViewModel(get()) }
-    viewModel { RegistrationScreenViewModel(get()) }
+    factory { RegistrationScreenViewModel(get()) }
+    factory { SignInScreenViewModel(get()) }
+    factory { ForgotPasswordScreenViewModel(get()) }
+    factory { SignUpScreenViewModel(get()) }
 
-    viewModel { MainScreenViewModel(get()) }
+    factory { MainScreenViewModel(get()) }
+
+
 }
 
 fun initializeKoin(config: KoinAppDeclaration? = null) {

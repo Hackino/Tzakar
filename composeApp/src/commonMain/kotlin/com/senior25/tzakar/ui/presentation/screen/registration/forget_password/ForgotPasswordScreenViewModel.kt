@@ -2,7 +2,9 @@ package com.senior25.tzakar.ui.presentation.screen.registration.forget_password
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.domain.RegistrationRepository
+import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class ForgotPasswordScreenViewModel(
     private val registrationRepository: RegistrationRepository
-): ViewModel(){
+): CommonViewModel(){
 
     private val _uiState = MutableStateFlow<ForgotPasswordPageUiState?>(ForgotPasswordPageUiState.Success)
     val uiState: StateFlow<ForgotPasswordPageUiState?> get() = _uiState.asStateFlow()
@@ -18,7 +20,7 @@ class ForgotPasswordScreenViewModel(
     var email:String? = null
     var password:String? = null
 
-    fun onUIEvent(uiEvent: ForgotPasswordPageEvent) = viewModelScope.launch {
+    fun onUIEvent(uiEvent: ForgotPasswordPageEvent) = screenModelScope.launch {
         when (uiEvent) {
             is ForgotPasswordPageEvent.UpdateEmail -> email = uiEvent.email
             ForgotPasswordPageEvent.Success -> _uiState.value = ForgotPasswordPageUiState.Success

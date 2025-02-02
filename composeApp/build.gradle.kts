@@ -84,11 +84,11 @@ kotlin {
             implementation("io.github.kevinnzou:compose-webview-multiplatform:1.9.40")
 
 
-            val voyagerVersion = "1.1.0-beta02"
+            val voyagerVersion = "1.1.0-beta03"
             implementation ("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
             implementation ("cafe.adriel.voyager:voyager-tab-navigator:$voyagerVersion")
             implementation ("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
-
+            implementation("cafe.adriel.voyager:voyager-screenmodel:$voyagerVersion")
 
 
 //            implementation("io.github.mirzemehdi:kmpauth-google:2.0.0")

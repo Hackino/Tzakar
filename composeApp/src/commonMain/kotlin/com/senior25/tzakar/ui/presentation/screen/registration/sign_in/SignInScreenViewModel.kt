@@ -1,6 +1,7 @@
 package com.senior25.tzakar.ui.presentation.screen.registration.sign_in
 
 import androidx.lifecycle.viewModelScope
+import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.StatusCode
 import com.senior25.tzakar.data.local.model.User
 import com.senior25.tzakar.data.local.preferences.SharedPref
@@ -49,7 +50,7 @@ class SignInScreenViewModel(
         }
     }
 
-    fun onUIEvent(uiEvent: SignInPageEvent) = viewModelScope.launch {
+    fun onUIEvent(uiEvent: SignInPageEvent) = screenModelScope.launch {
         when (uiEvent) {
             is SignInPageEvent.UpdateEmail -> email = uiEvent.email
             is SignInPageEvent.UpdatePassword -> password = uiEvent.password
@@ -60,7 +61,7 @@ class SignInScreenViewModel(
     }
 
     fun onSignInClick(onSuccess:(AuthResult)->Unit) {
-        viewModelScope.launch{
+        screenModelScope.launch{
             _isLoading.update { true }
             val result =authService?.authenticate(email?:"", password?:"")
             if (result?.authResult == null){

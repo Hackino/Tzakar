@@ -37,11 +37,15 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
+//import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.authentication.google.GoogleAuthResponse
 import com.senior25.tzakar.helper.encode.encodeUrl
+import com.senior25.tzakar.ktx.koinParentScreenModel
+//import com.senior25.tzakar.ktx.getScreenModel
+import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
 
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
@@ -55,8 +59,11 @@ import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
 import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
 import com.senior25.tzakar.ui.presentation.dialog.ShowDialog
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreen
+import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenLauncher
+import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreen
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreen
+import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpScreen
 import com.senior25.tzakar.ui.presentation.screen.web.WebViewScreen
 import com.senior25.tzakar.ui.theme.MyColors
@@ -105,9 +112,11 @@ data class SignInScreen(val sharedViewModel: RegistrationScreenViewModel? = null
 
     @Composable
     override fun Content() {
-
         val localNavigator = LocalNavigator.currentOrThrow
-        val viewModel = koinViewModel<SignInScreenViewModel>()
+        val sharedViewModel = localNavigator?.koinParentScreenModel<ForgotPasswordScreenViewModel>(
+            parentName = RegistrationScreen::class.simpleName
+        )?:koinScreenModel()
+        val viewModel = koinScreenModel<SignInScreenViewModel>()
         val statusCode = viewModel.errorStatusCode.collectAsState()
         val isLoading = viewModel.isLoading.collectAsState()
         val terms =  stringResource(Res.string.terms_of_service)
@@ -126,7 +135,7 @@ data class SignInScreen(val sharedViewModel: RegistrationScreenViewModel? = null
 //                        SharedPref.isRememberMeChecked = viewModel.isRememberMe == true
 //                        showToast("login success")
 //                    }
-                        localNavigator.push(MainScreen())
+                        localNavigator.push(MainScreenLauncher())
 
                     }
                     SignInAction.GOOGLE -> {

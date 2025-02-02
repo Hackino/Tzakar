@@ -37,10 +37,16 @@ import androidx.navigation.NavHostController
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.senior25.tzakar.ktx.koinParentScreenModel
+//import com.senior25.tzakar.ktx.getScreenModel
+import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.debounce.debounceClick
 import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceClick
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
+import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreen
+import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreen
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpAction
 import com.senior25.tzakar.ui.theme.MyColors
@@ -68,8 +74,10 @@ data class ForgotPasswordScreen(val sharedViewModel: RegistrationScreenViewModel
     @Composable
     override fun Content() {
         val localNavigator = LocalNavigator.currentOrThrow
-
-        val viewModel = koinViewModel<ForgotPasswordScreenViewModel>()
+        val viewModel = koinScreenModel<ForgotPasswordScreenViewModel>()
+        val sharedViewModel = localNavigator?.koinParentScreenModel<ForgotPasswordScreenViewModel>(
+            parentName = RegistrationScreen::class.simpleName
+        )?:koinScreenModel()
         ForgotPasswordScreen(interaction = object : ForgotPasswordScreenInteraction {
             override fun getEmail() = viewModel.email ?: ""
             override fun onUIEvent(event: ForgotPasswordPageEvent) {
