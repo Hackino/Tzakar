@@ -10,6 +10,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceClick
@@ -19,7 +20,11 @@ import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.ic_back
 
 @Composable
-fun MyTopAppBarBack(title:String, interaction : BackPressInteraction?) {
+fun MyTopAppBar(
+    title:String,
+    showBack:Boolean? = true ,
+    interaction : BackPressInteraction? = null
+) {
 
     val debouncedOnClick = rememberDebounceClick {  interaction?.onBackPress()  }
 
@@ -33,6 +38,7 @@ fun MyTopAppBarBack(title:String, interaction : BackPressInteraction?) {
             )
         },
         navigationIcon = {
+            if (showBack == true)
             IconButton(
                 modifier = Modifier
                     .size(30.dp)
@@ -60,7 +66,7 @@ fun MyTopAppBarBack(title:String, interaction : BackPressInteraction?) {
                 )
             }
         },
-         backgroundColor = MyColors.colorPurple
+        backgroundColor = MyColors.colorPurple
 //        contentColor = TopAppBar}.centerAlignedTopAppBarColors(
 //            containerColor =MyColors.colorPurple,
 //            titleContentColor = Color.White,

@@ -14,7 +14,7 @@ import com.senior25.tzakar.platform_specific.getPlatform
 import com.senior25.tzakar.platform_specific.resource.getRawResourceHtmlContent
 import com.senior25.tzakar.platform_specific.web_view.HtmlWebView
 import com.senior25.tzakar.ui.presentation.components.toolbar.BackPressInteraction
-import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBarBack
+import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 
 data class WebViewScreen(val title: String? = null,val link: String? = null):Screen {
 
@@ -24,7 +24,7 @@ data class WebViewScreen(val title: String? = null,val link: String? = null):Scr
         val webViewState = rememberWebViewStateWithHTMLFile(fileName = "$link.html")
         Scaffold(
             topBar = {
-                MyTopAppBarBack(title?:"", interaction =object : BackPressInteraction {
+                MyTopAppBar(title?:"", interaction =object : BackPressInteraction {
                     override fun onBackPress() {
                         navigator.pop()
                     }
