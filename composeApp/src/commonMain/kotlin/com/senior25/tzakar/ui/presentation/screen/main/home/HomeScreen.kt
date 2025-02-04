@@ -34,7 +34,6 @@ import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreen
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
-import com.senior25.tzakar.ui.presentation.screen.main.calendar.CalendarScreen
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
@@ -81,7 +80,6 @@ class  HomeScreen: Screen {
                 CustomButton(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     onClick =  {
-                        screenModel.testCount = screenModel.testCount.plus(1)
 //                        navigator.push(ProfileScreen)
                     },
                     isEnabled = true,

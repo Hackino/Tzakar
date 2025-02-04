@@ -62,7 +62,8 @@ fun EmailField(
     imeAction: ImeAction? = null,
     focusRequester:FocusRequester? = null,
     onKeyPressed:()->Unit = {},
-    leadingIcon: Painter? = null
+    leadingIcon: Painter? = null,
+    isEnabled:Boolean? = true
 ) {
     BaseTextField(
         value = value,
@@ -79,7 +80,8 @@ fun EmailField(
         imeAction =  imeAction,
         focusRequester = focusRequester,
         onKeyPressed = onKeyPressed,
-        leadingIcon = leadingIcon
+        leadingIcon = leadingIcon,
+        isEnabled=isEnabled
     )
 }
 
@@ -127,7 +129,8 @@ fun PasswordField(
     focusRequester:FocusRequester? = null,
     onKeyPressed:()->Unit = {},
     leadingIcon: Painter?=  null,
-    trailingIcon: Painter?=  null
+    trailingIcon: Painter?=  null,
+    isEnabled:Boolean? = true
 
 
 ) {
@@ -147,7 +150,8 @@ fun PasswordField(
         focusRequester = focusRequester,
         onKeyPressed = onKeyPressed,
         trailingIcon = trailingIcon,
-        leadingIcon = leadingIcon
+        leadingIcon = leadingIcon,
+        isEnabled=isEnabled
     )
 }
 
@@ -301,6 +305,7 @@ fun BaseTextField(
     onKeyPressed:()->Unit = {},
     leadingIcon: Painter? = null,
     trailingIcon: Painter? = null,
+    isEnabled:Boolean? = true
 ) {
     var content by remember(value) { mutableStateOf(value?:"") }
     var error by remember { mutableStateOf("") }
@@ -325,20 +330,21 @@ fun BaseTextField(
                 lineHeight = TextUnit.Unspecified,
             ),
 
+            readOnly = isEnabled !=true,
             colors = TextFieldDefaults.textFieldColors(
                 cursorColor = MyColors.colorLightDarkBlue,
-                textColor =  MyColors.colorLightDarkBlue,
+                textColor =  MyColors.colorLightDarkBlue.copy(alpha = if (isEnabled == true) 1f else 0.8f),
                 backgroundColor = Color.Transparent,
                 errorIndicatorColor = MyColors.colorRed,
-                focusedIndicatorColor = MyColors.colorLightDarkBlue,
-                unfocusedIndicatorColor =MyColors.colorLightGrey
+                focusedIndicatorColor = if (isEnabled == true) MyColors.colorLightDarkBlue else MyColors.colorLightGrey.copy(0.8f),
+                unfocusedIndicatorColor = MyColors.colorLightGrey.copy(alpha = if (isEnabled == true) 1f else 0.8f)
             ),
 
             leadingIcon = leadingIcon?.let{{
                 Icon(
                     painter = leadingIcon,
                     contentDescription = "",
-                    tint = MyColors.colorLightDarkBlue,
+                    tint = MyColors.colorLightDarkBlue.copy(alpha = if (isEnabled == true) 1f else 0.8f),
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -384,13 +390,15 @@ fun BaseTextField(
             }
             },
             keyboardActions = KeyboardActions(onNext = { onKeyPressed() },onDone = { onKeyPressed() }),
-            isError =
-            isError(
-                validate = validate,
-                onValueChange = onValueChange,
-                content = content,
-                error = { error = it }
-            )
+            isError = if (isEnabled == true){
+                isError(
+                    validate = validate,
+                    onValueChange = onValueChange,
+                    content = content,
+                    error = { error = it }
+                )
+            }else false
+
         )
 
         error.ifEmpty { null }?.let {

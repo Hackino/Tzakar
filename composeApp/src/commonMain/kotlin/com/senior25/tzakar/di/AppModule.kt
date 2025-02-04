@@ -10,6 +10,8 @@ import com.senior25.tzakar.data.repositories.RegistrationRepositoryImpl
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.domain.RegistrationRepository
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.profile.ProfileViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.pincode.PinCodeScreenViewModel
@@ -32,6 +34,9 @@ val appModule = module {
     factory { ResetPasswordScreenViewModel(get()) }
 
     factory { MainScreenViewModel(get()) }
+    factory { EditProfileViewModel(get()) }
+    factory { ProfileViewModel(get()) }
+
 
 
 }

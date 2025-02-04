@@ -53,12 +53,22 @@
     <string name="send_code">Send code</string>
 
     <string name="dont_worry_resetting_your_passowrd_is_easy">Don't worry, resetting your password is easy!</string>
+    <string name="edit_profile">Edit Profile</string>
 
 
     <string name="success">Success</string>
 
     <string name="password_reset_successfully">Password reset successfully</string>
     <string name="user_doesnt_exist">User doesn't exist</string>
+
+    <string name="save">Save</string>
+    <string name="no">No</string>
+    <string name="are_you_sure_you_want_save_changes">Do you want to save the changes?</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="profile_updated_successfully">Profile has been updated successfully</string>
+    <string name="logout">Logout</string>
+    <string name="my_profile">My Profile</string>
+    <string name="are_you_sure_you_want_logout">Are you sure you want to logout?</string>
 
 
 </resources>

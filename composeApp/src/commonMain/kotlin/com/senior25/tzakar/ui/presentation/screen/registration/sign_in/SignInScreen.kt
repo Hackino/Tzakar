@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -39,7 +40,9 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.multiplatform.webview.web.WebView
 import com.senior25.tzakar.data.local.model.profile.UserProfile
+import com.senior25.tzakar.data.local.preferences.AppState
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.DataBaseReference
@@ -50,7 +53,11 @@ import com.senior25.tzakar.ktx.encodeToJson
 import com.senior25.tzakar.ktx.ifEmpty
 import com.senior25.tzakar.ktx.koinParentScreenModel
 import com.senior25.tzakar.ktx.koinScreenModel
+import com.senior25.tzakar.platform_specific.firebase.FirebaseSignOut
+import com.senior25.tzakar.platform_specific.getPlatform
+import com.senior25.tzakar.platform_specific.resource.getRawResourceHtmlContent
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
+import com.senior25.tzakar.platform_specific.web_view.HtmlWebView
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.GoogleButtonUiContainer
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
@@ -74,6 +81,7 @@ import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphM
 import com.senior25.tzakar.ui.theme.fontParagraphS
 import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.FirebaseAuth
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
 import kotlinx.coroutines.CoroutineScope
@@ -137,11 +145,14 @@ import tzakar_reminder.composeapp.generated.resources.welcome_back
                             SharedPref.isRememberMeChecked = viewModel.isRememberMe == true
                             SharedPref.loggedInEmail = viewModel.email
                             signOut()
+                            SharedPref.appState = AppState.MAIN_ACTIVITY
                             localNavigator.push(MainScreenLauncher())
                         }
                     }
 
                     SignInAction.GOOGLE -> {
+                        SharedPref.isRememberMeChecked = true
+                        SharedPref.appState = AppState.MAIN_ACTIVITY
                         localNavigator.push(MainScreenLauncher())
                     }
 
@@ -164,7 +175,11 @@ import tzakar_reminder.composeapp.generated.resources.welcome_back
             }
 
             override fun signOut() {
-                viewModel.onSignOut()
+                if (getPlatform().name.contains("Android") )
+                    FirebaseSignOut()
+                else{
+                    viewModel.onSignOut()
+                }
             }
         })
 
@@ -287,22 +302,23 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    RoundedCheckbox(
-                        checked = rememberMe==true,
-                        onCheckedChange ={
-                            rememberMe = it
-                            interaction?.onUIEvent(SignInPageEvent.UpdateRememberMe(it))
-                        },
-                    ){
-                        Text(
-                            text = stringResource(Res.string.remember_me),
-                            style = fontLink.copy(
-                                color = MyColors.colorDarkBlue,
-                                textAlign = TextAlign.Center,
-                                fontSize = 14.sp
-                            ),
-                        )
-                    }
+//                    RoundedCheckbox(
+//                        checked = rememberMe==true,
+//                        onCheckedChange ={
+//                            rememberMe = it
+//                            interaction?.onUIEvent(SignInPageEvent.UpdateRememberMe(it))
+//                        },
+//                    ){
+//                        Text(
+//                            text = stringResource(Res.string.remember_me),
+//                            style = fontLink.copy(
+//                                color = MyColors.colorDarkBlue,
+//                                textAlign = TextAlign.Center,
+//                                fontSize = 14.sp
+//                            ),
+//                        )
+//                    }
+                    Spacer(modifier = Modifier.width(1.dp))
                     Text(
                         text = stringResource(Res.string.forgot_password),
                         style = fontLink.copy(
@@ -315,7 +331,7 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                         },
                     )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 CustomButton(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -342,7 +358,7 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                                         ).encodeToJson())
                                     SharedPref.loggedInEmail = email
                                     interaction?.signOut()
-                                    interaction?.navigate(SignInAction.GOOGLE)
+//                                    interaction?.navigate(SignInAction.GOOGLE)
                                 }
                             }
                         }

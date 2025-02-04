@@ -1,8 +1,5 @@
 package com.senior25.tzakar.ui.presentation.screen.registration.sign_up
 
-//import cafe.adriel.voyager.koin.koinScreenModel
-//import com.senior25.tzakar.ktx.getNavigatorScreenModel
-//import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -45,6 +42,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.data.local.model.profile.UserProfile
+import com.senior25.tzakar.data.local.preferences.AppState
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.DataBaseReference
@@ -55,6 +53,8 @@ import com.senior25.tzakar.ktx.encodeToJson
 import com.senior25.tzakar.ktx.ifEmpty
 import com.senior25.tzakar.ktx.koinParentScreenModel
 import com.senior25.tzakar.ktx.koinScreenModel
+import com.senior25.tzakar.platform_specific.firebase.FirebaseSignOut
+import com.senior25.tzakar.platform_specific.getPlatform
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.GoogleButtonUiContainer
@@ -140,6 +140,7 @@ data class SignUpScreen(val sharedViewModel: RegistrationScreenViewModel? = null
                         viewModel.createUser{
                             SharedPref.loggedInEmail = viewModel.email
                             signOut()
+                            SharedPref.appState = AppState.MAIN_ACTIVITY
                             localNavigator.push(MainScreenLauncher())
                         }
                     }
@@ -147,6 +148,7 @@ data class SignUpScreen(val sharedViewModel: RegistrationScreenViewModel? = null
                         localNavigator.pop()
                     }
                     SignUpAction.GOOGLE -> {
+                        SharedPref.appState = AppState.MAIN_ACTIVITY
                         localNavigator.push(MainScreenLauncher())
                     }
 
@@ -160,7 +162,11 @@ data class SignUpScreen(val sharedViewModel: RegistrationScreenViewModel? = null
                 }
             }
             override fun signOut() {
-                viewModel.onSignOut()
+                if (getPlatform().name.contains("Android") )
+                    FirebaseSignOut()
+                else{
+                    viewModel.onSignOut()
+                }
             }
 
         })

@@ -48,7 +48,7 @@ data class MainScreen(val test:String? = null):Screen {
         val screenModel = navigator.koinNavigatorScreenModel<MainScreenViewModel>()
         TabNavigator(HomeTab){
             Scaffold(
-                topBar = { MyTopAppBar( SharedPref.loggedInEmail?:"", showBack = false) },
+//                topBar = { MyTopAppBar( SharedPref.loggedInEmail?:"", showBack = false) },
                 content = { screenModel.testCount = 1;CurrentTab() },
                 bottomBar = {
                     BottomNavigation(
@@ -71,7 +71,9 @@ private fun RowScope.TabNavigationItem(tab:Tab){
     val tabNavigator = LocalTabNavigator.current
     BottomNavigationItem(
         selected = tabNavigator.current == tab,
-        onClick = { tabNavigator.current = tab },
+        onClick = {
+            tabNavigator.current = tab
+                  },
         label = {
             val isSelected =  tabNavigator.current == tab
             val color =  if (isSelected) MyColors.colorDarkBlue else MyColors.colorWhite
