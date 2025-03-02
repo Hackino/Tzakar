@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -58,10 +59,22 @@ import tzakar_reminder.composeapp.generated.resources.save_changes
 import tzakar_reminder.composeapp.generated.resources.username
 
 class EditProfileScreen: Screen {
+    @OptIn(InternalVoyagerApi::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
 
+        LocalNavigator.current?.parent?.items?.forEach {
+            println("showLogHackinoo WEb parent  ${it::class.simpleName}")
+        }
+
+
+        LocalNavigator.current?.items?.forEach {
+            println("showLogHackinoo WEb curent  ${it::class.simpleName}")
+        }
+
+        print("showLogHackinoo WEb ${LocalNavigator.currentOrThrow.level}")
+        println("showLogHackinoo  WEb ${    LocalNavigator.current?.key}")
         val screenModel = koinScreenModel<EditProfileViewModel>()
 
         val interaction= object :EditProfilePageInteraction{

@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.multiplatform.webview.web.WebView
 import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.preferences.AppState
 import com.senior25.tzakar.data.local.preferences.SharedPref
@@ -55,13 +54,11 @@ import com.senior25.tzakar.ktx.koinParentScreenModel
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.firebase.FirebaseSignOut
 import com.senior25.tzakar.platform_specific.getPlatform
-import com.senior25.tzakar.platform_specific.resource.getRawResourceHtmlContent
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
-import com.senior25.tzakar.platform_specific.web_view.HtmlWebView
+import com.senior25.tzakar.ui.presentation.app.AppNavigator
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.GoogleButtonUiContainer
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
-import com.senior25.tzakar.ui.presentation.components.checkbox.RoundedCheckbox
 import com.senior25.tzakar.ui.presentation.components.debounce.debounceClick
 import com.senior25.tzakar.ui.presentation.components.debounce.withDebounceAction
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
@@ -81,7 +78,6 @@ import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphM
 import com.senior25.tzakar.ui.theme.fontParagraphS
 import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.FirebaseAuth
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
 import kotlinx.coroutines.CoroutineScope
@@ -111,14 +107,13 @@ import tzakar_reminder.composeapp.generated.resources.ic_sign_in
 import tzakar_reminder.composeapp.generated.resources.lets_sign_in_and_get_starter
 import tzakar_reminder.composeapp.generated.resources.password
 import tzakar_reminder.composeapp.generated.resources.privacy_policy
-import tzakar_reminder.composeapp.generated.resources.remember_me
 import tzakar_reminder.composeapp.generated.resources.sign_in
 import tzakar_reminder.composeapp.generated.resources.sign_in_with_google
 import tzakar_reminder.composeapp.generated.resources.sign_up
 import tzakar_reminder.composeapp.generated.resources.terms_of_service
 import tzakar_reminder.composeapp.generated.resources.welcome_back
 
- class SignInScreen:Screen {
+class SignInScreen:Screen {
 
     @Composable
     override fun Content() {
@@ -355,7 +350,7 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                                     ref.setValue(user?.copy(
                                         email = email,
                                         userName = user.userName?.ifEmpty { null }?:response.account.profile.name
-                                        ).encodeToJson())
+                                    ).encodeToJson())
                                     SharedPref.loggedInEmail = email
                                     interaction?.signOut()
 //                                    interaction?.navigate(SignInAction.GOOGLE)

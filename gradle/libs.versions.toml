@@ -34,9 +34,13 @@ firebase-bom = "33.8.0"
 firebase-crashlytics-plugin = "3.0.2"
 githubKevinnzouWebview = "1.9.40"
 voyagerVersion = "1.1.0-beta03"
+decompose = "3.3.0"
+extensionsComposeJetbrains = "2.2.3"
 
 [libraries]
 
+decompose-jetbrains = { module = "com.arkivanov.decompose:extensions-compose-jetbrains", version.ref = "extensionsComposeJetbrains" }
+decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 
 firebase-gitlive-database = { module = "dev.gitlive:firebase-database", version.ref = "gitlive-firebase" }
 firebase-gitlive-auth = { module = "dev.gitlive:firebase-auth", version.ref = "gitlive-firebase" }

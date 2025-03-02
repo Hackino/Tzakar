@@ -10,6 +10,8 @@ pluginManagement {
                 includeGroupAndSubgroups("com.google")
             }
         }
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+
         mavenCentral()
         gradlePluginPortal()
     }
@@ -22,12 +24,14 @@ dependencyResolutionManagement {
                 includeGroupAndSubgroups("androidx")
                 includeGroupAndSubgroups("com.android")
                 includeGroupAndSubgroups("com.google")
-                maven(url = "https://jitpack.io")
-                maven("https://jogamp.org/deployment/maven")
 
 
             }
         }
+        maven(url = "https://jitpack.io")
+        maven("https://jogamp.org/deployment/maven")
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+
         mavenCentral()
     }
 }

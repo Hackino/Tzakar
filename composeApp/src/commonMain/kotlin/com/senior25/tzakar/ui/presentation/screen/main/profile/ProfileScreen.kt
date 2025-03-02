@@ -35,22 +35,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
+import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.encode.encodeUrl
 import com.senior25.tzakar.ktx.koinScreenModel
+import com.senior25.tzakar.platform_specific.toast_helper.showToast
+import com.senior25.tzakar.ui.presentation.app.AppNavigator
 import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceClick
 import com.senior25.tzakar.ui.presentation.components.separator.Separator
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
-import com.senior25.tzakar.ui.presentation.dialog.edit_profile.ShowSaveProfileConfirmation
 import com.senior25.tzakar.ui.presentation.dialog.logout.showLogoutDialog
-import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfilePageEvent
-import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfilePagePopUp
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileScreen
 import com.senior25.tzakar.ui.presentation.screen.web.WebViewScreen
 import com.senior25.tzakar.ui.theme.MyColors
@@ -73,6 +76,8 @@ import tzakar_reminder.composeapp.generated.resources.privacy_policy
 import tzakar_reminder.composeapp.generated.resources.terms_of_service
 
 object ProfileTab: Tab {
+    override val key: ScreenKey
+        get() = "ProfileTabKey"
 
     override val options: TabOptions
         @Composable
@@ -85,16 +90,24 @@ object ProfileTab: Tab {
 
     @Composable
     override fun Content() {
-        Navigator(ProfileScreen()){navigator->
+        Navigator(ProfileScreen(), key = "ProfileTabNavigator"){ navigator->
             SlideTransition(navigator)
         }
     }
 }
 
 class ProfileScreen: Screen {
+
+
+    override val key: ScreenKey
+        get() = "ProfileScreenKey"
+
     @Composable
     override fun Content() {
+        AppNavigator.addTabNavigator(LocalNavigator.current)
+
         val navigator = LocalNavigator.current
+
         val screenModel = koinScreenModel<ProfileViewModel>()
         val terms =  stringResource(Res.string.terms_of_service)
         val privacy =  stringResource(Res.string.privacy_policy)
@@ -105,9 +118,7 @@ class ProfileScreen: Screen {
 
             override fun getUiState(): StateFlow<ProfilePageUiState?> = screenModel.uiState
 
-            override fun onUIEvent(event: ProfilePageEvent) {
-                screenModel.onUIEvent(event)
-            }
+            override fun onUIEvent(event: ProfilePageEvent) { screenModel.onUIEvent(event) }
 
             override  fun navigate(action: NavigationAction) {
                 when (action) {
@@ -124,13 +135,13 @@ class ProfileScreen: Screen {
                     }
                     NavigationAction.LOGOUT -> {
                         onUIEvent(ProfilePageEvent.UpdatePopUpState(ProfilePagePopUp.None))
+                        SharedPref.clearPref()
+                        AppNavigator.resetNavigation()
                     }
                 }
             }
 
-            override fun onBackPress() {
-                navigator?.pop()
-            }
+            override fun onBackPress() { navigator?.pop() }
 
             override fun getPopupState(): StateFlow<ProfilePagePopUp?> =screenModel.popUpState
         }
@@ -141,7 +152,6 @@ class ProfileScreen: Screen {
         )
     }
 }
-
 
 @Composable
 fun ProfileScreen(interaction: ProfilePageScreenInteraction?) {
@@ -301,14 +311,12 @@ fun MenuItem(iconRes: DrawableResource, text: String, onClick: () -> Unit) {
     }
 }
 
-
 interface ProfilePageScreenInteraction{
     fun getUiState(): StateFlow<ProfilePageUiState?>
     fun onUIEvent(event: ProfilePageEvent)
     fun navigate(action: NavigationAction)
     fun onBackPress()
     fun getPopupState(): StateFlow<ProfilePagePopUp?>
-
 }
 
 enum class NavigationAction {

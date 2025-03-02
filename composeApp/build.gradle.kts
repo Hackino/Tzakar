@@ -88,6 +88,10 @@ kotlin {
             implementation(libs.cafe.adriel.voyager.transitions)
             implementation(libs.cafe.adriel.voyager.screenmodel)
             implementation("io.ktor:ktor-utils:3.0.1")
+
+
+            implementation(libs.decompose)
+//            implementation(libs.decompose.jetbrains)
         }
     }
 }
