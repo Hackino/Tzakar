@@ -5,26 +5,34 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.transitions.FadeTransition
+import cafe.adriel.voyager.transitions.ScreenTransition
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.senior25.tzakar.data.local.preferences.AppState
 import com.senior25.tzakar.data.local.preferences.SharedPref
+import com.senior25.tzakar.ui.presentation.app.AppNavigator.launcherScreens
 
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenLauncher
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationLauncher
+import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
 
 object AppNavigator{
+
+     val launcherScreens = listOf<String?>(
+         RegistrationLauncher::class.simpleName,
+         RegistrationScreen::class.simpleName,
+         MainScreenLauncher::class.simpleName
+    )
     private val navigatorsMap:HashMap<Int ,Navigator?> = hashMapOf()
     private val tabNavigatorMap:HashMap<String ,Navigator?> = hashMapOf()
-
-    fun getLocalNav():Navigator?{
-       return  navigatorsMap[0]
-    }
 
     @OptIn(InternalVoyagerApi::class)
     fun addTabNavigator(navigator: Navigator?){
@@ -57,6 +65,8 @@ object AppNavigator{
     }
 }
 
+
+
 @Preview
 @Composable
 fun App() {
@@ -68,7 +78,6 @@ fun App() {
         }
     }
 }
-
 class AppScreenLauncher: Screen {
 
     @Composable
@@ -93,3 +102,4 @@ class AppScreenLauncher: Screen {
         fun getAppState():AppState
     }
 }
+

@@ -138,7 +138,7 @@ data class SignUpScreen(val sharedViewModel: RegistrationScreenViewModel? = null
                 when (action) {
                     SignUpAction.SIGN_UP -> {
                         viewModel.createUser{
-                            SharedPref.loggedInEmail = viewModel.email
+
                             signOut()
                             SharedPref.appState = AppState.MAIN_ACTIVITY
                             localNavigator.push(MainScreenLauncher())
@@ -327,13 +327,14 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                                     val ref  = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(email.encodeBase64())
                                     val userJson  = ref.valueEvents.first().value
                                     val user =  userJson.toString().decodeJson(UserProfile())
-                                    ref.setValue(
-                                        user?.copy(
-                                            email = email,
-                                            userName = user.userName?.ifEmpty { null }?:response.account.profile.name
-                                        ).encodeToJson()
+                                    val updatedUser =   user?.copy(
+                                        email = email,
+                                        userName = user.userName?.ifEmpty { null }?:response.account.profile.name
                                     )
-                                    SharedPref.loggedInEmail = email
+                                    ref.setValue(
+                                        updatedUser.encodeToJson()
+                                    )
+                                    SharedPref.loggedInProfile = updatedUser
                                     Firebase.auth.signOut()
                                     interaction?.navigate(SignUpAction.GOOGLE)
                                 }

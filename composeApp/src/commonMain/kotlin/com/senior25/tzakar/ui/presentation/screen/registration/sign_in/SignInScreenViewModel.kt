@@ -75,7 +75,11 @@ class SignInScreenViewModel(
                     if (user?.password != password){
                         _errorStatusCode.update { StatusCode(errorMessage = getString(Res.string.invalid_credentials)) }
                     }else{
+                        SharedPref.loggedInProfile = user
+                        SharedPref.isRememberMeChecked = isRememberMe == true
                         onSuccess(FirebaseAuthRsp().authResult)
+
+
                     }
                     return@launch
                 }
@@ -126,10 +130,13 @@ class SignInScreenViewModel(
                             .child(it.encodeBase64())
                         val userJson = ref.valueEvents.first().value
                         val user =  userJson.toString().decodeJson(UserProfile())
-                        ref.setValue(user?.copy(
+                       val updatedUser =  user?.copy(
                             email = email,
                             password = password
-                        ).encodeToJson())
+                        )
+                        ref.setValue(updatedUser.encodeToJson())
+                        SharedPref.loggedInProfile = updatedUser
+                        SharedPref.isRememberMeChecked = isRememberMe == true
                         onSuccess(result.authResult)
                     }
                 }

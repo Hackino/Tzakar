@@ -118,9 +118,6 @@ class SignInScreen:Screen {
     @Composable
     override fun Content() {
         val localNavigator = LocalNavigator.currentOrThrow
-        val sharedViewModel = localNavigator?.koinParentScreenModel<ResetPasswordScreenViewModel>(
-            parentName = RegistrationScreen::class.simpleName
-        )?:koinScreenModel()
         val viewModel = koinScreenModel<SignInScreenViewModel>()
         val statusCode = viewModel.errorStatusCode.collectAsState()
         val isLoading = viewModel.isLoading.collectAsState()
@@ -137,8 +134,6 @@ class SignInScreen:Screen {
                 when (action) {
                     SignInAction.APP -> {
                         viewModel.onSignInClick{
-                            SharedPref.isRememberMeChecked = viewModel.isRememberMe == true
-                            SharedPref.loggedInEmail = viewModel.email
                             signOut()
                             SharedPref.appState = AppState.MAIN_ACTIVITY
                             localNavigator.push(MainScreenLauncher())
@@ -347,13 +342,14 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                                     val ref  = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(email.encodeBase64())
                                     val userJson  = ref.valueEvents.first().value
                                     val user =  userJson.toString().decodeJson(UserProfile())
-                                    ref.setValue(user?.copy(
+                                   val updatedUser =  user?.copy(
                                         email = email,
                                         userName = user.userName?.ifEmpty { null }?:response.account.profile.name
-                                    ).encodeToJson())
-                                    SharedPref.loggedInEmail = email
+                                    )
+                                    ref.setValue(updatedUser.encodeToJson())
+                                    SharedPref.loggedInProfile = updatedUser
                                     interaction?.signOut()
-//                                    interaction?.navigate(SignInAction.GOOGLE)
+                                    interaction?.navigate(SignInAction.GOOGLE)
                                 }
                             }
                         }

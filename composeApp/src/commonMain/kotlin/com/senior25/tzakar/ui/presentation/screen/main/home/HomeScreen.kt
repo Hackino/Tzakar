@@ -79,9 +79,7 @@ class  HomeScreen: Screen {
             Column {
                 CustomButton(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    onClick =  {
-//                        navigator.push(ProfileScreen)
-                    },
+                    onClick =  {},
                     isEnabled = true,
                     text ="navigate to profile"
                 )

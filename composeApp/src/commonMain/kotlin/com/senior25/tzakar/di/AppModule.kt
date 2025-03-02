@@ -1,10 +1,5 @@
 package com.senior25.tzakar.di
 
-//import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
-//import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
-//import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreenViewModel
-//import com.senior25.tzakar.ui.presentation.screen.registration.sign_in.SignInScreenViewModel
-//import com.senior25.tzakar.ui.presentation.screen.registration.sign_up.SignUpScreenViewModel
 import com.senior25.tzakar.data.repositories.MainRepositoryImpl
 import com.senior25.tzakar.data.repositories.RegistrationRepositoryImpl
 import com.senior25.tzakar.domain.MainRepository
@@ -46,4 +41,8 @@ fun initializeKoin(config: KoinAppDeclaration? = null) {
         config?.invoke(this)
         modules(appModule)
     }
+}
+
+val mainScreenViewModelModule = module {
+    single { MainScreenViewModel(get()) } // Singleton ViewModel
 }

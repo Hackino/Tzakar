@@ -41,6 +41,7 @@ import com.senior25.tzakar.ui.presentation.components.toolbar.BackPressInteracti
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.dialog.edit_profile.ShowProfileUpdateSuccessDialog
 import com.senior25.tzakar.ui.presentation.dialog.edit_profile.ShowSaveProfileConfirmation
+import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.theme.MyColors
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
@@ -57,32 +58,23 @@ import tzakar_reminder.composeapp.generated.resources.ic_person
 import tzakar_reminder.composeapp.generated.resources.password
 import tzakar_reminder.composeapp.generated.resources.save_changes
 import tzakar_reminder.composeapp.generated.resources.username
-
+//https://www.figma.com/design/fpM6aPdyAxvnmMpSeyMETh/150%2B-Pro-Avatars-Pack-%7C-3-Styles-%7C-Free-%7C-Male-%26-Female-Avatars-(Community)?node-id=1327-64809&t=mDrEd52gNTNcNeNs-0
 class EditProfileScreen: Screen {
-    @OptIn(InternalVoyagerApi::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val mainViewModel = koinScreenModel<MainScreenViewModel>()
+        println(mainViewModel?.testCount)
 
-        LocalNavigator.current?.parent?.items?.forEach {
-            println("showLogHackinoo WEb parent  ${it::class.simpleName}")
-        }
-
-
-        LocalNavigator.current?.items?.forEach {
-            println("showLogHackinoo WEb curent  ${it::class.simpleName}")
-        }
-
-        print("showLogHackinoo WEb ${LocalNavigator.currentOrThrow.level}")
-        println("showLogHackinoo  WEb ${    LocalNavigator.current?.key}")
         val screenModel = koinScreenModel<EditProfileViewModel>()
 
         val interaction= object :EditProfilePageInteraction{
             override fun onContinueClick() {
-//                   screenModel.updateProfile().collectLatest {
-//                       onUIEvent(EditProfilePageEvent.Success)
-//                       onUIEvent(EditProfilePageEvent.UpdatePopUpState(EditProfilePagePopUp.SaveChangesSuccess))
-//                   }
+                   screenModel.updateProfile {
+
+                       onUIEvent(EditProfilePageEvent.Success)
+                       onUIEvent(EditProfilePageEvent.UpdatePopUpState(EditProfilePagePopUp.SaveChangesSuccess))
+                   }
             }
 
             override fun onUIEvent(event: EditProfilePageEvent) {

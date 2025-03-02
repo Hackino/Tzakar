@@ -54,6 +54,7 @@ import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceC
 import com.senior25.tzakar.ui.presentation.components.separator.Separator
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.dialog.logout.showLogoutDialog
+import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileScreen
 import com.senior25.tzakar.ui.presentation.screen.web.WebViewScreen
 import com.senior25.tzakar.ui.theme.MyColors
@@ -76,15 +77,15 @@ import tzakar_reminder.composeapp.generated.resources.privacy_policy
 import tzakar_reminder.composeapp.generated.resources.terms_of_service
 
 object ProfileTab: Tab {
-    override val key: ScreenKey
-        get() = "ProfileTabKey"
+
+    override val key: ScreenKey get() = "ProfileTabKey"
 
     override val options: TabOptions
         @Composable
         get() {
             val icon = rememberVectorPainter(Icons.Default.Person)
             val title  = "My Profile"
-            val index:UShort= 1u
+            val index:UShort = 1u
             return TabOptions(icon = icon,title = title, index = index)
         }
 
@@ -98,15 +99,14 @@ object ProfileTab: Tab {
 
 class ProfileScreen: Screen {
 
-
-    override val key: ScreenKey
-        get() = "ProfileScreenKey"
+    override val key: ScreenKey get() = "ProfileScreenKey"
 
     @Composable
     override fun Content() {
         AppNavigator.addTabNavigator(LocalNavigator.current)
 
         val navigator = LocalNavigator.current
+        val mainViewModel = koinScreenModel<MainScreenViewModel>()
 
         val screenModel = koinScreenModel<ProfileViewModel>()
         val terms =  stringResource(Res.string.terms_of_service)

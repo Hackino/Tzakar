@@ -28,10 +28,8 @@ open class CommonViewModel: ScreenModel{
         _navigateTo.value = NavigationModel(id, bundle, title)
     }
 
-
     val coroutineContext = SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
         println("BaseViewModel: Error: ${throwable.message}")
-        //show error message using snackbar for all errors
     }
 
     private var job: Job? =  null

@@ -4,6 +4,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.firebase.FirebaseAuthRsp
 import com.senior25.tzakar.data.local.model.firebase.StatusCode
 import com.senior25.tzakar.data.local.model.profile.UserProfile
+import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.RegistrationRepository
 import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.helper.authentication.email.AuthService
@@ -69,7 +70,9 @@ class SignUpScreenViewModel(
                     val user =  userJson.toString().decodeJson(UserProfile())
                     if (user?.password == null && user?.email == null){
                         email?.let {
-                            ref.setValue(user?.copy(userName = username,email = email, password = password).encodeToJson())
+                          val updatedUser =   user?.copy(userName = username,email = email, password = password)
+                            ref.setValue(updatedUser.encodeToJson())
+                            SharedPref.loggedInProfile = updatedUser
                             onSuccess(FirebaseAuthRsp().authResult)
                         }
                     }else{

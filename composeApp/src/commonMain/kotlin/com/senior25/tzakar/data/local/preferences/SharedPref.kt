@@ -1,5 +1,6 @@
 package com.senior25.tzakar.data.local.preferences
 
+import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.preferences.PrefsDataStoreManager.getSharedPreference
 import com.senior25.tzakar.helper.PreferenceHelper.clearPreferencesDataStore
 import com.senior25.tzakar.helper.PreferenceHelper.getFromDataStore
@@ -53,11 +54,15 @@ object SharedPref {
     private fun notificationPermissionStatus() =
         getSharedPreference().getFromDataStore(notificationStatus())?: NotificationStatus.UNKNOWN.value
 
-    private fun keyLoggedInEmail()  = "${getApplicationConfig().id}.pref_logged_in_email"
     var loggedInEmail: String?
-        set(email) = getSharedPreference().saveToDataStore(keyLoggedInEmail(),email)
-        get() = getLoggedInEmailValue().ifEmpty { null }
-    private fun getLoggedInEmailValue() = getSharedPreference().getFromDataStore(keyLoggedInEmail())?:""
+       private set(email) {}
+        get() = loggedInProfile?.email?.ifEmpty { null }
+
+    private fun keyLoggedInProfile()  = "${getApplicationConfig().id}.pref_logged_in_profile"
+    var loggedInProfile: UserProfile?
+        set(profile) = getSharedPreference().saveToDataStore(keyLoggedInProfile(),profile)
+        get() = getLoggedInProfileValue()
+    private fun getLoggedInProfileValue() = getSharedPreference().getFromDataStore(keyLoggedInProfile())?:UserProfile()
 }
 
 enum class AppState { REGISTRATION, MAIN_ACTIVITY, NONE }

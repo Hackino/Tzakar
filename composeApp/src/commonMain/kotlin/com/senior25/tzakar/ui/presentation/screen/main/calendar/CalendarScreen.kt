@@ -18,6 +18,7 @@ import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.toast_helper.showToast
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreen
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.profile.ProfileScreen
 
 object CalendarTab: Tab {
@@ -43,10 +44,9 @@ class CalendarScreen: Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = navigator?.koinParentScreenModel<MainScreenViewModel>(
-            parentName = MainScreen::class.simpleName
-        )?:koinScreenModel()
-        showToast(screenModel.testCount.toString())
+        val viewModel = koinScreenModel<EditProfileViewModel>()
+        val mainViewModel = koinScreenModel<MainScreenViewModel>()
+        showToast(mainViewModel.testCount.toString())
         Scaffold(
         ) {padding->
 
