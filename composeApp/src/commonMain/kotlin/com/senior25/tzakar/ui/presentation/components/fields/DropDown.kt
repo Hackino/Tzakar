@@ -190,7 +190,6 @@ fun <T> DropdownMenuField(
                     expanded = false
                 }) { Text(text = displayValue(item)) }
             }
-
         }
     }
     Spacer(modifier = Modifier.height(16.dp))
@@ -198,7 +197,7 @@ fun <T> DropdownMenuField(
 
 
 
-private fun calculateDropdownOffset(density: Density, screenHeight: Dp): Dp {
+fun calculateDropdownOffset(density: Density, screenHeight: Dp): Dp {
     return with(density) {
         val availableSpaceBelow = screenHeight.toPx() / 2
         val dropdownHeight = 200.dp.toPx()

@@ -49,6 +49,10 @@ class EditProfileViewModel(
             is EditProfilePageEvent.UpdateSelectedGender ->{
                 _selectedGender.value = uiEvent.gender?.id?:-1
             }
+
+            is EditProfilePageEvent.UpdateImage -> {
+                _image.value = uiEvent.image
+            }
         }
     }
 
@@ -64,8 +68,10 @@ class EditProfileViewModel(
 
                    val updatedUser = user?.copy(
                         userName = username,
-                        genderId = _selectedGender.value
-                    )
+                        genderId = _selectedGender.value,
+                       image =_image.value
+
+                   )
 
                     ref.setValue(updatedUser.encodeToJson())
                     SharedPref.loggedInProfile = updatedUser
@@ -80,6 +86,7 @@ class EditProfileViewModel(
 sealed class EditProfilePageEvent {
     data class UpdateUserName(var text:String?):EditProfilePageEvent()
     data class UpdateSelectedGender(var gender:GenderModel?):EditProfilePageEvent()
+    data class UpdateImage(var image:String?):EditProfilePageEvent()
 
     data object Success: EditProfilePageEvent()
     data object LoaderView: EditProfilePageEvent()

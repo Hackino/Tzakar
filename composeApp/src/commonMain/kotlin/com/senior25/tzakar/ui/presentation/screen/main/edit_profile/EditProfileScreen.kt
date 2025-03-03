@@ -14,10 +14,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
@@ -33,8 +39,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
@@ -43,10 +51,12 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.data.local.model.gender.Gender
 import com.senior25.tzakar.data.local.model.gender.GenderModel
 import com.senior25.tzakar.ktx.koinScreenModel
+import com.senior25.tzakar.platform_specific.ui.getScreenHeight
+import com.senior25.tzakar.platform_specific.ui.getScreenWidth
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.fields.DropDownField
 import com.senior25.tzakar.ui.presentation.components.fields.EmailField
-import com.senior25.tzakar.ui.presentation.components.fields.PasswordField
+import com.senior25.tzakar.ui.presentation.components.fields.calculateDropdownOffset
 import com.senior25.tzakar.ui.presentation.components.fields.userNameField
 import com.senior25.tzakar.ui.presentation.components.image.LoadMediaImage
 import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
@@ -55,7 +65,6 @@ import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.dialog.edit_profile.ShowProfileUpdateSuccessDialog
 import com.senior25.tzakar.ui.presentation.dialog.edit_profile.ShowSaveProfileConfirmation
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
-import com.senior25.tzakar.ui.presentation.screen.main.change_password.ChangePasswordPageEvent
 import com.senior25.tzakar.ui.theme.MyColors
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
@@ -64,17 +73,14 @@ import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.edit_profile
 import tzakar_reminder.composeapp.generated.resources.email_address
 import tzakar_reminder.composeapp.generated.resources.enter_email_address
-import tzakar_reminder.composeapp.generated.resources.enter_password
 import tzakar_reminder.composeapp.generated.resources.enter_username
 import tzakar_reminder.composeapp.generated.resources.gender
 import tzakar_reminder.composeapp.generated.resources.ic_arrow_down
 import tzakar_reminder.composeapp.generated.resources.ic_edit_pen
 import tzakar_reminder.composeapp.generated.resources.ic_email
 import tzakar_reminder.composeapp.generated.resources.ic_gender
-import tzakar_reminder.composeapp.generated.resources.ic_lock
 import tzakar_reminder.composeapp.generated.resources.ic_person
 import tzakar_reminder.composeapp.generated.resources.ic_profile_placeholder
-import tzakar_reminder.composeapp.generated.resources.password
 import tzakar_reminder.composeapp.generated.resources.please_specify_your_gender
 import tzakar_reminder.composeapp.generated.resources.save_changes
 import tzakar_reminder.composeapp.generated.resources.username
@@ -129,8 +135,25 @@ class EditProfileScreen: Screen {
 }
 
 
+
 @Composable
 fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfilePageInteraction?) {
+
+    val displayItems = listOf(
+        "https://picsum.photos/200",
+        "https://picsum.photos/200",
+        "https://picsum.photos/200",
+        "https://picsum.photos/200",
+        "https://picsum.photos/200",
+        "https://picsum.photos/200",
+        "https://picsum.photos/200",
+        "https://picsum.photos/200"
+    )
+
+    var expanded by remember { mutableStateOf(false) }
+    val density = LocalDensity.current
+    val screenHeight = getScreenHeight()
+    var dropdownOffset by remember { mutableStateOf(0.dp) }
 
     var isValidUsername by remember { mutableStateOf(false) }
 
@@ -174,7 +197,7 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
                             .size(150.dp)
                             .background(Color.White, CircleShape)
                             .clip(CircleShape),
-                        url = "https://raw.githubusercontent.com/Hackino/Tzakar/refs/heads/master/assets/avatars/female/Avatar%20Image%20(1).jpg", //image.value,
+                        url = image?.value,
                         default = Res.drawable.ic_profile_placeholder
                     )
                     Box(
@@ -185,8 +208,7 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
                             .align(Alignment.BottomCenter)
                             .offset(y = 16.dp)
                             .zIndex(1f),
-
-                        ) {
+                    ) {
                         Icon(
                             painter = painterResource(Res.drawable.ic_edit_pen),
                             contentDescription = "",
@@ -195,11 +217,53 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
                                 .padding(4.dp)
                                 .offset(y = (-16).dp)
                                 .clip(CircleShape)
-                                .clickable { interaction?.onEditPictureClick() },
+                                .clickable {
+//                                    interaction?.onEditPictureClick()
+                                    if (displayItems != null){
+                                        expanded = !expanded
+                                        dropdownOffset = calculateDropdownOffset(density, screenHeight)
+                                    }
+                                },
                             tint = MyColors.colorDarkBlue
                         )
                     }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        offset = DpOffset(
+                            x = with(density){ ((getScreenWidth() / 2) - (250.dp / 2))-32.dp },
+                            y = dropdownOffset
+                        ),
+                        modifier = Modifier.width(250.dp).padding(horizontal = 8.dp).background(Color.White)
+                    ) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(3),
+                            modifier = Modifier.width(250.dp).height(200.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            itemsIndexed(displayItems) { index,item ->
+                                DropdownMenuItem(onClick = {
+                                if (item != image?.value)interaction?.onUIEvent(EditProfilePageEvent.UpdateImage(item))
+                                    expanded = false
+
+                                },
+                                    contentPadding = PaddingValues(0.dp)
+                                ) {
+                                    LoadMediaImage(
+                                        modifier = Modifier
+                                            .size(80.dp)
+                                            .background(Color.White, RoundedCornerShape(8.dp))
+                                            .clip(RoundedCornerShape(8.dp)),
+                                        url = item,
+                                        default = Res.drawable.ic_profile_placeholder
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
+
 
 
                 userNameField(
@@ -248,46 +312,46 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
             }
 
 
-                Column(
-                    modifier = Modifier.padding(bottom = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    CustomButton(
-                        isEnabled = isValidUsername && isGenderValid  ,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                        onClick = { interaction?.onUIEvent(EditProfilePageEvent.UpdatePopUpState(EditProfilePagePopUp.SaveChanges)) },
-                        text = stringResource(Res.string.save_changes)
-                    )
-                }
+            Column(
+                modifier = Modifier.padding(bottom = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                CustomButton(
+                    isEnabled = isValidUsername && isGenderValid  ,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    onClick = { interaction?.onUIEvent(EditProfilePageEvent.UpdatePopUpState(EditProfilePagePopUp.SaveChanges)) },
+                    text = stringResource(Res.string.save_changes)
+                )
             }
         }
-        if (uiState?.value is EditProfilePageUiState.ProgressLoader) FullScreenLoader()
+    }
+    if (uiState?.value is EditProfilePageUiState.ProgressLoader) FullScreenLoader()
 
-        if (popUpState?.value is EditProfilePagePopUp.SaveChanges){
-            ShowSaveProfileConfirmation(
-                onConfirm = { interaction.onContinueClick() },
-                onDismiss = { interaction?.onUIEvent(EditProfilePageEvent.UpdatePopUpState(EditProfilePagePopUp.None)) }
-            )
-        }
-
-        if (popUpState?.value is EditProfilePagePopUp.SaveChangesSuccess) {
-            ShowProfileUpdateSuccessDialog(
-                onDismiss = { interaction?.onBackPress() }
-            )
-        }
+    if (popUpState?.value is EditProfilePagePopUp.SaveChanges){
+        ShowSaveProfileConfirmation(
+            onConfirm = { interaction.onContinueClick() },
+            onDismiss = { interaction?.onUIEvent(EditProfilePageEvent.UpdatePopUpState(EditProfilePagePopUp.None)) }
+        )
     }
 
-    interface EditProfilePageInteraction: BackPressInteraction {
-        fun onContinueClick()
-        fun getSelectedGender(): StateFlow<Int>?
-
-        fun onUIEvent(event: EditProfilePageEvent)
-        fun getUiState(): StateFlow<EditProfilePageUiState?>
-        fun getUsername():String?
-        fun getEmail():String?
-        fun getPopupState(): StateFlow<EditProfilePagePopUp?>
-        fun onEditPictureClick()
-        fun getImage(): StateFlow<String?>
-
+    if (popUpState?.value is EditProfilePagePopUp.SaveChangesSuccess) {
+        ShowProfileUpdateSuccessDialog(
+            onDismiss = { interaction?.onBackPress() }
+        )
     }
+}
+
+interface EditProfilePageInteraction: BackPressInteraction {
+    fun onContinueClick()
+    fun getSelectedGender(): StateFlow<Int>?
+
+    fun onUIEvent(event: EditProfilePageEvent)
+    fun getUiState(): StateFlow<EditProfilePageUiState?>
+    fun getUsername():String?
+    fun getEmail():String?
+    fun getPopupState(): StateFlow<EditProfilePagePopUp?>
+    fun onEditPictureClick()
+    fun getImage(): StateFlow<String?>
+
+}
