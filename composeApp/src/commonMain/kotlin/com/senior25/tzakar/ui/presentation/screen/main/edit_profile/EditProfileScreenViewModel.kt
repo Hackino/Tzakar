@@ -34,7 +34,7 @@ class EditProfileViewModel(
     private val _image = MutableStateFlow(SharedPref.loggedInProfile?.image)
     val image: StateFlow<String?> get() = _image.asStateFlow()
 
-    private val _selectedGender = MutableStateFlow(SharedPref.loggedInProfile?.genderModel?.id?:-1)
+    private val _selectedGender = MutableStateFlow(SharedPref.loggedInProfile?.genderId?:-1)
     val selectedGender: StateFlow<Int> get() = _selectedGender.asStateFlow()
 
     var username:String? = SharedPref.loggedInProfile?.userName?:""
@@ -61,10 +61,14 @@ class EditProfileViewModel(
                 val userJson = ref.valueEvents.first().value
                 if (userJson != null) {
                     val user = userJson.toString().decodeJson(UserProfile())
-                    ref.setValue(user?.copy(
+
+                   val updatedUser = user?.copy(
                         userName = username,
-                    ).encodeToJson())
-                    SharedPref.selectedLanguage
+                        genderId = _selectedGender.value
+                    )
+
+                    ref.setValue(updatedUser.encodeToJson())
+                    SharedPref.loggedInProfile = updatedUser
                     onSuccess(FirebaseAuthRsp().authResult)
                     return@launch
                 }

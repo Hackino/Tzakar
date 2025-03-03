@@ -1,7 +1,6 @@
 package com.senior25.tzakar.ui.presentation.screen.main.profile
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,18 +34,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
@@ -64,7 +58,6 @@ import com.senior25.tzakar.ui.presentation.screen.main.change_password.ChangePas
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileScreen
 import com.senior25.tzakar.ui.presentation.screen.web.WebViewScreen
 import com.senior25.tzakar.ui.theme.MyColors
-import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontH3
 import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphS
@@ -200,7 +193,7 @@ fun ProfileScreen(interaction: ProfilePageScreenInteraction?) {
             ProfileCard(
                 profile = uiState?.value?.data?.profileModelInfo,
 
-            )
+                )
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -276,7 +269,7 @@ fun ProfileScreen(interaction: ProfilePageScreenInteraction?) {
                         iconRes = Res.drawable.ic_notifications,
                         text = stringResource(Res.string.notifications),
                         isSelected = notificationState?.value
-                        ) {
+                    ) {
                         interaction?.onUIEvent(ProfilePageEvent.UpdateNotificationState(it))
                     }
                     Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
@@ -336,7 +329,7 @@ fun MenuItem(
     onClick: () -> Unit,
 
 
-) {
+    ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

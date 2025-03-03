@@ -19,6 +19,6 @@ data class UserProfile(
     val email:String? = null,
     @SerialName("password")
     val password:String? = null,
-    @SerialName("gender")
-    val genderModel: GenderModel? = null
+    @SerialName("genderId")
+    val genderId: Int? = null
 )

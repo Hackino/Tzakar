@@ -70,6 +70,7 @@ import tzakar_reminder.composeapp.generated.resources.gender
 import tzakar_reminder.composeapp.generated.resources.ic_arrow_down
 import tzakar_reminder.composeapp.generated.resources.ic_edit_pen
 import tzakar_reminder.composeapp.generated.resources.ic_email
+import tzakar_reminder.composeapp.generated.resources.ic_gender
 import tzakar_reminder.composeapp.generated.resources.ic_lock
 import tzakar_reminder.composeapp.generated.resources.ic_person
 import tzakar_reminder.composeapp.generated.resources.ic_profile_placeholder
@@ -91,7 +92,6 @@ class EditProfileScreen: Screen {
         val interaction= object :EditProfilePageInteraction{
             override fun onContinueClick() {
                 screenModel.updateProfile {
-
                     onUIEvent(EditProfilePageEvent.Success)
                     onUIEvent(EditProfilePageEvent.UpdatePopUpState(EditProfilePagePopUp.SaveChangesSuccess))
                 }
@@ -235,7 +235,7 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
                 DropDownField<GenderModel>(
                     selectedItem = Gender.getGenders().firstOrNull { it.id == selectedGender?.value },
                     label = stringResource(Res.string.gender),
-                    startIcon = painterResource(Res.drawable.ic_lock),
+                    startIcon = painterResource(Res.drawable.ic_gender),
                     endIcon = painterResource(Res.drawable.ic_arrow_down),
                     onItemSelected={
                         interaction?.onUIEvent(EditProfilePageEvent.UpdateSelectedGender(it))
