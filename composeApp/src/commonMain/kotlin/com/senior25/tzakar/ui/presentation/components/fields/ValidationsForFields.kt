@@ -31,10 +31,10 @@ fun isNameValid( text:String):Pair<Boolean,String>{
 }
 
 @Composable
-fun isPasswordValid(text:String):Pair<Boolean,String>{
+fun isPasswordValid(text:String,fullValidation:Boolean? = true):Pair<Boolean,String>{
     return if (text.isBlank() || text.isEmpty()) {
         Pair(false, "")
-    }else if (!PasswordValidator.isValidPassword(password = text)){
+    }else if (!PasswordValidator.isValidPassword(password = text) && fullValidation == true){
         Pair(false, stringResource(Res.string.password_not_validated))
     } else{
         Pair(true,"")

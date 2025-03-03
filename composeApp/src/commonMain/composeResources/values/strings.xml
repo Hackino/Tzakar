@@ -59,6 +59,8 @@
     <string name="success">Success</string>
 
     <string name="password_reset_successfully">Password reset successfully</string>
+    <string name="password_changed_successfully">Password changed successfully</string>
+
     <string name="user_doesnt_exist">User doesn't exist</string>
 
     <string name="save">Save</string>
@@ -78,5 +80,11 @@
     <string name="notifications">Notifications</string>
     <string name="gender">Gender</string>
     <string name="please_specify_your_gender">Please specify your gender</string>
+    <string name="old_password">Old Password</string>
+    <string name="new_password">New Password</string>
+    <string name="please_enter_old_password">Enter your old password</string>
+    <string name="please_enter_new_password">Enter your new password</string>
+    <string name="incorrect_old_password">Incorrect old password</string>
+    <string name="confirm_new_password">Confirm new password</string>
 
 </resources>

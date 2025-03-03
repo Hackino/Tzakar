@@ -284,7 +284,8 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                         keyboardController?.hide()
                     },
                     leadingIcon = painterResource(Res.drawable.ic_lock),
-                    trailingIcon = painterResource(Res.drawable.ic_eye_off)
+                    trailingIcon = painterResource(Res.drawable.ic_eye_off),
+                    fullValidation = false
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 

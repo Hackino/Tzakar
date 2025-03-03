@@ -130,8 +130,8 @@ fun PasswordField(
     onKeyPressed:()->Unit = {},
     leadingIcon: Painter?=  null,
     trailingIcon: Painter?=  null,
-    isEnabled:Boolean? = true
-
+    isEnabled:Boolean? = true,
+    fullValidation:Boolean? = true
 
 ) {
     BaseTextField(
@@ -141,7 +141,7 @@ fun PasswordField(
         keyboardType = KeyboardType.Password,
         onValueChange =onValueChange,
         validate = {
-            val isValid = isPasswordValid(it)
+            val isValid = isPasswordValid(it,fullValidation =fullValidation)
             isInputValid(isValid.first)
             isValid
         },

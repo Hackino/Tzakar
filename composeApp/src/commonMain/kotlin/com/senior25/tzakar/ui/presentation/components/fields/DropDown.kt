@@ -47,6 +47,7 @@ import tzakar_reminder.composeapp.generated.resources.ic_arrow_forward_ios
 @Composable
 fun <T>  DropDownField(
     selectedItem: T?,
+    displayValue: (T?) -> String,
     label:String? = null,
     startIcon:Painter? = null,
     endIcon: Painter? = null,
@@ -71,11 +72,11 @@ fun <T>  DropDownField(
         }
         DropdownMenuField(
             endIcon = endIcon ?: painterResource(Res.drawable.ic_arrow_down),
-            selectedItem = selected,
+            selectedItem = selectedItem,
             items = items ?: emptyList(),
             startIcon = startIcon,
             onItemSelected = onItemSelected,
-            displayValue = { it.toString() },
+            displayValue = displayValue,
             showPlaceholder = true,
             isMandatory = isMandatory == true,
             placeholder = placeHolder ?: ""
@@ -187,7 +188,7 @@ fun <T> DropdownMenuField(
                 androidx.compose.material.DropdownMenuItem(onClick = {
                     if (item !=  selected) onItemSelected(item)
                     expanded = false
-                }) { Text(text = item.toString()) }
+                }) { Text(text = displayValue(item)) }
             }
 
         }

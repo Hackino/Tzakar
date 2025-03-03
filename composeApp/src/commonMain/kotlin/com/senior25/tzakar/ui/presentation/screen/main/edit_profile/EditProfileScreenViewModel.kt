@@ -2,6 +2,7 @@ package com.senior25.tzakar.ui.presentation.screen.main.edit_profile
 
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.firebase.FirebaseAuthRsp
+import com.senior25.tzakar.data.local.model.gender.GenderModel
 import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.MainRepository
@@ -30,9 +31,11 @@ class EditProfileViewModel(
     private val _popUpState = MutableStateFlow<EditProfilePagePopUp?>(EditProfilePagePopUp.None)
     val popUpState: StateFlow<EditProfilePagePopUp?> get() = _popUpState.asStateFlow()
 
-
     private val _image = MutableStateFlow(SharedPref.loggedInProfile?.image)
     val image: StateFlow<String?> get() = _image.asStateFlow()
+
+    private val _selectedGender = MutableStateFlow(SharedPref.loggedInProfile?.genderModel?.id?:-1)
+    val selectedGender: StateFlow<Int> get() = _selectedGender.asStateFlow()
 
     var username:String? = SharedPref.loggedInProfile?.userName?:""
     var email:String? = SharedPref.loggedInEmail
@@ -43,6 +46,9 @@ class EditProfileViewModel(
             EditProfilePageEvent.Success -> _uiState.value = EditProfilePageUiState.Success
             EditProfilePageEvent.LoaderView ->  _uiState.value = EditProfilePageUiState.ProgressLoader
             is EditProfilePageEvent.UpdatePopUpState -> _popUpState.value = uiEvent.popUp
+            is EditProfilePageEvent.UpdateSelectedGender ->{
+                _selectedGender.value = uiEvent.gender?.id?:-1
+            }
         }
     }
 
@@ -69,6 +75,8 @@ class EditProfileViewModel(
 
 sealed class EditProfilePageEvent {
     data class UpdateUserName(var text:String?):EditProfilePageEvent()
+    data class UpdateSelectedGender(var gender:GenderModel?):EditProfilePageEvent()
+
     data object Success: EditProfilePageEvent()
     data object LoaderView: EditProfilePageEvent()
     data class UpdatePopUpState(val popUp: EditProfilePagePopUp) : EditProfilePageEvent()

@@ -22,6 +22,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +40,8 @@ import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.senior25.tzakar.data.local.model.gender.Gender
+import com.senior25.tzakar.data.local.model.gender.GenderModel
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.fields.DropDownField
@@ -52,6 +55,7 @@ import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.dialog.edit_profile.ShowProfileUpdateSuccessDialog
 import com.senior25.tzakar.ui.presentation.dialog.edit_profile.ShowSaveProfileConfirmation
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.change_password.ChangePasswordPageEvent
 import com.senior25.tzakar.ui.theme.MyColors
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
@@ -93,6 +97,8 @@ class EditProfileScreen: Screen {
                 }
             }
 
+            override fun getSelectedGender(): StateFlow<Int>? = screenModel.selectedGender
+
             override fun onUIEvent(event: EditProfilePageEvent) {
                 screenModel.onUIEvent(event)
             }
@@ -127,6 +133,13 @@ class EditProfileScreen: Screen {
 fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfilePageInteraction?) {
 
     var isValidUsername by remember { mutableStateOf(false) }
+
+    val selectedGender: State<Int>? = interaction?.getSelectedGender()?.collectAsState()
+
+    var isGenderValid by remember(selectedGender?.value) { mutableStateOf(
+        selectedGender?.value!= -1 && selectedGender?.value != null
+    ) }
+
     val keyboardController = LocalSoftwareKeyboardController.current
     val usernameFocusRequester = remember { FocusRequester() }
     val uiState =  interaction?.getUiState()?.collectAsState()
@@ -219,26 +232,18 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-//                PasswordField(
-//                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-//                    label = stringResource(Res.string.password),
-//                    placeHolder = stringResource(Res.string.enter_password),
-//                    value = "*********",
-//                    imeAction = ImeAction.Done,
-//                    leadingIcon = painterResource(Res.drawable.ic_lock),
-//                    trailingIcon = null,
-//                    isEnabled = false
-//                )
-
-                DropDownField(
-                    selectedItem = "rami",
+                DropDownField<GenderModel>(
+                    selectedItem = Gender.getGenders().firstOrNull { it.id == selectedGender?.value },
                     label = stringResource(Res.string.gender),
                     startIcon = painterResource(Res.drawable.ic_lock),
                     endIcon = painterResource(Res.drawable.ic_arrow_down),
-                    onItemSelected={},
+                    onItemSelected={
+                        interaction?.onUIEvent(EditProfilePageEvent.UpdateSelectedGender(it))
+                    },
+                    displayValue = {it?.value?:""},
                     isMandatory = true,
                     placeHolder= stringResource(Res.string.please_specify_your_gender),
-                    items =  listOf("1","2","4","rami")
+                    items =  Gender.getGenders()
                 )
             }
 
@@ -249,7 +254,7 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     CustomButton(
-                        isEnabled = isValidUsername,
+                        isEnabled = isValidUsername && isGenderValid  ,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                         onClick = { interaction?.onUIEvent(EditProfilePageEvent.UpdatePopUpState(EditProfilePagePopUp.SaveChanges)) },
                         text = stringResource(Res.string.save_changes)
@@ -275,6 +280,8 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
 
     interface EditProfilePageInteraction: BackPressInteraction {
         fun onContinueClick()
+        fun getSelectedGender(): StateFlow<Int>?
+
         fun onUIEvent(event: EditProfilePageEvent)
         fun getUiState(): StateFlow<EditProfilePageUiState?>
         fun getUsername():String?

@@ -60,6 +60,7 @@ import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.dialog.delete_account.showDeleteAccountDialog
 import com.senior25.tzakar.ui.presentation.dialog.logout.showLogoutDialog
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.change_password.ChangePasswordScreen
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileScreen
 import com.senior25.tzakar.ui.presentation.screen.web.WebViewScreen
 import com.senior25.tzakar.ui.theme.MyColors
@@ -72,7 +73,6 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import tzakar_reminder.composeapp.generated.resources.Res
-import tzakar_reminder.composeapp.generated.resources.app_icon
 import tzakar_reminder.composeapp.generated.resources.change_password
 import tzakar_reminder.composeapp.generated.resources.delete_account
 import tzakar_reminder.composeapp.generated.resources.edit_profile
@@ -127,7 +127,7 @@ class ProfileScreen: Screen {
         val privacy =  stringResource(Res.string.privacy_policy)
 
 
-        LaunchedEffect(key1 = Unit){ viewModel.init() }
+        LaunchedEffect(key1 = Unit) { viewModel.init() }
 
         val interaction  = object : ProfilePageScreenInteraction {
 
@@ -155,7 +155,7 @@ class ProfileScreen: Screen {
                     }
 
                     NavigationAction.CHANGE_PASSWORD -> {
-//                        navigator?.push(ChangePasswordScreen())
+                        navigator?.push(ChangePasswordScreen())
                     }
 
                     NavigationAction.DELETE_ACCOUNT -> {
@@ -196,7 +196,6 @@ fun ProfileScreen(interaction: ProfilePageScreenInteraction?) {
                 .background(Color.White)
                 .padding(horizontal = 16.dp)
         ) {
-            HeaderSection()
 
             ProfileCard(
                 profile = uiState?.value?.data?.profileModelInfo,
@@ -291,7 +290,7 @@ fun ProfileScreen(interaction: ProfilePageScreenInteraction?) {
                         iconTint = MyColors.colorRed,
 
                         ) {
-                        interaction?.navigate(NavigationAction.DELETE_ACCOUNT)
+                        interaction?.onUIEvent(ProfilePageEvent.UpdatePopUpState(ProfilePagePopUp.DeleteAccount))
                     }
                     Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
                         Separator()
@@ -327,35 +326,6 @@ fun ProfileScreen(interaction: ProfilePageScreenInteraction?) {
     }
 }
 
-@Composable
-fun HeaderSection() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Image(
-                modifier = Modifier.size(48.dp),
-                painter = painterResource(Res.drawable.app_icon),
-                contentDescription =  ""
-            )
-            val annotatedText = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = MyColors.colorPurple)) { append("T") }
-                append("zakar")
-            }
-            Text(
-                text = annotatedText,
-                style = fontH1.copy(color = MyColors.colorDarkBlue, textAlign = TextAlign.Center,),
-            )
-        }
-
-    }
-}
 
 @Composable
 fun MenuItem(
