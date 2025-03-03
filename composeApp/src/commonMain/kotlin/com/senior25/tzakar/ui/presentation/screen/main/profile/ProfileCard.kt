@@ -55,7 +55,7 @@ fun ProfileCard(
                     .size(56.dp)
                     .background(Color.White, CircleShape)
                     .clip(CircleShape),
-                url ="https://raw.githubusercontent.com/Hackino/Tzakar/refs/heads/master/assets/avatars/female/Avatar%20Image%20(1).jpg", //profile?.profilePicture,
+                url =profile?.image,
                 default = Res.drawable.ic_profile_placeholder
             )
 

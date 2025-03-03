@@ -140,14 +140,14 @@ class EditProfileScreen: Screen {
 fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfilePageInteraction?) {
 
     val displayItems = listOf(
-        "https://picsum.photos/200",
-        "https://picsum.photos/200",
-        "https://picsum.photos/200",
-        "https://picsum.photos/200",
-        "https://picsum.photos/200",
-        "https://picsum.photos/200",
-        "https://picsum.photos/200",
-        "https://picsum.photos/200"
+        "https://picsum.photos/210",
+        "https://picsum.photos/210",
+        "https://picsum.photos/210",
+        "https://picsum.photos/210",
+        "https://picsum.photos/210",
+        "https://picsum.photos/210",
+        "https://picsum.photos/210",
+        "https://picsum.photos/210"
     )
 
     var expanded by remember { mutableStateOf(false) }

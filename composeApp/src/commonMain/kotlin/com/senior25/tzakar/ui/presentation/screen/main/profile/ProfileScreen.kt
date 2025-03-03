@@ -137,10 +137,11 @@ class ProfileScreen: Screen {
                     NavigationAction.PRIVACY_POLICY ->{
                         navigator?.push(WebViewScreen(title = privacy, link = AppLinks.PRIVACY.link.encodeUrl()))
                     }
+
                     NavigationAction.TERMS_AND_CONDITION -> {
                         navigator?.push(WebViewScreen(title =terms,link = AppLinks.TERMS.link.encodeUrl() ))
-
                     }
+
                     NavigationAction.LOGOUT -> {
                         onUIEvent(ProfilePageEvent.UpdatePopUpState(ProfilePagePopUp.None))
                         SharedPref.clearPref()
@@ -190,10 +191,7 @@ fun ProfileScreen(interaction: ProfilePageScreenInteraction?) {
                 .padding(horizontal = 16.dp)
         ) {
 
-            ProfileCard(
-                profile = uiState?.value?.data?.profileModelInfo,
-
-                )
+            ProfileCard(profile = uiState?.value?.data?.profileModelInfo)
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -288,7 +286,6 @@ fun ProfileScreen(interaction: ProfilePageScreenInteraction?) {
                     Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
                         Separator()
                     }
-
                     MenuItem(
                         iconRes = Res.drawable.ic_logout,
                         text = stringResource(Res.string.logout)
