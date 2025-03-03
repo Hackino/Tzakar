@@ -30,7 +30,11 @@ class EditProfileViewModel(
     private val _popUpState = MutableStateFlow<EditProfilePagePopUp?>(EditProfilePagePopUp.None)
     val popUpState: StateFlow<EditProfilePagePopUp?> get() = _popUpState.asStateFlow()
 
-    var username:String? = ""
+
+    private val _image = MutableStateFlow(SharedPref.loggedInProfile?.image)
+    val image: StateFlow<String?> get() = _image.asStateFlow()
+
+    var username:String? = SharedPref.loggedInProfile?.userName?:""
     var email:String? = SharedPref.loggedInEmail
 
     fun onUIEvent(uiEvent: EditProfilePageEvent) = screenModelScope.launch {

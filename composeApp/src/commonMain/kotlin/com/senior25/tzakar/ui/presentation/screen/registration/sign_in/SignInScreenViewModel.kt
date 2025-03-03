@@ -71,6 +71,7 @@ class SignInScreenViewModel(
                 val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64())
                 val userJson = ref.valueEvents.first().value
                 if (userJson != null) {
+                    println( userJson.toString())
                     val user =  userJson.toString().decodeJson(UserProfile())
                     if (user?.password != password){
                         _errorStatusCode.update { StatusCode(errorMessage = getString(Res.string.invalid_credentials)) }

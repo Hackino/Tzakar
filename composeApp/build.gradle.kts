@@ -88,10 +88,9 @@ kotlin {
             implementation(libs.cafe.adriel.voyager.transitions)
             implementation(libs.cafe.adriel.voyager.screenmodel)
             implementation("io.ktor:ktor-utils:3.0.1")
-
-
+            implementation("media.kamel:kamel-image:1.0.3")
             implementation(libs.decompose)
-//            implementation(libs.decompose.jetbrains)
+            implementation("io.github.qdsfdhvh:image-loader:1.10.0")
         }
     }
 }

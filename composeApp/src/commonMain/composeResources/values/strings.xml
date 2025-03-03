@@ -69,6 +69,14 @@
     <string name="logout">Logout</string>
     <string name="my_profile">My Profile</string>
     <string name="are_you_sure_you_want_logout">Are you sure you want to logout?</string>
+    <string name="general">General</string>
+    <string name="preferences">Preferences</string>
+    <string name="change_password">Change Password</string>
+    <string name="delete_account">Delete Account</string>
 
+    <string name="are_you_sure_you_want_to_delete_your_account">Are you sure you want to delete your account?</string>
+    <string name="notifications">Notifications</string>
+    <string name="gender">Gender</string>
+    <string name="please_specify_your_gender">Please specify your gender</string>
 
 </resources>

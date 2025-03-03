@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,17 +26,13 @@ import com.senior25.tzakar.ui.presentation.components.image.LoadMediaImage
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontHighlight
 import com.senior25.tzakar.ui.theme.fontParagraphM
-import org.jetbrains.compose.resources.painterResource
 import tzakar_reminder.composeapp.generated.resources.Res
-import tzakar_reminder.composeapp.generated.resources.ic_edit_pen
 import tzakar_reminder.composeapp.generated.resources.ic_profile_placeholder
 
 
 @Composable
 fun ProfileCard(
     profile: UserProfile?,
-    onEditClick:()->Unit,
-    onLoginClick:()->Unit = {}
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
@@ -59,9 +54,8 @@ fun ProfileCard(
                 modifier = Modifier
                     .size(56.dp)
                     .background(Color.White, CircleShape)
-                    .clip(CircleShape)
-                    .clickable { onEditClick() },
-                url ="", //profile?.profilePicture,
+                    .clip(CircleShape),
+                url ="https://raw.githubusercontent.com/Hackino/Tzakar/refs/heads/master/assets/avatars/female/Avatar%20Image%20(1).jpg", //profile?.profilePicture,
                 default = Res.drawable.ic_profile_placeholder
             )
 
@@ -69,29 +63,16 @@ fun ProfileCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = profile?.userName?:"test",
+                    text = profile?.userName?:"",
                     style = fontHighlight,
                     color = MyColors.colorDarkBlue
-
                 )
                 Text(
-                    text = profile?.email?:"test",
+                    text = profile?.email?:"",
                     style = fontParagraphM,
                     color = MyColors.colorDarkBlue
                 )
             }
-
-            Icon(
-                painter = painterResource(Res.drawable.ic_edit_pen),
-                contentDescription = "",
-
-                modifier = Modifier
-                    .size(24.dp)
-                    .clip(CircleShape)
-                    .clickable { onEditClick() }
-            )
-
-
         }
     }
 }

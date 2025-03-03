@@ -22,7 +22,7 @@ fun String?.removeDoubleQuotes(): String {
 }
 
 inline fun <reified T> String.decodeJson(default:T? = null): T? = this?.let{
-    Json.decodeFromString<T?>(this)
+    Json.decodeFromString<T?>(this.replace("<null>","{}"))
 }?:default
 
 inline fun <reified T> T.encodeToJson()  = Json.encodeToString(this)
