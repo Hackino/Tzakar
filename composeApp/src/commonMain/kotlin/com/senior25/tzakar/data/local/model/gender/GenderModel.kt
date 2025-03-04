@@ -26,6 +26,13 @@ object Gender{
             value  = "Non-Binary"
         )
     )
+}
 
+enum class Genders(val value:Int){
+    UNKNOWN(-1),MALE(1),FEMALE(2),NON_BINARY(3);
 
+    companion object {
+        private val VALUES = Genders.values()
+        fun getByValue(value: Int?) = VALUES.firstOrNull { it.value == value } ?: UNKNOWN
+    }
 }

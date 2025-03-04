@@ -1,6 +1,7 @@
 package com.senior25.tzakar.ui.presentation.screen.main.edit_profile
 
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.senior25.tzakar.data.local.model.avatars.AvatarsModel
 import com.senior25.tzakar.data.local.model.firebase.FirebaseAuthRsp
 import com.senior25.tzakar.data.local.model.gender.GenderModel
 import com.senior25.tzakar.data.local.model.profile.UserProfile
@@ -14,6 +15,8 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,7 +41,25 @@ class EditProfileViewModel(
     val selectedGender: StateFlow<Int> get() = _selectedGender.asStateFlow()
 
     var username:String? = SharedPref.loggedInProfile?.userName?:""
+
     var email:String? = SharedPref.loggedInEmail
+
+    var avatars: AvatarsModel? = null
+
+    init {
+        screenModelScope.launch(Dispatchers.IO) {
+            val ref = Firebase.database.reference(DataBaseReference.Avatars.reference)
+            val avatarsJson = ref.valueEvents.first().value
+            val jsonInput = avatarsJson.toString()
+                .replace(Regex("(\\w+)="), "\"$1\":") // Replace '=' with ':'
+                .replace(Regex("\\[([^\\]]+)\\]")) { matchResult ->
+                val items = matchResult.groupValues[1].split(",").map { it.trim() }
+                "[" + items.joinToString(", ") { "\"$it\"" } + "]"
+            }
+                .replace(Regex(",\\s*(?=\\w)"), ", ")
+            if (avatarsJson != null) avatars = jsonInput.decodeJson(AvatarsModel())
+        }
+    }
 
     fun onUIEvent(uiEvent: EditProfilePageEvent) = screenModelScope.launch {
         when (uiEvent) {
@@ -49,7 +70,6 @@ class EditProfileViewModel(
             is EditProfilePageEvent.UpdateSelectedGender ->{
                 _selectedGender.value = uiEvent.gender?.id?:-1
             }
-
             is EditProfilePageEvent.UpdateImage -> {
                 _image.value = uiEvent.image
             }
@@ -66,12 +86,11 @@ class EditProfileViewModel(
                 if (userJson != null) {
                     val user = userJson.toString().decodeJson(UserProfile())
 
-                   val updatedUser = user?.copy(
+                    val updatedUser = user?.copy(
                         userName = username,
                         genderId = _selectedGender.value,
-                       image =_image.value
-
-                   )
+                        image =_image.value
+                    )
 
                     ref.setValue(updatedUser.encodeToJson())
                     SharedPref.loggedInProfile = updatedUser

@@ -8,5 +8,6 @@ enum class AppLinks(val link:String){
 
 enum class DataBaseReference(val reference:String){
     UserProfiles("users/profile"),
+    Avatars("avatars"),
 
 }

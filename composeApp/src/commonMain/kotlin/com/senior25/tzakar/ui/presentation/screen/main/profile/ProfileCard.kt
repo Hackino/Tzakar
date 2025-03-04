@@ -52,7 +52,7 @@ fun ProfileCard(
         ) {
             LoadMediaImage(
                 modifier = Modifier
-                    .size(56.dp)
+                    .size(64.dp)
                     .background(Color.White, CircleShape)
                     .clip(CircleShape),
                 url =profile?.image,

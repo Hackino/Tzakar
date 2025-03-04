@@ -48,8 +48,10 @@ import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.senior25.tzakar.data.local.model.avatars.AvatarsModel
 import com.senior25.tzakar.data.local.model.gender.Gender
 import com.senior25.tzakar.data.local.model.gender.GenderModel
+import com.senior25.tzakar.data.local.model.gender.Genders
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.ui.getScreenHeight
 import com.senior25.tzakar.platform_specific.ui.getScreenWidth
@@ -91,8 +93,6 @@ class EditProfileScreen: Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val mainViewModel = koinScreenModel<MainScreenViewModel>()
-        println(mainViewModel?.testCount)
-
         val screenModel = koinScreenModel<EditProfileViewModel>()
 
         val interaction= object :EditProfilePageInteraction{
@@ -105,6 +105,8 @@ class EditProfileScreen: Screen {
 
             override fun getSelectedGender(): StateFlow<Int>? = screenModel.selectedGender
 
+            override fun getAvatars(): AvatarsModel?  = screenModel.avatars
+
             override fun onUIEvent(event: EditProfilePageEvent) {
                 screenModel.onUIEvent(event)
             }
@@ -116,9 +118,6 @@ class EditProfileScreen: Screen {
             override fun getEmail(): String? = screenModel.email
 
             override fun getPopupState(): StateFlow<EditProfilePagePopUp?> =screenModel.popUpState
-
-            override fun onEditPictureClick() {
-            }
 
             override fun getImage(): StateFlow<String?>  =screenModel.image
 
@@ -139,17 +138,6 @@ class EditProfileScreen: Screen {
 @Composable
 fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfilePageInteraction?) {
 
-    val displayItems = listOf(
-        "https://picsum.photos/210",
-        "https://picsum.photos/210",
-        "https://picsum.photos/210",
-        "https://picsum.photos/210",
-        "https://picsum.photos/210",
-        "https://picsum.photos/210",
-        "https://picsum.photos/210",
-        "https://picsum.photos/210"
-    )
-
     var expanded by remember { mutableStateOf(false) }
     val density = LocalDensity.current
     val screenHeight = getScreenHeight()
@@ -159,7 +147,7 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
 
     val selectedGender: State<Int>? = interaction?.getSelectedGender()?.collectAsState()
 
-    var isGenderValid by remember(selectedGender?.value) { mutableStateOf(
+    val isGenderValid by remember(selectedGender?.value) { mutableStateOf(
         selectedGender?.value!= -1 && selectedGender?.value != null
     ) }
 
@@ -218,8 +206,7 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
                                 .offset(y = (-16).dp)
                                 .clip(CircleShape)
                                 .clickable {
-//                                    interaction?.onEditPictureClick()
-                                    if (displayItems != null){
+                                    if (interaction?.getAvatars() != null){
                                         expanded = !expanded
                                         dropdownOffset = calculateDropdownOffset(density, screenHeight)
                                     }
@@ -236,15 +223,26 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
                         ),
                         modifier = Modifier.width(250.dp).padding(horizontal = 8.dp).background(Color.White)
                     ) {
+                        val avatars  = when(Genders.getByValue(selectedGender?.value)){
+                            Genders.UNKNOWN -> emptyList()
+                            Genders.MALE -> interaction?.getAvatars()?.maleAvatars?.filterNotNull()
+                            Genders.FEMALE -> interaction?.getAvatars()?.femaleAvatars?.filterNotNull()
+                            Genders.NON_BINARY -> {
+                                listOfNotNull(
+                                    interaction?.getAvatars()?.maleAvatars,
+                                    interaction?.getAvatars()?.femaleAvatars
+                                ).flatten()
+                            }
+                        }
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(3),
                             modifier = Modifier.width(250.dp).height(200.dp),
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            itemsIndexed(displayItems) { index,item ->
+                            itemsIndexed(items = (avatars)?: listOf()) { index, item ->
                                 DropdownMenuItem(onClick = {
-                                if (item != image?.value)interaction?.onUIEvent(EditProfilePageEvent.UpdateImage(item))
+                                    if (item != image?.value)interaction?.onUIEvent(EditProfilePageEvent.UpdateImage(item))
                                     expanded = false
 
                                 },
@@ -345,13 +343,12 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
 interface EditProfilePageInteraction: BackPressInteraction {
     fun onContinueClick()
     fun getSelectedGender(): StateFlow<Int>?
-
+    fun getAvatars(): AvatarsModel?
     fun onUIEvent(event: EditProfilePageEvent)
     fun getUiState(): StateFlow<EditProfilePageUiState?>
     fun getUsername():String?
     fun getEmail():String?
     fun getPopupState(): StateFlow<EditProfilePagePopUp?>
-    fun onEditPictureClick()
     fun getImage(): StateFlow<String?>
 
 }
