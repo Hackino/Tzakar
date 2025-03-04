@@ -1,12 +1,19 @@
 package com.senior25.tzakar.ui.presentation.screen.main._page
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.FabPosition
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -17,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -87,26 +95,52 @@ class MainScreen:Screen {
         TabNavigator(HomeTab,key ="MainScreenTabNavigator"){
             Scaffold(
                 content = {
-                    mainViewModel.testCount = 1
                     CurrentTab()
                 },
                 bottomBar = {
-                    BottomNavigation(
+                    BottomAppBar(
+                        cutoutShape = CircleShape,
+                        modifier = Modifier.clip(
+                            RoundedCornerShape(
+                                topStart = 8.dp,
+                                topEnd = 8.dp
+                            )
+                        ),
                         backgroundColor = MyColors.colorPurple,
                         elevation = 2.dp,
-                        modifier = Modifier.clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                        contentPadding = PaddingValues(0.dp)
                     ) {
-                        TabNavigationItem(HomeTab){
-                            mainViewModel.testCount += 1
-                        }
-                        TabNavigationItem(CalendarTab){
-                            mainViewModel.testCount += 1
-                        }
-                        TabNavigationItem(ProfileTab){
-                            mainViewModel.testCount += 1
+                        BottomNavigation(
+                            backgroundColor = MyColors.colorPurple,
+                        ) {
+                            TabNavigationItem(HomeTab) {}
+                            TabNavigationItem(CalendarTab) {}
+                            BottomNavigationItem(
+                                icon = {},
+                                label = {   Text(text = "",fontSize = 11.sp) },
+                                selected = false,
+                                onClick = {  },
+                                enabled = false,
+                            )
+                            TabNavigationItem(HomeTab) {}
+                            TabNavigationItem(ProfileTab) {}
                         }
                     }
-                }
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        backgroundColor = MyColors.colorDarkBlue,
+                        onClick = {}
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Add,
+                            contentDescription = "fab",
+                            tint = MyColors.colorWhite
+                        )
+                    }
+                },
+                floatingActionButtonPosition = FabPosition.Center,
+                isFloatingActionButtonDocked = true,
             )
         }
     }
@@ -126,7 +160,7 @@ private fun RowScope.TabNavigationItem(tab:Tab,onClick:()->Unit){
         label = {
             val isSelected =  tabNavigator.current == tab
             val color =  if (isSelected) MyColors.colorDarkBlue else MyColors.colorWhite
-            Text(text =  tab.options.title, color = color)
+            Text(text =  tab.options.title, color = color, fontSize = 11.sp)
         },
         alwaysShowLabel = true,
         icon = {

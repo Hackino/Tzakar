@@ -93,7 +93,7 @@ object ProfileTab: Tab {
         @Composable
         get() {
             val icon = rememberVectorPainter(Icons.Default.Person)
-            val title  = "My Profile"
+            val title  = "Profile"
             val index:UShort = 1u
             return TabOptions(icon = icon,title = title, index = index)
         }
