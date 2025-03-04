@@ -46,7 +46,6 @@ class CalendarScreen: Screen {
         val navigator = LocalNavigator.currentOrThrow
         val viewModel = koinScreenModel<EditProfileViewModel>()
         val mainViewModel = koinScreenModel<MainScreenViewModel>()
-        showToast(mainViewModel.testCount.toString())
         Scaffold(
         ) {padding->
 

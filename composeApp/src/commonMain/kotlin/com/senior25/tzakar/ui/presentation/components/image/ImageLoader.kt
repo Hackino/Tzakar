@@ -15,7 +15,7 @@ import org.jetbrains.compose.resources.painterResource
 
 
 @Composable
-fun LoadMediaImage(modifier: Modifier, url:String?, default:DrawableResource?) {
+fun LoadMediaImage(modifier: Modifier, url:String?, default:DrawableResource?,contentScale: ContentScale = ContentScale.Crop) {
     CompositionLocalProvider(
         LocalImageLoader provides remember { generateImageLoader() },
     ) {

@@ -63,6 +63,8 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
+            implementation(compose.material3)
+
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
@@ -91,7 +93,8 @@ kotlin {
             implementation("media.kamel:kamel-image:1.0.3")
             implementation(libs.decompose)
             implementation("io.github.qdsfdhvh:image-loader:1.10.0")
-        }
+
+            }
     }
 }
 

@@ -136,7 +136,7 @@ class EditProfileScreen: Screen {
 
 
 @Composable
-fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfilePageInteraction?) {
+private fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfilePageInteraction?) {
 
     var expanded by remember { mutableStateOf(false) }
     val density = LocalDensity.current

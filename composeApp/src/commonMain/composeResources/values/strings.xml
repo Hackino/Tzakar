@@ -87,4 +87,7 @@
     <string name="incorrect_old_password">Incorrect old password</string>
     <string name="confirm_new_password">Confirm new password</string>
 
+    <string name="choose_a_category">Choose a Category to Get Started</string>
+
+
 </resources>

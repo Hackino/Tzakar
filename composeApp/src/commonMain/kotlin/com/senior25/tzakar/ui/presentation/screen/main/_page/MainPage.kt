@@ -17,6 +17,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,18 +35,25 @@ import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
+import com.senior25.tzakar.data.local.model.menu.MenuModel
+import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.di.mainScreenViewModelModule
 import com.senior25.tzakar.ktx.koinNavigatorScreenModel
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.exitApp
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
+import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.categoriesBottomSheet
+import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.getCategories
 import com.senior25.tzakar.ui.presentation.screen.main.calendar.CalendarTab
+import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileScreen
 import com.senior25.tzakar.ui.presentation.screen.main.home.HomeTab
 import com.senior25.tzakar.ui.presentation.screen.main.profile.ProfileTab
 import com.senior25.tzakar.ui.theme.MyColors
 import kotlinx.coroutines.delay
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
+import tzakar_reminder.composeapp.generated.resources.Res
+import tzakar_reminder.composeapp.generated.resources.app_icon
 
 data class MainScreenLauncher(val test:String? = null):Screen {
 
@@ -55,7 +63,6 @@ data class MainScreenLauncher(val test:String? = null):Screen {
         var isModuleLoaded by remember { mutableStateOf(false) } // Track module load state
 
         LaunchedEffect(Unit) {
-            println("initt moduleeee")
             loadKoinModules(mainScreenViewModelModule)
             isModuleLoaded = true
         }
@@ -63,7 +70,6 @@ data class MainScreenLauncher(val test:String? = null):Screen {
         DisposableEffect(Unit) {
 
             onDispose {
-                println("killllll moduleeee")
                 unloadKoinModules(mainScreenViewModelModule)
                 loadKoinModules(mainScreenViewModelModule)
 
@@ -86,12 +92,13 @@ data class MainScreenLauncher(val test:String? = null):Screen {
 
 class MainScreen:Screen {
 
-    override val key: ScreenKey
-        get() = "MainScreenKey"
+    override val key: ScreenKey get() = "MainScreenKey"
 
     @Composable
     override fun Content() {
        val mainViewModel = koinScreenModel<MainScreenViewModel>()
+        val popUpState = mainViewModel?.popUpState?.collectAsState()
+        val navigator = LocalNavigator.current
         TabNavigator(HomeTab,key ="MainScreenTabNavigator"){
             Scaffold(
                 content = {
@@ -130,7 +137,9 @@ class MainScreen:Screen {
                 floatingActionButton = {
                     FloatingActionButton(
                         backgroundColor = MyColors.colorDarkBlue,
-                        onClick = {}
+                        onClick = {
+                            mainViewModel.onUIEvent(MainPageEvent.UpdatePopUpState(MainPagePopUp.CategoriesSheet))
+                        }
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Add,
@@ -141,6 +150,16 @@ class MainScreen:Screen {
                 },
                 floatingActionButtonPosition = FabPosition.Center,
                 isFloatingActionButtonDocked = true,
+            )
+        }
+
+        if (popUpState?.value is MainPagePopUp.CategoriesSheet) {
+            categoriesBottomSheet(
+                data = getCategories(),
+                onItemClick = {
+                    navigator?.push(EditProfileScreen())
+                },
+                onDismiss = { mainViewModel?.onUIEvent(MainPageEvent.UpdatePopUpState(MainPagePopUp.None)) },
             )
         }
     }
