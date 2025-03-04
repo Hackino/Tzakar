@@ -57,7 +57,10 @@ class EditProfileViewModel(
                 "[" + items.joinToString(", ") { "\"$it\"" } + "]"
             }
                 .replace(Regex(",\\s*(?=\\w)"), ", ")
+
+            println(jsonInput)
             if (avatarsJson != null) avatars = jsonInput.decodeJson(AvatarsModel())
+
         }
     }
 

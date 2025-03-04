@@ -225,8 +225,8 @@ fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: EditProfileP
                     ) {
                         val avatars  = when(Genders.getByValue(selectedGender?.value)){
                             Genders.UNKNOWN -> emptyList()
-                            Genders.MALE -> interaction?.getAvatars()?.maleAvatars?.filterNotNull()
-                            Genders.FEMALE -> interaction?.getAvatars()?.femaleAvatars?.filterNotNull()
+                            Genders.MALE -> interaction?.getAvatars()?.maleAvatars?.filter { it != "null" }
+                            Genders.FEMALE -> interaction?.getAvatars()?.femaleAvatars?.filter { it != "null" }
                             Genders.NON_BINARY -> {
                                 listOfNotNull(
                                     interaction?.getAvatars()?.maleAvatars,
