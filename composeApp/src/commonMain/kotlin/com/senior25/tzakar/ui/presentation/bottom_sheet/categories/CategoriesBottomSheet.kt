@@ -28,6 +28,12 @@ import org.jetbrains.compose.resources.stringResource
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.app_icon
 import tzakar_reminder.composeapp.generated.resources.choose_a_category
+import tzakar_reminder.composeapp.generated.resources.ic_biils
+import tzakar_reminder.composeapp.generated.resources.ic_birthday
+import tzakar_reminder.composeapp.generated.resources.ic_games
+import tzakar_reminder.composeapp.generated.resources.ic_medication
+import tzakar_reminder.composeapp.generated.resources.ic_store
+import tzakar_reminder.composeapp.generated.resources.ic_tv
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,33 +88,49 @@ private fun categoriesBottomSheet(
 
 fun getCategories() = listOf(
     MenuModel(
-        iconRes = Res.drawable.app_icon,
+        id = CategoryType.STORE.value,
+        iconRes = Res.drawable.ic_store,
         title = "Groceries"
     ),
     MenuModel(
-        iconRes = Res.drawable.app_icon,
+        id = CategoryType.TV.value,
+        iconRes = Res.drawable.ic_tv,
         title = "Movies + TV"
     ),
     MenuModel(
-        iconRes = Res.drawable.app_icon,
+        id = CategoryType.GAMES.value,
+        iconRes = Res.drawable.ic_games,
         title = "Games"
     ),
     MenuModel(
-        iconRes = Res.drawable.app_icon,
+        id = CategoryType.BILLS.value,
+        iconRes = Res.drawable.ic_birthday,
         title = "Birthdays"
     ),
     MenuModel(
-        iconRes = Res.drawable.app_icon,
+        id = CategoryType.BILLS.value,
+        iconRes = Res.drawable.ic_biils,
         title = "Bills"
     ),
 
     MenuModel(
-        iconRes = Res.drawable.app_icon,
+        id = CategoryType.MEDICATION.value,
+        iconRes = Res.drawable.ic_medication,
         title = "Medications"
     ),
 
     MenuModel(
+        id = CategoryType.CUSTOM.value,
         iconRes = Res.drawable.app_icon,
         title = "Custom"
     ),
 )
+
+enum class CategoryType(val value: Int) {
+   UNKNOWN(0), STORE(1),TV(2), GAMES(3),BIRTHDAY(4),BILLS(5),MEDICATION(6),CUSTOM(7),;
+    companion object {
+        private val VALUES = entries.toTypedArray()
+        fun getByValue(value: Int) = VALUES.firstOrNull { it.value == value }
+    }
+}
+

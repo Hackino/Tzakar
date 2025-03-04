@@ -22,7 +22,7 @@ fun MenuCardsGrid(
     Column(modifier = Modifier.fillMaxWidth()) {
         if (cards?.isNotEmpty() == true) {
 
-            val rows:List<List<MenuModel>>? =  cards.chunked(3)
+            val rows:List<List<MenuModel>>? =  cards.chunked(2)
 
             rows?.ifEmpty { null }?.forEach { rowItems ->
                 Row(

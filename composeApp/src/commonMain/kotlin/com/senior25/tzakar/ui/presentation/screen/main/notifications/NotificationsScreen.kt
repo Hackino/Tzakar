@@ -1,8 +1,10 @@
-package com.senior25.tzakar.ui.presentation.screen.main.calendar
+package com.senior25.tzakar.ui.presentation.screen.main.notifications
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import cafe.adriel.voyager.core.screen.Screen
@@ -15,36 +17,32 @@ import cafe.adriel.voyager.transitions.SlideTransition
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
-import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.home.HomeScreenViewModel
 
-object CalendarTab: Tab {
+object NotificationsTab: Tab {
 
     override val options: TabOptions
         @Composable
         get() {
-            val icon = rememberVectorPainter(Icons.Default.DateRange)
-            val title  = "Calendar"
+            val icon = rememberVectorPainter(Icons.Default.Notifications)
+            val title  = "Notifications"
             val index:UShort= 1u
             return TabOptions(icon = icon,title = title, index = index)
         }
 
     @Composable
     override fun Content() {
-        Navigator(CalendarScreen()){  SlideTransition(it) }
+        Navigator(NotificationsScreen()){  SlideTransition(it) }
     }
 }
 
-class CalendarScreen: Screen {
-
+class NotificationsScreen: Screen {
     @Composable
     override fun Content() {
         AppNavigator.addTabNavigator(LocalNavigator.current)
-        val viewModel = koinScreenModel<EditProfileViewModel>()
-        val mainViewModel = koinScreenModel<MainScreenViewModel>()
         val navigator = LocalNavigator.currentOrThrow
-//        Scaffold(
-//        ) {padding->
-//
-//        }
+        val mainViewModel = koinScreenModel<MainScreenViewModel>()
+        val screenModel = koinScreenModel<NotificationsScreenViewModel>()
+        Scaffold {padding-> Column {} }
     }
 }

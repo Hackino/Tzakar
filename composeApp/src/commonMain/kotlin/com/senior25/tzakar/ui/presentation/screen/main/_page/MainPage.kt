@@ -35,10 +35,7 @@ import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
-import com.senior25.tzakar.data.local.model.menu.MenuModel
-import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.di.mainScreenViewModelModule
-import com.senior25.tzakar.ktx.koinNavigatorScreenModel
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.exitApp
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
@@ -47,32 +44,26 @@ import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.getCategories
 import com.senior25.tzakar.ui.presentation.screen.main.calendar.CalendarTab
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileScreen
 import com.senior25.tzakar.ui.presentation.screen.main.home.HomeTab
+import com.senior25.tzakar.ui.presentation.screen.main.notifications.NotificationsTab
 import com.senior25.tzakar.ui.presentation.screen.main.profile.ProfileTab
 import com.senior25.tzakar.ui.theme.MyColors
-import kotlinx.coroutines.delay
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
-import tzakar_reminder.composeapp.generated.resources.Res
-import tzakar_reminder.composeapp.generated.resources.app_icon
 
 data class MainScreenLauncher(val test:String? = null):Screen {
-
 
     @Composable
     override fun Content() {
         var isModuleLoaded by remember { mutableStateOf(false) } // Track module load state
-
         LaunchedEffect(Unit) {
             loadKoinModules(mainScreenViewModelModule)
             isModuleLoaded = true
         }
 
         DisposableEffect(Unit) {
-
             onDispose {
                 unloadKoinModules(mainScreenViewModelModule)
                 loadKoinModules(mainScreenViewModelModule)
-
             }
         }
 
@@ -96,14 +87,12 @@ class MainScreen:Screen {
 
     @Composable
     override fun Content() {
-       val mainViewModel = koinScreenModel<MainScreenViewModel>()
+        val mainViewModel = koinScreenModel<MainScreenViewModel>()
         val popUpState = mainViewModel?.popUpState?.collectAsState()
         val navigator = LocalNavigator.current
         TabNavigator(HomeTab,key ="MainScreenTabNavigator"){
             Scaffold(
-                content = {
-                    CurrentTab()
-                },
+                content = { CurrentTab() },
                 bottomBar = {
                     BottomAppBar(
                         cutoutShape = CircleShape,
@@ -129,7 +118,7 @@ class MainScreen:Screen {
                                 onClick = {  },
                                 enabled = false,
                             )
-                            TabNavigationItem(HomeTab) {}
+                            TabNavigationItem(NotificationsTab) {}
                             TabNavigationItem(ProfileTab) {}
                         }
                     }
@@ -179,7 +168,7 @@ private fun RowScope.TabNavigationItem(tab:Tab,onClick:()->Unit){
         label = {
             val isSelected =  tabNavigator.current == tab
             val color =  if (isSelected) MyColors.colorDarkBlue else MyColors.colorWhite
-            Text(text =  tab.options.title, color = color, fontSize = 11.sp)
+            Text(text = "" /*tab.options.title*/, color = color, fontSize = 11.sp)
         },
         alwaysShowLabel = true,
         icon = {
