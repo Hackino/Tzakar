@@ -88,6 +88,9 @@
     <string name="confirm_new_password">Confirm new password</string>
 
     <string name="choose_a_category">Choose a Category to Get Started</string>
+    <string name="no_data_available">No Data Available</string>
+    <string name="notification_history">Notification History</string>
 
+    <string name="calendar">Calendar</string>
 
 </resources>

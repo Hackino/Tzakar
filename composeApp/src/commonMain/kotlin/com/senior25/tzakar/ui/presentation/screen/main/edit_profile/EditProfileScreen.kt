@@ -52,6 +52,7 @@ import com.senior25.tzakar.data.local.model.avatars.AvatarsModel
 import com.senior25.tzakar.data.local.model.gender.Gender
 import com.senior25.tzakar.data.local.model.gender.GenderModel
 import com.senior25.tzakar.data.local.model.gender.Genders
+import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.ui.getScreenHeight
 import com.senior25.tzakar.platform_specific.ui.getScreenWidth
@@ -66,6 +67,7 @@ import com.senior25.tzakar.ui.presentation.components.toolbar.BackPressInteracti
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.dialog.edit_profile.ShowProfileUpdateSuccessDialog
 import com.senior25.tzakar.ui.presentation.dialog.edit_profile.ShowSaveProfileConfirmation
+import com.senior25.tzakar.ui.presentation.screen.main._page.MainPageEvent
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.theme.MyColors
 import kotlinx.coroutines.flow.StateFlow
@@ -117,9 +119,13 @@ class EditProfileScreen: Screen {
 
             override fun getEmail(): String? = screenModel.email
 
-            override fun getPopupState(): StateFlow<EditProfilePagePopUp?> =screenModel.popUpState
+            override fun getPopupState(): StateFlow<EditProfilePagePopUp?> = screenModel.popUpState
 
-            override fun getImage(): StateFlow<String?>  =screenModel.image
+            override fun getImage(): StateFlow<String?> = screenModel.image
+
+            override fun updateProfile() {
+                mainViewModel.onUIEvent(MainPageEvent.UpdateProfile)
+            }
 
             override fun onBackPress() {
                 navigator.pop()
@@ -229,8 +235,8 @@ private fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: Edit
                             Genders.FEMALE -> interaction?.getAvatars()?.femaleAvatars?.filter { it != "null" }
                             Genders.NON_BINARY -> {
                                 listOfNotNull(
-                                    interaction?.getAvatars()?.maleAvatars,
-                                    interaction?.getAvatars()?.femaleAvatars
+                                    interaction?.getAvatars()?.maleAvatars?.filter { it != "null" },
+                                    interaction?.getAvatars()?.femaleAvatars?.filter { it != "null" }
                                 ).flatten()
                             }
                         }
@@ -261,8 +267,6 @@ private fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: Edit
                         }
                     }
                 }
-
-
 
                 userNameField(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -335,7 +339,10 @@ private fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: Edit
 
     if (popUpState?.value is EditProfilePagePopUp.SaveChangesSuccess) {
         ShowProfileUpdateSuccessDialog(
-            onDismiss = { interaction?.onBackPress() }
+            onDismiss = {
+                interaction.updateProfile()
+                interaction?.onBackPress()
+            }
         )
     }
 }
@@ -350,5 +357,6 @@ interface EditProfilePageInteraction: BackPressInteraction {
     fun getEmail():String?
     fun getPopupState(): StateFlow<EditProfilePagePopUp?>
     fun getImage(): StateFlow<String?>
+    fun updateProfile()
 
 }

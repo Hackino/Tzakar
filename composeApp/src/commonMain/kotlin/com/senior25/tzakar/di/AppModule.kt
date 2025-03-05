@@ -8,7 +8,7 @@ import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.change_password.ChangePasswordScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.home.HomeScreenViewModel
-import com.senior25.tzakar.ui.presentation.screen.main.notifications.NotificationsScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.notification_history.NotificationHistoryViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.profile.ProfileViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration._page.RegistrationScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.registration.forget_password.ForgotPasswordScreenViewModel
@@ -37,7 +37,7 @@ val appModule = module {
     factory { ChangePasswordScreenViewModel(get()) }
 
     factory { HomeScreenViewModel(get()) }
-    factory { NotificationsScreenViewModel(get()) }
+    factory { NotificationHistoryViewModel(get()) }
 
 
 }

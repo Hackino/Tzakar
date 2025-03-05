@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.firebase.crashlytics)
     id("org.jetbrains.kotlin.native.cocoapods")
-
 }
 
 kotlin {
@@ -30,20 +29,16 @@ kotlin {
         }
     }
 
-
     cocoapods {
         summary = "Some description for the Shared Module"
         homepage = "Link to the Shared Module homepage"
         version = "1.0"
         ios.deploymentTarget = "16.0"
-
         noPodspec()
-
         framework {
             baseName = "signin"
             isStatic = true
         }
-
         pod("GoogleSignIn")
     }
 
@@ -64,7 +59,6 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material)
             implementation(compose.material3)
-
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
@@ -80,7 +74,6 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
-
             implementation(libs.firebase.gitlive.common)
             implementation(libs.firebase.gitlive.auth)
             implementation(libs.firebase.gitlive.database)
@@ -93,8 +86,7 @@ kotlin {
             implementation("media.kamel:kamel-image:1.0.3")
             implementation(libs.decompose)
             implementation("io.github.qdsfdhvh:image-loader:1.10.0")
-
-            }
+        }
     }
 }
 
@@ -118,21 +110,23 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("release")
-
         }
+
         getByName("debug") {
             signingConfig = signingConfigs.getByName("release")
-
         }
+
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

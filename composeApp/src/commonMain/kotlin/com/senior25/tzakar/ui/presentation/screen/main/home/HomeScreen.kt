@@ -16,7 +16,6 @@ import cafe.adriel.voyager.transitions.SlideTransition
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
-import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileViewModel
 
 object HomeTab: Tab {
 
@@ -40,9 +39,10 @@ class HomeScreen: Screen {
     override fun Content() {
         AppNavigator.addTabNavigator(LocalNavigator.current)
         val screenModel = koinScreenModel<HomeScreenViewModel>()
-
         val navigator = LocalNavigator.currentOrThrow
         val mainViewModel = koinScreenModel<MainScreenViewModel>()
-        Scaffold {padding-> Column {} }
+        Scaffold {padding->
+
+        }
     }
 }

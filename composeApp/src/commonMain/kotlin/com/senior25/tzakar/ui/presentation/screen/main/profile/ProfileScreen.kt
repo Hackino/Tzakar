@@ -44,6 +44,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
+import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.encode.encodeUrl
@@ -119,12 +120,13 @@ class ProfileScreen: Screen {
         val terms =  stringResource(Res.string.terms_of_service)
         val privacy =  stringResource(Res.string.privacy_policy)
 
-
-        LaunchedEffect(key1 = Unit) { viewModel.init() }
+        LaunchedEffect(key1 = Unit) { mainViewModel.fetchProfile() }
 
         val interaction  = object : ProfilePageScreenInteraction {
 
             override fun getUiState(): StateFlow<ProfilePageUiState?> = viewModel.uiState
+
+            override fun getProfileState(): StateFlow<UserProfile?> = mainViewModel.userProfile
 
             override fun getNotificationState(): StateFlow<Boolean?>  = viewModel.notificationState
 
@@ -168,7 +170,7 @@ class ProfileScreen: Screen {
         }
         Scaffold(
             backgroundColor = MyColors.colorOffWhite,
-            topBar = { MyTopAppBar( stringResource(Res.string.my_profile), showBack = false) },
+            topBar = { MyTopAppBar( stringResource(Res.string.my_profile), showBack = false, centerTitle = false) },
             content = { ProfileScreen(interaction) }
         )
     }
@@ -178,6 +180,7 @@ class ProfileScreen: Screen {
 fun ProfileScreen(interaction: ProfilePageScreenInteraction?) {
     val uiState =  interaction?.getUiState()?.collectAsState()
     val popUpState = interaction?.getPopupState()?.collectAsState()
+    val profileState =  interaction?.getProfileState()?.collectAsState()
 
     val notificationState =  interaction?.getNotificationState()?.collectAsState()
 
@@ -191,7 +194,7 @@ fun ProfileScreen(interaction: ProfilePageScreenInteraction?) {
                 .padding(horizontal = 16.dp)
         ) {
 
-            ProfileCard(profile = uiState?.value?.data?.profileModelInfo)
+            ProfileCard(profile = profileState?.value)
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -419,7 +422,6 @@ fun MenuItemSwitch(
                     .background(MyColors.colorPurple)
             )
         }
-
     }
 }
 
@@ -430,6 +432,7 @@ interface ProfilePageScreenInteraction{
     fun navigate(action: NavigationAction)
     fun onBackPress()
     fun getPopupState(): StateFlow<ProfilePagePopUp?>
+     fun getProfileState(): StateFlow<UserProfile?>
 }
 
 enum class NavigationAction {

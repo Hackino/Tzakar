@@ -44,7 +44,7 @@ import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.getCategories
 import com.senior25.tzakar.ui.presentation.screen.main.calendar.CalendarTab
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileScreen
 import com.senior25.tzakar.ui.presentation.screen.main.home.HomeTab
-import com.senior25.tzakar.ui.presentation.screen.main.notifications.NotificationsTab
+import com.senior25.tzakar.ui.presentation.screen.main.notification_history.NotificationHistoryTab
 import com.senior25.tzakar.ui.presentation.screen.main.profile.ProfileTab
 import com.senior25.tzakar.ui.theme.MyColors
 import org.koin.core.context.loadKoinModules
@@ -118,7 +118,7 @@ class MainScreen:Screen {
                                 onClick = {  },
                                 enabled = false,
                             )
-                            TabNavigationItem(NotificationsTab) {}
+                            TabNavigationItem(NotificationHistoryTab) {}
                             TabNavigationItem(ProfileTab) {}
                         }
                     }

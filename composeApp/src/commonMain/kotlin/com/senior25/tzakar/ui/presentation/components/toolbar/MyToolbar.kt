@@ -23,6 +23,7 @@ import tzakar_reminder.composeapp.generated.resources.ic_back
 fun MyTopAppBar(
     title:String,
     showBack:Boolean? = true ,
+    centerTitle:Boolean = true,
     interaction : BackPressInteraction? = null
 ) {
 
@@ -32,26 +33,27 @@ fun MyTopAppBar(
         title = {
             Text(
                 title,
-                textAlign = TextAlign.Center,
+                textAlign = if (centerTitle) TextAlign.Center else TextAlign.Start,
                 color = Color.White,
                 modifier = Modifier.fillMaxWidth()
             )
         },
-        navigationIcon = {
-            if (showBack == true)
-            IconButton(
-                modifier = Modifier
-                    .size(30.dp)
-                    .fillMaxHeight(),
-                onClick = debouncedOnClick
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_back),
-                    contentDescription = null,
-                    tint = Color.White
-                )
+        navigationIcon = if (showBack == true){
+            {
+                IconButton(
+                    modifier = Modifier
+                        .size(30.dp)
+                        .fillMaxHeight(),
+                    onClick = debouncedOnClick
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_back),
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                }
             }
-        },
+        } else null,
         actions = {
             IconButton(
                 modifier = Modifier

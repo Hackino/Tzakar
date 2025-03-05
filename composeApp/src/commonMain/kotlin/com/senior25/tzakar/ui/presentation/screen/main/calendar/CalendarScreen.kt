@@ -14,8 +14,15 @@ import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
+import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.notification_history.NotificationPageScreen
+import com.senior25.tzakar.ui.theme.MyColors
+import org.jetbrains.compose.resources.stringResource
+import tzakar_reminder.composeapp.generated.resources.Res
+import tzakar_reminder.composeapp.generated.resources.calendar
+import tzakar_reminder.composeapp.generated.resources.notification_history
 
 object CalendarTab: Tab {
 
@@ -42,9 +49,10 @@ class CalendarScreen: Screen {
         val viewModel = koinScreenModel<EditProfileViewModel>()
         val mainViewModel = koinScreenModel<MainScreenViewModel>()
         val navigator = LocalNavigator.currentOrThrow
-//        Scaffold(
-//        ) {padding->
-//
-//        }
+        Scaffold(
+            backgroundColor = MyColors.colorOffWhite,
+            topBar = { MyTopAppBar( stringResource(Res.string.calendar), showBack = false, centerTitle = false) },
+            content = {  }
+        )
     }
 }

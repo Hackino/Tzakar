@@ -12,6 +12,8 @@ import com.senior25.tzakar.ktx.decodeJson
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.ProfilePageData
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.ProfilePageData.Companion.updatePageData
+import com.senior25.tzakar.ui.presentation.screen.main.home.HomePageData.Companion.updatePageData
+import com.senior25.tzakar.ui.presentation.screen.main.home.HomePageUiState
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
@@ -36,21 +38,7 @@ class ProfileViewModel(private val maiRepository: MainRepository): CommonViewMod
 
     private var _profilePageData = MutableStateFlow<ProfilePageData?>(ProfilePageData())
 
-    fun init() {
-        updateState(ProfilePageUiState.Loading(_profilePageData.value))
-        screenModelScope.launch(Dispatchers.IO) {
-            SharedPref.loggedInEmail?.let {
-                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64())
-                val userJson = ref.valueEvents.first().value
-                if (userJson != null) {
-                    val user =  userJson.toString().decodeJson(UserProfile())
-                    _profilePageData.value = _profilePageData.value?.updatePageData(user)
-                    updateState(ProfilePageUiState.Success(_profilePageData.value))
-                    return@launch
-                }
-            }
-        }
-    }
+
 
     fun deleteAccount(onSuccess:()->Unit) {
         screenModelScope.launch {
