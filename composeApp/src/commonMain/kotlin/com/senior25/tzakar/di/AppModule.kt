@@ -5,6 +5,8 @@ import com.senior25.tzakar.data.repositories.RegistrationRepositoryImpl
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.domain.RegistrationRepository
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.calendar.CalendarViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.categories.CategoryViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.change_password.ChangePasswordScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.home.HomeScreenViewModel
@@ -39,6 +41,8 @@ val appModule = module {
     factory { HomeScreenViewModel(get()) }
     factory { NotificationHistoryViewModel(get()) }
 
+    factory { CategoryViewModel(get()) }
+    factory { CalendarViewModel(get()) }
 
 }
 

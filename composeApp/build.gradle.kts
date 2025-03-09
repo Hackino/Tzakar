@@ -52,6 +52,8 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.play.services.auth)
+            implementation("com.jakewharton.threetenabp:threetenabp:1.4.6")
+
         }
 
         commonMain.dependencies {
@@ -86,6 +88,8 @@ kotlin {
             implementation("media.kamel:kamel-image:1.0.3")
             implementation(libs.decompose)
             implementation("io.github.qdsfdhvh:image-loader:1.10.0")
+            implementation("network.chaintech:kmp-date-time-picker:1.0.5")
+
         }
     }
 }

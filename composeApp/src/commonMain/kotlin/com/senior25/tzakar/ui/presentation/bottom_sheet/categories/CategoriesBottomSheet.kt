@@ -130,7 +130,7 @@ enum class CategoryType(val value: Int) {
    UNKNOWN(0), STORE(1),TV(2), GAMES(3),BIRTHDAY(4),BILLS(5),MEDICATION(6),CUSTOM(7),;
     companion object {
         private val VALUES = entries.toTypedArray()
-        fun getByValue(value: Int) = VALUES.firstOrNull { it.value == value }
+        fun getByValue(value: Int?) = VALUES.firstOrNull { it.value == value }?:UNKNOWN
     }
 }
 

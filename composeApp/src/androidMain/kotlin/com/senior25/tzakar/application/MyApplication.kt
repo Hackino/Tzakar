@@ -2,6 +2,8 @@ package com.senior25.tzakar.application
 
 import android.app.Application
 import com.google.firebase.FirebaseApp
+import com.jakewharton.threetenabp.AndroidThreeTen
+
 import com.senior25.tzakar.di.initializeKoin
 import com.senior25.tzakar.helper.ApplicationProvider
 import dev.gitlive.firebase.Firebase
@@ -15,6 +17,8 @@ class MyApplication : Application() {
             androidContext(this@MyApplication)
         }
         Firebase.initialize(this)
+
         ApplicationProvider.init(this)
+        AndroidThreeTen.init(this)
     }
 }

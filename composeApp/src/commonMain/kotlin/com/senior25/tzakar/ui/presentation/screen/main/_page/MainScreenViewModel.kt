@@ -6,6 +6,7 @@ import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.RegistrationRepository
 import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.ktx.decodeJson
+import com.senior25.tzakar.platform_specific.common.getCurrentDateFormatted
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.database.database
@@ -25,12 +26,10 @@ class MainScreenViewModel(
     private val _popUpState = MutableStateFlow<MainPagePopUp?>(MainPagePopUp.None)
     val popUpState: StateFlow<MainPagePopUp?> get() = _popUpState.asStateFlow()
 
-    private val _userProfile = MutableStateFlow<UserProfile?>(SharedPref.loggedInProfile)
+    private val _userProfile = MutableStateFlow(SharedPref.loggedInProfile)
     val userProfile: StateFlow<UserProfile?> get() = _userProfile.asStateFlow()
 
-    fun init(){
-        fetchProfile()
-    }
+    fun init(){ fetchProfile() }
 
     fun fetchProfile() {
         screenModelScope.launch(Dispatchers.IO) {
@@ -45,8 +44,7 @@ class MainScreenViewModel(
         }
     }
 
-    fun onUIEvent(uiEvent: MainPageEvent) =
-        screenModelScope.launch {
+    fun onUIEvent(uiEvent: MainPageEvent) = screenModelScope.launch {
             when (uiEvent) {
                 is MainPageEvent.UpdatePopUpState -> _popUpState.value = uiEvent.popUp
                 is MainPageEvent.UpdateProfile ->{
@@ -54,6 +52,10 @@ class MainScreenViewModel(
                 }
             }
         }
+
+
+    fun getCurrentDate() = getCurrentDateFormatted()
+
 }
 
 sealed class MainPageEvent {

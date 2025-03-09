@@ -92,5 +92,39 @@
     <string name="notification_history">Notification History</string>
 
     <string name="calendar">Calendar</string>
+    <string name="add_store">Add Groceries</string>
+    <string name="add_tv_movies">Add TV/Movies</string>
+    <string name="add_games">Add Games</string>
+    <string name="add_Birthday">Add Birthday</string>
+    <string name="add_bills">Add Bills</string>
+    <string name="add_medication">Add Medication</string>
+    <string name="Custom">Custom</string>
+
+
+    <string name="set_reminder">Set Reminder</string>
+    <string name="are_you_sure_you_want_to_set_this_reminder">Are you sure you want to set this reminder</string>
+
+    <string name="reminder_set_successfully">Reminder set successfully</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+
+    <string name="enter_title">Enter Title</string>
+    <string name="enter_description">Enter Description</string>
+
+
+    <string name="invalid">Invalid</string>
+
+
+
+    <string name="reminder_data">Reminder Date</string>
+    <string name="select_date">Select Date</string>
+
+    <string name="reminder_time">Reminder Time</string>
+    <string name="select_time">Select Time</string>
+
+    <string name="alert">Alert!</string>
+    <string name="select_valid_date_before">Select a valid date before</string>
+
+    <string name="invalid_time">Invalid time</string>
 
 </resources>

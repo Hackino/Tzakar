@@ -39,10 +39,11 @@ import com.senior25.tzakar.di.mainScreenViewModelModule
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.exitApp
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
+import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.categoriesBottomSheet
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.getCategories
 import com.senior25.tzakar.ui.presentation.screen.main.calendar.CalendarTab
-import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileScreen
+import com.senior25.tzakar.ui.presentation.screen.main.categories.CategoryScreen
 import com.senior25.tzakar.ui.presentation.screen.main.home.HomeTab
 import com.senior25.tzakar.ui.presentation.screen.main.notification_history.NotificationHistoryTab
 import com.senior25.tzakar.ui.presentation.screen.main.profile.ProfileTab
@@ -90,6 +91,11 @@ class MainScreen:Screen {
         val mainViewModel = koinScreenModel<MainScreenViewModel>()
         val popUpState = mainViewModel?.popUpState?.collectAsState()
         val navigator = LocalNavigator.current
+
+        LaunchedEffect(key1 = Unit){
+            mainViewModel.init()
+        }
+
         TabNavigator(HomeTab,key ="MainScreenTabNavigator"){
             Scaffold(
                 content = { CurrentTab() },
@@ -145,9 +151,7 @@ class MainScreen:Screen {
         if (popUpState?.value is MainPagePopUp.CategoriesSheet) {
             categoriesBottomSheet(
                 data = getCategories(),
-                onItemClick = {
-                    navigator?.push(EditProfileScreen())
-                },
+                onItemClick = {navigator?.push(CategoryScreen(CategoryType.getByValue(it?.id))) },
                 onDismiss = { mainViewModel?.onUIEvent(MainPageEvent.UpdatePopUpState(MainPagePopUp.None)) },
             )
         }

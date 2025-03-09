@@ -1,28 +1,18 @@
 package com.senior25.tzakar.ui.presentation.screen.main.profile
 
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.senior25.tzakar.data.local.model.firebase.FirebaseAuthRsp
-import com.senior25.tzakar.data.local.model.firebase.StatusCode
-import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.preferences.NotificationStatus
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.helper.DataBaseReference
-import com.senior25.tzakar.ktx.decodeJson
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.ProfilePageData
-import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.ProfilePageData.Companion.updatePageData
-import com.senior25.tzakar.ui.presentation.screen.main.home.HomePageData.Companion.updatePageData
-import com.senior25.tzakar.ui.presentation.screen.main.home.HomePageUiState
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(private val maiRepository: MainRepository): CommonViewModel(){
@@ -37,8 +27,6 @@ class ProfileViewModel(private val maiRepository: MainRepository): CommonViewMod
     val notificationState: StateFlow<Boolean?> get() = _notificationState.asStateFlow()
 
     private var _profilePageData = MutableStateFlow<ProfilePageData?>(ProfilePageData())
-
-
 
     fun deleteAccount(onSuccess:()->Unit) {
         screenModelScope.launch {
@@ -61,13 +49,6 @@ class ProfileViewModel(private val maiRepository: MainRepository): CommonViewMod
             }
         }
     }
-
-    private fun updateState(newState: ProfilePageUiState) {
-        if (_uiState.value != newState) {
-            _profilePageData.value =newState.data
-            _uiState.value = newState
-        }
-    }
 }
 
 sealed class ProfilePageEvent {
@@ -79,10 +60,8 @@ sealed class ProfilePageEvent {
 }
 
 sealed class ProfilePageUiState(open val data: ProfilePageData?) {
-    data class Loading(override val data: ProfilePageData?) : ProfilePageUiState(data)
     data class Success(override val data: ProfilePageData?) : ProfilePageUiState(data)
     data class ProgressLoader(override val data: ProfilePageData?) : ProfilePageUiState(data)
-
     data class Error(override val data: ProfilePageData?) : ProfilePageUiState(data)
 }
 
@@ -90,5 +69,4 @@ sealed class ProfilePagePopUp{
     data object None:ProfilePagePopUp()
     data object Logout:ProfilePagePopUp()
     data object DeleteAccount:ProfilePagePopUp()
-
 }
