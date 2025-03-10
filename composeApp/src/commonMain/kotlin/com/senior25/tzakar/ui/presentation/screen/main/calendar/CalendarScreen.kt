@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -23,6 +25,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -66,9 +69,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.datetime.Month
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.calendar
+import tzakar_reminder.composeapp.generated.resources.filter
+import tzakar_reminder.composeapp.generated.resources.ic_back
 
 object CalendarTab: Tab {
 
@@ -106,7 +112,6 @@ class CalendarScreen: Screen {
             override fun getMonthDates(): StateFlow<List<Pair<Int,String>>?> =  viewModel.monthDates
             override fun getShouldScroll(): SharedFlow<Boolean?> = viewModel.shouldAutoScroll
         }
-
         Scaffold(
             backgroundColor = MyColors.colorOffWhite,
             topBar = { MyTopAppBar( stringResource(Res.string.calendar), showBack = false, centerTitle = false) },
@@ -188,13 +193,29 @@ class CalendarScreen: Screen {
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     Spacer(Modifier.height(16.dp))
-                    Text(
-                        "Reminders",
-                        textAlign =  TextAlign.Start,
-                        color = MyColors.colorDarkBlue,
-                        style = fontH3,
-                        modifier = Modifier
-                    )
+                    Row(modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                        verticalAlignment =Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            "Reminders",
+                            textAlign =  TextAlign.Start,
+                            color = MyColors.colorDarkBlue,
+                            style = fontH3,
+                            modifier = Modifier
+                        )
+
+                        CustomButton(
+                            modifier = Modifier.padding(bottom = 8.dp),
+                            text = "Filter",
+                            endIcon = painterResource(Res.drawable.filter),
+                            buttonColor = MyColors.colorPurple,
+                            onClick = {  },
+                        )
+                    }
+
                 }
             }
         }
