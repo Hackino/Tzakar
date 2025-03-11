@@ -25,7 +25,14 @@ import com.senior25.tzakar.ui.presentation.components.menu.MenuCardsGrid
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontLink
 import org.jetbrains.compose.resources.stringResource
+import tzakar_reminder.composeapp.generated.resources.Custom
 import tzakar_reminder.composeapp.generated.resources.Res
+import tzakar_reminder.composeapp.generated.resources.add_Birthday
+import tzakar_reminder.composeapp.generated.resources.add_bills
+import tzakar_reminder.composeapp.generated.resources.add_games
+import tzakar_reminder.composeapp.generated.resources.add_medication
+import tzakar_reminder.composeapp.generated.resources.add_store
+import tzakar_reminder.composeapp.generated.resources.add_tv_movies
 import tzakar_reminder.composeapp.generated.resources.app_icon
 import tzakar_reminder.composeapp.generated.resources.choose_a_category
 import tzakar_reminder.composeapp.generated.resources.ic_biils
@@ -34,6 +41,12 @@ import tzakar_reminder.composeapp.generated.resources.ic_games
 import tzakar_reminder.composeapp.generated.resources.ic_medication
 import tzakar_reminder.composeapp.generated.resources.ic_store
 import tzakar_reminder.composeapp.generated.resources.ic_tv
+import tzakar_reminder.composeapp.generated.resources.Birthday
+import tzakar_reminder.composeapp.generated.resources.bills
+import tzakar_reminder.composeapp.generated.resources.games
+import tzakar_reminder.composeapp.generated.resources.medication
+import tzakar_reminder.composeapp.generated.resources.store
+import tzakar_reminder.composeapp.generated.resources.tv_movies
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,11 +139,34 @@ fun getCategories() = listOf(
     ),
 )
 
+
 enum class CategoryType(val value: Int) {
    UNKNOWN(0), STORE(1),TV(2), GAMES(3),BIRTHDAY(4),BILLS(5),MEDICATION(6),CUSTOM(7),;
     companion object {
         private val VALUES = entries.toTypedArray()
         fun getByValue(value: Int?) = VALUES.firstOrNull { it.value == value }?:UNKNOWN
+        fun CategoryType.categoryHeaderRes()= when(this){
+            STORE -> Res.string.add_store
+            TV ->Res.string.add_tv_movies
+            GAMES -> Res.string.add_games
+            BIRTHDAY -> Res.string.add_Birthday
+            BILLS ->Res.string.add_bills
+            MEDICATION -> Res.string.add_medication
+            CUSTOM -> Res.string.Custom
+            else->null
+        }
+
+        fun CategoryType.categoryRes()= when(this){
+            STORE -> Res.string.store
+            TV ->Res.string.tv_movies
+            GAMES -> Res.string.games
+            BIRTHDAY -> Res.string.Birthday
+            BILLS ->Res.string.bills
+            MEDICATION -> Res.string.medication
+            CUSTOM -> Res.string.Custom
+            else->null
+        }
     }
+
 }
 

@@ -1,8 +1,11 @@
 package com.senior25.tzakar.ui.presentation.screen.main.calendar
 
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.senior25.tzakar.data.local.model.menu.MenuModel
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfilePageEvent
+import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfilePagePopUp
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -23,6 +26,12 @@ class CalendarViewModel(
     private val maiRepository: MainRepository
 ) : CommonViewModel(){
 
+    private val _popUpState = MutableStateFlow<CalendarPagePopUp?>(CalendarPagePopUp.None)
+    val popUpState: StateFlow<CalendarPagePopUp?> get() = _popUpState.asStateFlow()
+
+    private var _selectedFilters = MutableStateFlow<MutableList<MenuModel>?>(mutableListOf())
+    val selectedFilters: StateFlow<MutableList<MenuModel>?> get() = _selectedFilters.asStateFlow()
+
     private val _uiState = MutableStateFlow<CalendarPageUiState?>(CalendarPageUiState.Success)
     val uiState: StateFlow<CalendarPageUiState?> get() = _uiState.asStateFlow()
 
@@ -38,10 +47,10 @@ class CalendarViewModel(
     private val _monthDates = MutableStateFlow<List<Pair<Int,String>>?>(null)
     val monthDates: StateFlow<List<Pair<Int,String>>?> get() = _monthDates.asStateFlow()
 
-    private val _shouldAutoScroll = MutableSharedFlow<Boolean?>()
-    val shouldAutoScroll: SharedFlow<Boolean?> get() = _shouldAutoScroll.asSharedFlow()
+    private val _shouldAutoScroll = MutableStateFlow<Boolean?>(false)
+    val shouldAutoScroll: StateFlow<Boolean?> get() = _shouldAutoScroll.asStateFlow()
 
-   fun init() {
+    fun init() {
         val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         _selectedYear.value = currentDate.year
         _selectedMonth.value = currentDate.month
@@ -75,9 +84,10 @@ class CalendarViewModel(
                 requestScroll(true)
             }
             is CalendarPageEvent.UpdateDayDate -> _selectedDate.value = uiEvent.dayDate
-            CalendarPageEvent.Init -> {
-                init()
-            }
+            is CalendarPageEvent.RemoveAutoScroll -> requestScroll(false)
+            CalendarPageEvent.Init -> { init() }
+
+            is CalendarPageEvent.UpdatePopUpState ->_popUpState.value = uiEvent.popUp
         }
     }
 
@@ -85,6 +95,18 @@ class CalendarViewModel(
         screenModelScope.launch { _shouldAutoScroll.emit(scroll) }
     }
 
+    fun updateFilter(filters:List<MenuModel>) {
+        _selectedFilters.value = filters.toMutableList()
+    }
+
+    fun resetFilters() {
+        _selectedFilters.value = mutableListOf()
+    }
+}
+
+sealed class CalendarPagePopUp{
+    data object None:CalendarPagePopUp()
+    data object ShowCategoriesFilterSheet:CalendarPagePopUp()
 }
 
 sealed class CalendarPageEvent {
@@ -93,6 +115,9 @@ sealed class CalendarPageEvent {
     data class UpdateMonthYear(val month:Month, val year:Int): CalendarPageEvent()
     data class UpdateDayDate( val dayDate:Int): CalendarPageEvent()
     data object Init: CalendarPageEvent()
+    data class UpdatePopUpState(val popUp: CalendarPagePopUp) : CalendarPageEvent()
+    data object RemoveAutoScroll : CalendarPageEvent()
+
 }
 
 sealed class CalendarPageUiState {

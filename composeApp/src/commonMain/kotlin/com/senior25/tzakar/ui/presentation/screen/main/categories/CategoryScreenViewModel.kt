@@ -1,26 +1,13 @@
 package com.senior25.tzakar.ui.presentation.screen.main.categories
 
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.senior25.tzakar.data.local.model.avatars.AvatarsModel
-import com.senior25.tzakar.data.local.model.firebase.FirebaseAuthRsp
-import com.senior25.tzakar.data.local.model.gender.GenderModel
-import com.senior25.tzakar.data.local.model.profile.UserProfile
-import com.senior25.tzakar.data.local.preferences.SharedPref
+import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.domain.MainRepository
-import com.senior25.tzakar.helper.DataBaseReference
-import com.senior25.tzakar.ktx.decodeJson
-import com.senior25.tzakar.ktx.encodeToJson
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
-import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
-import dev.gitlive.firebase.database.database
-import io.ktor.util.encodeBase64
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
@@ -64,6 +51,14 @@ class CategoryViewModel(
     fun setCategory(type:Int? = null,onSuccess:(AuthResult?)->Unit) {
         screenModelScope.launch {
             _uiState.value = CategoryPageUiState.ProgressLoader
+
+            ReminderModel(
+                type = type,
+                title = title,
+                description = description,
+                date = _reminderDate.value,
+                time = _reminderTime.value
+            )
 //            email?.let {
 //                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference)
 //                    .child(it.encodeBase64())

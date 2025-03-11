@@ -33,6 +33,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType
+import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType.Companion.categoryHeaderRes
+import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType.Companion.categoryRes
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.fields.DateField
 import com.senior25.tzakar.ui.presentation.components.fields.TimeField
@@ -96,18 +98,8 @@ data class CategoryScreen(val type:CategoryType = CategoryType.UNKNOWN): Screen 
             override fun onBackPress() { navigator.pop() }
         }
 
-        val title = when(type){
-            CategoryType.STORE -> Res.string.add_store
-            CategoryType.TV ->Res.string.add_tv_movies
-            CategoryType.GAMES -> Res.string.add_games
-            CategoryType.BIRTHDAY -> Res.string.add_Birthday
-            CategoryType.BILLS ->Res.string.add_bills
-            CategoryType.MEDICATION -> Res.string.add_medication
-            CategoryType.CUSTOM -> Res.string.Custom
-            else->null
-        }
         Scaffold(
-            topBar = { MyTopAppBar(title?.let {  stringResource(it) }?:"" , showBack = true, interaction = interaction) },
+            topBar = { MyTopAppBar(type.categoryHeaderRes()?.let {  stringResource(it) }?:"" , showBack = true, interaction = interaction) },
             content = {paddingValues ->  CategoryPageScreen(paddingValues,interaction) },
         )
     }

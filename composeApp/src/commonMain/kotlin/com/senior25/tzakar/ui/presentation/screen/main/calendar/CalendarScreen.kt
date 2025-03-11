@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,9 +22,9 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -42,7 +41,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,17 +54,24 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
+import com.senior25.tzakar.data.local.model.menu.MenuModel
+import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
+import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoriesFiltersBottomSheet
+import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoriesFiltersSheetInteraction
+import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType
+import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType.Companion.categoryRes
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
-import com.senior25.tzakar.ui.presentation.screen.main.profile.NavigationAction
 import com.senior25.tzakar.ui.theme.MyColors
+import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontH3
 import com.senior25.tzakar.ui.theme.fontHighlight
 import com.senior25.tzakar.ui.theme.fontLink
+import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphS
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -74,7 +82,6 @@ import org.jetbrains.compose.resources.stringResource
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.calendar
 import tzakar_reminder.composeapp.generated.resources.filter
-import tzakar_reminder.composeapp.generated.resources.ic_back
 
 object CalendarTab: Tab {
 
@@ -111,7 +118,18 @@ class CalendarScreen: Screen {
             override fun getSelectedDate(): StateFlow<Int?> = viewModel.selectedDate
             override fun getMonthDates(): StateFlow<List<Pair<Int,String>>?> =  viewModel.monthDates
             override fun getShouldScroll(): SharedFlow<Boolean?> = viewModel.shouldAutoScroll
+            override fun getPopupState(): StateFlow<CalendarPagePopUp?> = viewModel.popUpState
+            override fun getAllMenuFilters(): StateFlow<MutableList<MenuModel>?>  =  viewModel.selectedFilters
+
+            override fun applyCategoriesFilters(filters: List<MenuModel>) {
+                viewModel.updateFilter(filters)
+            }
+
+            override fun resetPerksFilters() {
+                viewModel.resetFilters()
+            }
         }
+
         Scaffold(
             backgroundColor = MyColors.colorOffWhite,
             topBar = { MyTopAppBar( stringResource(Res.string.calendar), showBack = false, centerTitle = false) },
@@ -122,15 +140,27 @@ class CalendarScreen: Screen {
     @Composable
     fun CalendarScreen(interaction: CalendarScreenInteraction){
 
-        val selectedMonth =   interaction.getSelectedMonth().collectAsState()
+        val popUpState = interaction.getPopupState().collectAsState()
 
-        val selectedYear =   interaction.getSelectedYear().collectAsState()
+        val filters = interaction.getAllMenuFilters().collectAsState()
 
-        val selectedDate =   interaction.getSelectedDate().collectAsState()
+        val selectedMonth = interaction.getSelectedMonth().collectAsState()
 
-        val monthDays =   interaction.getMonthDates().collectAsState()
+        val selectedYear = interaction.getSelectedYear().collectAsState()
+
+        val selectedDate = interaction.getSelectedDate().collectAsState()
+
+        val monthDays = interaction.getMonthDates().collectAsState()
 
         var showDialog by remember { mutableStateOf(false) }
+
+        if (popUpState.value is CalendarPagePopUp.ShowCategoriesFilterSheet){
+            CategoriesFiltersBottomSheet(
+                selectedFilters = filters.value,
+                interaction = interaction,
+                onDismiss = { interaction.onUIEvent(CalendarPageEvent.UpdatePopUpState(CalendarPagePopUp.None)) }
+            )
+        }
 
         if (showDialog) {
             MonthYearPickerDialog(
@@ -145,6 +175,10 @@ class CalendarScreen: Screen {
 
         val listState = rememberLazyListState()
 
+        LaunchedEffect(key1 = Unit) {
+            interaction.onUIEvent(CalendarPageEvent.Init)
+        }
+
         LaunchedEffect(interaction.getShouldScroll()) {
             interaction.getShouldScroll().collectLatest { shouldScroll ->
                 if (shouldScroll == true){
@@ -152,11 +186,10 @@ class CalendarScreen: Screen {
                         val index = monthDays.value?.map { it.first }?.indexOf(selectedDay) ?: -1
                         if (index != -1) listState.scrollToItem(index)
                     }
+                    interaction.onUIEvent(CalendarPageEvent.RemoveAutoScroll)
                 }
             }
         }
-
-        LaunchedEffect(key1 = Unit) {interaction.onUIEvent(CalendarPageEvent.Init) }
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             item {
@@ -200,7 +233,7 @@ class CalendarScreen: Screen {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            "Reminders",
+                            "${if (filters?.value?.isNotEmpty() ==true ) "Filtered - " else "" }Reminders",
                             textAlign =  TextAlign.Start,
                             color = MyColors.colorDarkBlue,
                             style = fontH3,
@@ -212,9 +245,42 @@ class CalendarScreen: Screen {
                             text = "Filter",
                             endIcon = painterResource(Res.drawable.filter),
                             buttonColor = MyColors.colorPurple,
-                            onClick = {  },
+                            onClick = { interaction.onUIEvent(CalendarPageEvent.UpdatePopUpState(CalendarPagePopUp.ShowCategoriesFilterSheet)) },
                         )
                     }
+
+                    Spacer(Modifier.height(16.dp))
+                    ReminderItem(
+                        reminderModel =    ReminderModel(
+                            type = 1,
+                            title = "text",
+                            description = "description",
+                            date = "11/11/1111",
+                            time = "11:11"
+                        )
+                    ){}
+                    Spacer(Modifier.height(8.dp))
+
+                    ReminderItem(
+                        reminderModel = ReminderModel(
+                            type = 1,
+                            title = "text",
+                            description = "description",
+                            date = "11/11/1111",
+                            time = "11:11"
+                        )
+                    ){}
+                    Spacer(Modifier.height(8.dp))
+
+                    ReminderItem(
+                        reminderModel =    ReminderModel(
+                            type = 1,
+                            title = "text",
+                            description = "description",
+                            date = "11/11/1111",
+                            time = "11:11"
+                        )
+                    ){}
 
                 }
             }
@@ -252,8 +318,7 @@ class CalendarScreen: Screen {
         }
     }
 
-
-    interface CalendarScreenInteraction{
+    interface CalendarScreenInteraction: CategoriesFiltersSheetInteraction {
         fun getUiState(): StateFlow<CalendarPageUiState?>
         fun onUIEvent(event: CalendarPageEvent)
         fun navigate(action: NavigationAction)
@@ -262,7 +327,8 @@ class CalendarScreen: Screen {
         fun getSelectedDate(): StateFlow<Int?>
         fun getMonthDates(): StateFlow<List<Pair<Int,String>>?>
         fun getShouldScroll(): SharedFlow<Boolean?>
-
+        fun getPopupState(): StateFlow<CalendarPagePopUp?>
+        fun getAllMenuFilters(): StateFlow<MutableList<MenuModel>?>
     }
 
     enum class NavigationAction {
@@ -313,8 +379,7 @@ fun MonthYearPickerDialog(
                             text = m.name.lowercase().substring(0,3).replaceFirstChar { it.uppercase() },
                             color = MyColors.colorDarkBlue,
                             textAlign = TextAlign.Center,
-                            style = fontParagraphS.copy(fontSize = 20.sp),
-
+                            style = fontParagraphS.copy(fontSize = 20.sp)
                             )
                     }
                 }
@@ -349,4 +414,84 @@ fun MonthYearPickerDialog(
             )
         }
     )
+}
+
+@Composable
+fun ReminderItem(
+    reminderModel: ReminderModel? = null,
+    isSelected:Boolean? = false,
+    onSelect:(Boolean)->Unit = {  }
+) {
+    var isChecked by remember(isSelected) { mutableStateOf(isSelected == true) }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(MyColors.colorWhite)
+            .padding(bottom = 8.dp)
+            .padding(horizontal = 16.dp),
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RectangleShape)
+                .then(Modifier.padding(vertical = 8.dp))
+                .padding(bottom = 8.dp),
+
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = CategoryType.getByValue(reminderModel?.type).categoryRes()?.let { stringResource(it) }?:"",
+                style = fontParagraphL,
+                color = MyColors.colorDarkBlue,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+
+            Box(
+                contentAlignment = Alignment.CenterStart,
+                modifier = Modifier.size(52.dp, 32.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(if (isChecked) MyColors.colorDarkBlue else MyColors.colorLightGrey)
+                    .clickable { isChecked = !isChecked; onSelect(isChecked) }
+                    .padding(horizontal = 4.dp)
+
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(if (isChecked) Alignment.CenterEnd else Alignment.CenterStart) // Thumb position
+                        .clip(CircleShape)
+                        .background(MyColors.colorPurple)
+                )
+            }
+        }
+
+        Text(
+            text = reminderModel?.time?:"",
+            style = fontH1,
+            color = MyColors.colorDarkBlue,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = reminderModel?.title?:"",
+            style = fontH3,
+            color = MyColors.colorDarkBlue,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(8.dp))
+        reminderModel?.description?.let {
+            Text(
+                text = it,
+                style = fontParagraphL,
+                color = MyColors.colorDarkBlue,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+    }
 }

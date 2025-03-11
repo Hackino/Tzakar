@@ -101,6 +101,13 @@
     <string name="Custom">Custom</string>
 
 
+    <string name="store">Groceries</string>
+    <string name="tv_movies">TV/Movies</string>
+    <string name="games">Games</string>
+    <string name="Birthday">Birthday</string>
+    <string name="bills">Bills</string>
+    <string name="medication">Medication</string>
+
     <string name="set_reminder">Set Reminder</string>
     <string name="are_you_sure_you_want_to_set_this_reminder">Are you sure you want to set this reminder</string>
 
@@ -126,5 +133,10 @@
     <string name="select_valid_date_before">Select a valid date before</string>
 
     <string name="invalid_time">Invalid time</string>
+
+
+
+    <string name="filter">Filter</string>
+
 
 </resources>

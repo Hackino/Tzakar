@@ -364,7 +364,6 @@ fun MenuItem(
     }
 }
 
-
 @Composable
 fun MenuItemSwitch(
     iconRes: DrawableResource,
@@ -372,9 +371,9 @@ fun MenuItemSwitch(
     iconTint:Color = MyColors.colorLightDarkBlue,
     textColor:Color = MyColors.colorLightDarkBlue,
     isSelected:Boolean? = false,
-    onSelect:(Boolean)->Unit = {  },
+    onSelect:(Boolean)->Unit = {  }
+) {
 
-    ) {
     var isChecked by remember(isSelected) { mutableStateOf(isSelected == true) }
     Row(
         modifier = Modifier

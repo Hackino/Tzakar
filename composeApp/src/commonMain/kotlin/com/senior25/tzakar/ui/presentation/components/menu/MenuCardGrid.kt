@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.senior25.tzakar.data.local.model.menu.MenuModel
@@ -16,6 +18,7 @@ import com.senior25.tzakar.data.local.model.menu.MenuModel
 @Composable
 fun MenuCardsGrid(
     cards:List<MenuModel>? = null,
+    selected:List<MenuModel>? = null,
     onItemClick:(MenuModel)->Unit? = {}
 ) {
 
@@ -35,26 +38,29 @@ fun MenuCardsGrid(
                                 modifier = Modifier.weight(1f)
                                     .aspectRatio(361f / 106f),
                                 card = rowItems.first(),
-                                onClick = { onItemClick(rowItems.first()) }
+                                selected= selected?.contains(rowItems.first()),
+                                onClick = {
+                                    onItemClick(rowItems.first())
+                                }
                             )
                         }
                         2 -> {
                             rowItems.forEach { item ->
                                 MenuCardItem(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .aspectRatio(182f / 106f)
-                                    ,
+                                    modifier = Modifier.weight(1f).aspectRatio(182f / 106f),
+                                    selected= selected?.contains(item),
                                     card =  item,
                                     onClick = { onItemClick(item)}
                                 )
                             }
                         }
+
                         else -> {
                             rowItems.forEach { item ->
                                 MenuCardItem(
                                     modifier = Modifier.weight(1f).aspectRatio(115f / 106f),
                                     card =  item,
+                                    selected= selected?.contains(item),
                                     onClick = { onItemClick( item) }
                                 )
                             }
