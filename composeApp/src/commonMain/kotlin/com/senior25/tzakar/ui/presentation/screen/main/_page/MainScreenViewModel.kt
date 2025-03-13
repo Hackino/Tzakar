@@ -2,6 +2,7 @@ package com.senior25.tzakar.ui.presentation.screen.main._page
 
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.profile.UserProfile
+import com.senior25.tzakar.data.local.preferences.NotificationStatus
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.RegistrationRepository
 import com.senior25.tzakar.helper.DataBaseReference
@@ -42,6 +43,10 @@ class MainScreenViewModel(
                 }
             }
         }
+    }
+
+    fun updateNotificationStatus(result:Boolean){
+        SharedPref.notificationPermissionStatus =if (result) NotificationStatus.ON else NotificationStatus.OFF
     }
 
     fun onUIEvent(uiEvent: MainPageEvent) = screenModelScope.launch {

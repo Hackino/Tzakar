@@ -55,6 +55,7 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.core.splashscreen)
+            implementation("androidx.core:core-ktx:1.12.0")
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.crashlyticsKtx)
             implementation(libs.koin.android)

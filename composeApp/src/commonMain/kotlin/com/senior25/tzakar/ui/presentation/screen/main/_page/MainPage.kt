@@ -36,6 +36,7 @@ import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import com.senior25.tzakar.di.mainScreenViewModelModule
+import com.senior25.tzakar.helper.notification.NotificationHelper
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.exitApp
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
@@ -89,11 +90,21 @@ class MainScreen:Screen {
     @Composable
     override fun Content() {
         val mainViewModel = koinScreenModel<MainScreenViewModel>()
-        val popUpState = mainViewModel?.popUpState?.collectAsState()
+        val popUpState = mainViewModel.popUpState.collectAsState()
         val navigator = LocalNavigator.current
+
+        var shouldRequestPermission by remember { mutableStateOf(false) } // Trigger state
 
         LaunchedEffect(key1 = Unit){
             mainViewModel.init()
+            shouldRequestPermission = true
+        }
+
+        if (shouldRequestPermission) {
+            NotificationHelper.requestNotificationPermission { result ->
+                mainViewModel.updateNotificationStatus(result)
+                shouldRequestPermission = false
+            }
         }
 
         TabNavigator(HomeTab,key ="MainScreenTabNavigator"){

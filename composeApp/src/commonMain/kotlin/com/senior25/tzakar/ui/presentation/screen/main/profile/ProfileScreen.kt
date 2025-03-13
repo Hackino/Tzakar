@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,7 +49,9 @@ import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.encode.encodeUrl
+import com.senior25.tzakar.helper.notification.NotificationHelper
 import com.senior25.tzakar.ktx.koinScreenModel
+import com.senior25.tzakar.platform_specific.toast_helper.showToast
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
 import com.senior25.tzakar.ui.presentation.components.separator.Separator
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
@@ -62,7 +65,11 @@ import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH3
 import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphS
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -373,8 +380,32 @@ fun MenuItemSwitch(
     isSelected:Boolean? = false,
     onSelect:(Boolean)->Unit = {  }
 ) {
-
     var isChecked by remember(isSelected) { mutableStateOf(isSelected == true) }
+
+    val scope = rememberCoroutineScope()
+
+    var shouldRequestPermission by remember { mutableStateOf(false) } // Trigger state
+
+    LaunchedEffect(Unit){
+        scope.launch{
+           val checked =  withContext(Dispatchers.Main){
+                NotificationHelper.isNotificationPermissionGranted()
+            }
+            isChecked =  checked
+            onSelect(isChecked)
+        }
+    }
+
+
+    if (shouldRequestPermission) {
+        NotificationHelper.requestNotificationPermission { result ->
+            isChecked = result
+            onSelect(result)
+            shouldRequestPermission = false
+//            if (result) showToast("Permission Granted") else showToast("Permission Not Granted")
+        }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -407,8 +438,13 @@ fun MenuItemSwitch(
                     if (isChecked) MyColors.colorDarkBlue else MyColors.colorLightGrey
                 )
                 .clickable {
-                    isChecked = !isChecked
-                    onSelect(isChecked)
+                    if (!isChecked){
+                        shouldRequestPermission = true
+                    }else{
+                        isChecked = !isChecked
+                        onSelect(isChecked)
+                    }
+
                 }
                 .padding(horizontal = 4.dp)
 
@@ -431,7 +467,7 @@ interface ProfilePageScreenInteraction{
     fun navigate(action: NavigationAction)
     fun onBackPress()
     fun getPopupState(): StateFlow<ProfilePagePopUp?>
-     fun getProfileState(): StateFlow<UserProfile?>
+    fun getProfileState(): StateFlow<UserProfile?>
 }
 
 enum class NavigationAction {
