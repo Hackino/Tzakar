@@ -66,6 +66,7 @@ import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.category_details.CategoryDetailsScreen
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontH3
@@ -120,9 +121,9 @@ class CalendarScreen: Screen {
             override fun getShouldScroll(): SharedFlow<Boolean?> = viewModel.shouldAutoScroll
             override fun getPopupState(): StateFlow<CalendarPagePopUp?> = viewModel.popUpState
             override fun getAllMenuFilters(): StateFlow<MutableList<MenuModel>?>  =  viewModel.selectedFilters
-
-            override fun applyCategoriesFilters(filters: List<MenuModel>) {
-                viewModel.updateFilter(filters)
+            override fun getAllSorting(): StateFlow<MutableList<MenuModel>?>  =  viewModel.selectedSorting
+            override fun applyCategoriesFilters(filters: List<MenuModel>,sorting:List<MenuModel>) {
+                viewModel.updateFilter(filters,sorting)
             }
 
             override fun resetPerksFilters() {
@@ -140,9 +141,12 @@ class CalendarScreen: Screen {
     @Composable
     fun CalendarScreen(interaction: CalendarScreenInteraction){
 
+        val navigator = LocalNavigator.currentOrThrow
+
         val popUpState = interaction.getPopupState().collectAsState()
 
         val filters = interaction.getAllMenuFilters().collectAsState()
+        val sorting = interaction.getAllSorting().collectAsState()
 
         val selectedMonth = interaction.getSelectedMonth().collectAsState()
 
@@ -157,6 +161,7 @@ class CalendarScreen: Screen {
         if (popUpState.value is CalendarPagePopUp.ShowCategoriesFilterSheet){
             CategoriesFiltersBottomSheet(
                 selectedFilters = filters.value,
+                selectedSorting = sorting.value,
                 interaction = interaction,
                 onDismiss = { interaction.onUIEvent(CalendarPageEvent.UpdatePopUpState(CalendarPagePopUp.None)) }
             )
@@ -255,10 +260,12 @@ class CalendarScreen: Screen {
                             type = 1,
                             title = "text",
                             description = "description",
-                            date = "11/11/1111",
+                            date = "2025-03-13",
                             time = "11:11"
                         )
-                    ){}
+                    ){
+                        navigator.push(CategoryDetailsScreen(it))
+                    }
                     Spacer(Modifier.height(8.dp))
 
                     ReminderItem(
@@ -329,6 +336,7 @@ class CalendarScreen: Screen {
         fun getShouldScroll(): SharedFlow<Boolean?>
         fun getPopupState(): StateFlow<CalendarPagePopUp?>
         fun getAllMenuFilters(): StateFlow<MutableList<MenuModel>?>
+        fun getAllSorting(): StateFlow<MutableList<MenuModel>?>
     }
 
     enum class NavigationAction {
@@ -420,7 +428,8 @@ fun MonthYearPickerDialog(
 fun ReminderItem(
     reminderModel: ReminderModel? = null,
     isSelected:Boolean? = false,
-    onSelect:(Boolean)->Unit = {  }
+    onSelect:(Boolean)->Unit = {  },
+    onClick:(ReminderModel?) ->Unit = {}
 ) {
     var isChecked by remember(isSelected) { mutableStateOf(isSelected == true) }
     Column(
@@ -428,6 +437,7 @@ fun ReminderItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(MyColors.colorWhite)
+            .clickable { onClick.invoke(reminderModel) }
             .padding(bottom = 8.dp)
             .padding(horizontal = 16.dp),
     ) {

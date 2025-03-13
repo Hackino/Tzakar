@@ -85,7 +85,8 @@ fun normalTextField(
     onKeyPressed:()->Unit = {},
     leadingIcon: Painter? = null,
     validate:Boolean? = true,
-    isMandatory: Boolean? = true
+    isMandatory: Boolean? = true,
+    enabled:Boolean? = true
 ) {
     BaseTextField(
         modifier =modifier,
@@ -93,6 +94,7 @@ fun normalTextField(
         placeHolder = placeHolder,
         keyboardType = KeyboardType.Text,
         onValueChange =onValueChange,
+        isEnabled = enabled,
         validate = {
             if (validate == true) {
                 val isValid = isNameValid(it)
@@ -122,7 +124,8 @@ fun DateField(
     focusRequester:FocusRequester? = null,
     onKeyPressed:()->Unit = {},
     leadingIcon: Painter? = null,
-    validate:Boolean? = true
+    validate:Boolean? = true,
+    enabled:Boolean? = true
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
     var selectedDate by remember(value) { mutableStateOf(value) }
@@ -143,10 +146,8 @@ fun DateField(
                     Pair(inputDate >= today,"")
                 }
                 isInputValid(isValid.first)
-                print("hackinoooooo is input valid date in function  $isValid")
                 isValid
             }else{
-                print("hackinoooooo not validating")
                 Pair(true,"")
             }
         },
@@ -155,12 +156,12 @@ fun DateField(
         focusRequester = focusRequester,
         onKeyPressed = onKeyPressed,
         leadingIcon = leadingIcon,
-        onFieldClick = { showDatePicker  =true },
+        onFieldClick = if (enabled == true) { {showDatePicker  =true} } else null,
         isValidationEnabled = true,
         isEnabled = false
     )
 
-    if (showDatePicker) {
+    if (showDatePicker && enabled == true) {
         WheelDatePickerView(
             modifier = Modifier
                 .fillMaxWidth()
@@ -223,7 +224,8 @@ fun TimeField(
     leadingIcon: Painter? = null,
     validate:Boolean? = true,
     validateDateBefore:(()->Boolean)? = null,
-    selectedDate:String? = null
+    selectedDate:String? = null,
+    enabled: Boolean? = true
 ) {
 
     var showDatePicker by remember { mutableStateOf(false) }
@@ -231,9 +233,6 @@ fun TimeField(
     val today = Clock.System.now().toLocalDateTime(TimeZone.UTC).date
     val inputDate by remember(selectedDate) { mutableStateOf(selectedDate?.ifEmpty { null }?.let { LocalDate.parse(it) }) }
 
-    println("selected date in time $inputDate")
-    println("today date $today")
-    println("is equal ${inputDate == today}")
 
     BaseTextField(
         modifier =modifier,
@@ -263,11 +262,6 @@ fun TimeField(
             }else{
                 Pair(true,"")
             }
-            println("startinggg")
-            println(selectedTime)
-            println(selectedTime?.ifEmpty { null }?.let { LocalTime.parse(it) })
-
-            println(LocalTime.now())
 
             isInputValid(isValid.first)
             isValid
@@ -278,16 +272,16 @@ fun TimeField(
         focusRequester = focusRequester,
         onKeyPressed = onKeyPressed,
         leadingIcon = leadingIcon,
-        onFieldClick = {
-            if (validateDateBefore?.invoke()==false){
-                return@BaseTextField
-            }
+        onFieldClick = if (enabled == true) { callback@{
+            if (validateDateBefore?.invoke()==false){ return@callback }
             showDatePicker  =true
-        },
+        } } else null,
+
+
         isEnabled = false,
         isValidationEnabled = true
     )
-    if (showDatePicker) {
+    if (showDatePicker && enabled == true) {
         WheelTimePickerView(
             modifier = Modifier
                 .fillMaxWidth()
@@ -534,8 +528,8 @@ fun BaseTextField(
                     textColor =  MyColors.colorLightDarkBlue.copy(alpha = if (isEnabled == true) 1f else 0.8f),
                     backgroundColor = Color.Transparent,
                     errorIndicatorColor = MyColors.colorRed,
-                    focusedIndicatorColor = if (isEnabled == true) MyColors.colorLightDarkBlue else MyColors.colorLightGrey.copy(0.8f),
-                    unfocusedIndicatorColor = MyColors.colorLightGrey.copy(alpha = if (isEnabled == true) 1f else 0.8f)
+                    focusedIndicatorColor = if (isEnabled == true) MyColors.colorPurple else MyColors.colorLightDarkBlue.copy(0.8f),
+                    unfocusedIndicatorColor = MyColors.colorLightDarkBlue.copy(alpha = if (isEnabled == true) 1f else 1f)
                 ),
 
                 leadingIcon = leadingIcon?.let{{
@@ -560,7 +554,7 @@ fun BaseTextField(
                     Text(
                         textAlign = TextAlign.Start,
                         text = makeMandatoryText(placeHolder,isMandatory),
-                        color = MyColors.colorLightGrey,
+                        color = MyColors.colorLightDarkBlue,
                         style = fontTab,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -589,7 +583,6 @@ fun BaseTextField(
                 },
                 keyboardActions = KeyboardActions(onNext = { onKeyPressed() },onDone = { onKeyPressed() }),
                 isError = if (isValidationEnabled == true){
-                    println("hackino     validation   ")
                     isError(
                         validate = validate,
                         onValueChange = onValueChange,

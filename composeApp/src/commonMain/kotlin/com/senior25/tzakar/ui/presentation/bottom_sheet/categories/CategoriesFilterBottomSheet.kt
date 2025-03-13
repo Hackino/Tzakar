@@ -35,10 +35,10 @@ import tzakar_reminder.composeapp.generated.resources.filter
 @Composable
 fun CategoriesFiltersBottomSheet(
     selectedFilters: MutableList<MenuModel>? = null,
+    selectedSorting: MutableList<MenuModel>? = null,
     interaction: CategoriesFiltersSheetInteraction? = null,
     onDismiss:()->Unit = {},
 ) {
-
     val skipPartiallyExpanded by rememberSaveable { mutableStateOf(true) }
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = skipPartiallyExpanded)
     ModalBottomSheet(
@@ -51,7 +51,12 @@ fun CategoriesFiltersBottomSheet(
             selectedFilters?.let { addAll(it) }
         } }
 
+        val currentSelectedSorting = remember(selectedSorting) { mutableStateListOf<MenuModel>().apply {
+            selectedSorting?.let { addAll(it) }
+        } }
+
         val categories = getCategories()
+        val sorting = getSortingFilter()
 
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -60,6 +65,7 @@ fun CategoriesFiltersBottomSheet(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(Res.string.filter),
@@ -67,6 +73,7 @@ fun CategoriesFiltersBottomSheet(
                 color =MyColors.colorDarkBlue,
                 textAlign = TextAlign.Center
             )
+
             categories.ifEmpty { null }?.let {
                 MenuCardsGrid(cards = it,
                     selected = currentSelectedFilters,
@@ -76,6 +83,27 @@ fun CategoriesFiltersBottomSheet(
                         Unit
                     })
             }
+
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = "Sorting",
+                style = fontH3,
+                color =MyColors.colorDarkBlue,
+                textAlign = TextAlign.Center
+            )
+
+            sorting.ifEmpty { null }?.let {
+                MenuCardsGrid(cards = it,
+                    selected = currentSelectedSorting,
+                    onItemClick = {
+                        if (!currentSelectedSorting.contains(it)) {
+                            currentSelectedSorting.clear()
+                            currentSelectedSorting.add(it)
+                        }
+                        Unit
+                    })
+            }
+
             CustomButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = "RESET",
@@ -85,11 +113,15 @@ fun CategoriesFiltersBottomSheet(
                     onDismiss()
                 }
             )
+
             OutlinedCustomButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = "CONFIRM",
                 onClick = {
-                    interaction?.applyCategoriesFilters(filters = currentSelectedFilters.toList())
+                    interaction?.applyCategoriesFilters(
+                        filters = currentSelectedFilters.toList(),
+                        sorting = currentSelectedSorting.toList(),
+                    )
                     onDismiss()
                 }
             )
@@ -98,6 +130,6 @@ fun CategoriesFiltersBottomSheet(
 }
 
 interface CategoriesFiltersSheetInteraction{
-    fun applyCategoriesFilters(filters:List<MenuModel>)
+    fun applyCategoriesFilters(filters:List<MenuModel>,sorting:List<MenuModel>)
     fun resetPerksFilters()
 }

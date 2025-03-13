@@ -114,19 +114,14 @@
     <string name="reminder_set_successfully">Reminder set successfully</string>
     <string name="title">Title</string>
     <string name="description">Description</string>
-
     <string name="enter_title">Enter Title</string>
     <string name="enter_description">Enter Description</string>
-
-
     <string name="invalid">Invalid</string>
-
-
 
     <string name="reminder_data">Reminder Date</string>
     <string name="select_date">Select Date</string>
 
-    <string name="reminder_time">Reminder Time</string>
+    <string name="reminder_time">Reminder Time(24h format)</string>
     <string name="select_time">Select Time</string>
 
     <string name="alert">Alert!</string>
@@ -134,9 +129,5 @@
 
     <string name="invalid_time">Invalid time</string>
 
-
-
     <string name="filter">Filter</string>
-
-
 </resources>

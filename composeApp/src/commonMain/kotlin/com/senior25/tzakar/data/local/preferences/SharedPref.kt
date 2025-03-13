@@ -7,8 +7,6 @@ import com.senior25.tzakar.helper.PreferenceHelper.getFromDataStore
 import com.senior25.tzakar.helper.PreferenceHelper.saveToDataStore
 import com.senior25.tzakar.ktx.ifEmpty
 import com.senior25.tzakar.platform_specific.getApplicationConfig
-import io.ktor.util.decodeBase64String
-import okio.ByteString.Companion.decodeBase64
 
 object SharedPref {
 

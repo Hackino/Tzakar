@@ -45,9 +45,10 @@ import tzakar_reminder.composeapp.generated.resources.Birthday
 import tzakar_reminder.composeapp.generated.resources.bills
 import tzakar_reminder.composeapp.generated.resources.games
 import tzakar_reminder.composeapp.generated.resources.medication
+import tzakar_reminder.composeapp.generated.resources.sort_ascending
+import tzakar_reminder.composeapp.generated.resources.sort_descending
 import tzakar_reminder.composeapp.generated.resources.store
 import tzakar_reminder.composeapp.generated.resources.tv_movies
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -139,10 +140,23 @@ fun getCategories() = listOf(
     ),
 )
 
+fun getSortingFilter() = listOf(
+    MenuModel(
+        id = 1,
+        iconRes = Res.drawable.sort_ascending,
+        title = "Ascending"
+    ),
+    MenuModel(
+        id = 2,
+        iconRes = Res.drawable.sort_descending,
+        title = "Descending"
+    )
+)
 
 enum class CategoryType(val value: Int) {
    UNKNOWN(0), STORE(1),TV(2), GAMES(3),BIRTHDAY(4),BILLS(5),MEDICATION(6),CUSTOM(7),;
     companion object {
+
         private val VALUES = entries.toTypedArray()
         fun getByValue(value: Int?) = VALUES.firstOrNull { it.value == value }?:UNKNOWN
         fun CategoryType.categoryHeaderRes()= when(this){

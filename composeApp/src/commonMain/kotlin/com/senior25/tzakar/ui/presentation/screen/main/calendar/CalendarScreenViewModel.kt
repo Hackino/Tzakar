@@ -3,6 +3,7 @@ package com.senior25.tzakar.ui.presentation.screen.main.calendar
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.menu.MenuModel
 import com.senior25.tzakar.domain.MainRepository
+import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.getSortingFilter
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfilePageEvent
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfilePagePopUp
@@ -31,6 +32,12 @@ class CalendarViewModel(
 
     private var _selectedFilters = MutableStateFlow<MutableList<MenuModel>?>(mutableListOf())
     val selectedFilters: StateFlow<MutableList<MenuModel>?> get() = _selectedFilters.asStateFlow()
+
+    private var _selectedSorting = MutableStateFlow<MutableList<MenuModel>?>(
+        mutableListOf(getSortingFilter().first())
+    )
+
+    val selectedSorting: StateFlow<MutableList<MenuModel>?> get() = _selectedSorting.asStateFlow()
 
     private val _uiState = MutableStateFlow<CalendarPageUiState?>(CalendarPageUiState.Success)
     val uiState: StateFlow<CalendarPageUiState?> get() = _uiState.asStateFlow()
@@ -86,7 +93,6 @@ class CalendarViewModel(
             is CalendarPageEvent.UpdateDayDate -> _selectedDate.value = uiEvent.dayDate
             is CalendarPageEvent.RemoveAutoScroll -> requestScroll(false)
             CalendarPageEvent.Init -> { init() }
-
             is CalendarPageEvent.UpdatePopUpState ->_popUpState.value = uiEvent.popUp
         }
     }
@@ -95,13 +101,16 @@ class CalendarViewModel(
         screenModelScope.launch { _shouldAutoScroll.emit(scroll) }
     }
 
-    fun updateFilter(filters:List<MenuModel>) {
+    fun updateFilter(filters:List<MenuModel>,sorting:List<MenuModel>) {
         _selectedFilters.value = filters.toMutableList()
+        _selectedSorting.value = sorting.toMutableList()
     }
 
     fun resetFilters() {
         _selectedFilters.value = mutableListOf()
+        _selectedSorting.value = mutableListOf(getSortingFilter().first())
     }
+
 }
 
 sealed class CalendarPagePopUp{
@@ -117,7 +126,6 @@ sealed class CalendarPageEvent {
     data object Init: CalendarPageEvent()
     data class UpdatePopUpState(val popUp: CalendarPagePopUp) : CalendarPageEvent()
     data object RemoveAutoScroll : CalendarPageEvent()
-
 }
 
 sealed class CalendarPageUiState {

@@ -18,10 +18,10 @@ object PrefsDataStoreManager {
 }
 
 typealias PrefsDataStore = DataStore<Preferences>
+
 fun createDataStore(producePath: () -> String): PrefsDataStore =
-    PreferenceDataStoreFactory.createWithPath(
-        produceFile = { producePath().toPath() }
-    )
+    PreferenceDataStoreFactory.createWithPath(produceFile = { producePath().toPath() })
+
 const val dataStoreFileName = "cmp.preferences_pb"
 
 expect fun getSharedPref(): PrefsDataStore

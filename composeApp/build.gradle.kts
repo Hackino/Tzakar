@@ -9,6 +9,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.firebase.crashlytics)
     id("org.jetbrains.kotlin.native.cocoapods")
+    alias(libs.plugins.ksp)
+//    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -17,6 +19,12 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
+
+    sourceSets.commonMain {
+//        languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
+        kotlin.srcDir("build/generated/ksp/metadata")
+    }
+
 
     listOf(
         iosX64(),
@@ -84,15 +92,17 @@ kotlin {
             implementation(libs.cafe.adriel.voyager.tab)
             implementation(libs.cafe.adriel.voyager.transitions)
             implementation(libs.cafe.adriel.voyager.screenmodel)
+            implementation(libs.decompose)
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.sqlite.bundled)
             implementation("io.ktor:ktor-utils:3.0.1")
             implementation("media.kamel:kamel-image:1.0.3")
-            implementation(libs.decompose)
             implementation("io.github.qdsfdhvh:image-loader:1.10.0")
             implementation("network.chaintech:kmp-date-time-picker:1.0.5")
-
         }
     }
 }
+
 
 android {
     namespace = "com.senior25.tzakar"
@@ -137,9 +147,40 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
-
+//room {
+//    schemaDirectory("$projectDir/schemas")
+//}
+ksp {
+    arg("room.schemaLocation", "${projectDir}/schemas")
+}
 dependencies {
     implementation(libs.androidx.material3.android)
     debugImplementation(compose.uiTooling)
+    listOf(
+        "kspAndroid",
+        // "kspJvm",
+        "kspIosSimulatorArm64",
+        "kspIosX64",
+        "kspIosArm64",
+        "kspCommonMainMetadata"
+    ).forEach {
+        add(it, libs.androidx.room.compiler)
+    }
+//    add("kspAndroid", libs.androidx.room.compiler)
+//    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+//    add("kspIosX64", libs.androidx.room.compiler)
+//    add("kspIosArm64", libs.androidx.room.compiler)
+//    add("kspCommonMainMetadata", libs.androidx.room.compiler)
+
 }
 
+
+//tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
+//    if (name != "kspCommonMainKotlinMetadata" ) {
+//        dependsOn("kspCommonMainKotlinMetadata")
+//    }
+//}
+
+//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+//    kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
+//}

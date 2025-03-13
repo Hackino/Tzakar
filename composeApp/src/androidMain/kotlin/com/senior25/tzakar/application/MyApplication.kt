@@ -1,7 +1,6 @@
 package com.senior25.tzakar.application
 
 import android.app.Application
-import com.google.firebase.FirebaseApp
 import com.jakewharton.threetenabp.AndroidThreeTen
 
 import com.senior25.tzakar.di.initializeKoin
@@ -13,11 +12,10 @@ import org.koin.android.ext.koin.androidContext
 class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        initializeKoin {
+        initializeKoin(config = {
             androidContext(this@MyApplication)
-        }
+        })
         Firebase.initialize(this)
-
         ApplicationProvider.init(this)
         AndroidThreeTen.init(this)
     }
