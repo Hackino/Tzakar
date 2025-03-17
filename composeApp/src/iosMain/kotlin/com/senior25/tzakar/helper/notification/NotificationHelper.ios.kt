@@ -4,38 +4,67 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import com.senior25.tzakar.data.local.model.notification.NotificationModel
+import com.senior25.tzakar.data.local.preferences.NotificationStatus
+import com.senior25.tzakar.data.local.preferences.SharedPref
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import platform.Foundation.NSUUID
 import platform.UserNotifications.UNAuthorizationOptionAlert
 import platform.UserNotifications.UNAuthorizationOptionBadge
 import platform.UserNotifications.UNAuthorizationOptionSound
 import platform.UserNotifications.UNAuthorizationStatusAuthorized
+import platform.UserNotifications.UNMutableNotificationContent
+import platform.UserNotifications.UNNotification
+import platform.UserNotifications.UNNotificationPresentationOptions
+import platform.UserNotifications.UNNotificationRequest
+import platform.UserNotifications.UNNotificationResponse
+import platform.UserNotifications.UNNotificationSound
 import platform.UserNotifications.UNUserNotificationCenter
+import platform.UserNotifications.UNNotificationPresentationOptionAlert
+import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
+import platform.darwin.NSObject
 
 actual object NotificationHelper {
 
     actual fun showNotification(notificationModel:NotificationModel) {
-//        val content = UNMutableNotificationContent().apply {
-////            this.title = notificationModel.title
-////            this.body = notificationModel.body
-////            this.sound = UNNotificationSound.defaultSound()
-//        }
-//
-//        val trigger = UNTimeIntervalNotificationTrigger.timeIntervalNotificationTriggerWithTimeInterval(
-//            timeInterval = 1.0,
-//            repeats = false
-//        )
-//
-//        val request = UNNotificationRequest.requestWithIdentifier(
-//            identifier = "localNotification",
-//            content = content,
-//            trigger = trigger
-//        )
-//
-//        UNUserNotificationCenter.currentNotificationCenter().addNotificationRequest(request) { error ->
-//            error?.let { println("Error: ${it.localizedDescription}") }
-//        }
+        val content = UNMutableNotificationContent().apply {
+            this.setTitle(notificationModel.title?:"")
+            this.setBody(notificationModel.body?:"")
+            this.setSound(UNNotificationSound.defaultSound())
+        }
+
+        val uuid = NSUUID.UUID().UUIDString()
+        val request = UNNotificationRequest.requestWithIdentifier(uuid, content,null)
+        val center = UNUserNotificationCenter.currentNotificationCenter()
+
+        center.delegate = object : NSObject(), UNUserNotificationCenterDelegateProtocol {
+            override fun userNotificationCenter(
+                center: UNUserNotificationCenter,
+                willPresentNotification: UNNotification,
+                withCompletionHandler: (UNNotificationPresentationOptions) -> Unit
+            ) {
+                withCompletionHandler(UNNotificationPresentationOptionAlert)
+            }
+
+            override fun userNotificationCenter(
+                center: UNUserNotificationCenter,
+                didReceiveNotificationResponse: UNNotificationResponse,
+                withCompletionHandler: () -> Unit
+            ) {
+                withCompletionHandler()
+            }
+        }
+
+        if(SharedPref.notificationPermissionStatus == NotificationStatus.ON) {
+            center.addNotificationRequest(request) { error ->
+                if (error != null) {
+                    println("Error -> $error")
+                } else {
+                    println("Notification sent")
+                }
+            }
+        }
     }
 
 

@@ -22,6 +22,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.senior25.tzakar.data.local.preferences.NotificationStatus
+import com.senior25.tzakar.data.local.preferences.SharedPref
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -30,9 +32,9 @@ import kotlinx.coroutines.launch
 actual object NotificationHelper {
     private val CHANNEL_ID = "default_channel"
 
-//    init {
-//        createNotificationChannel()
-//    }
+    init {
+        createNotificationChannel()
+    }
 
     private  fun createNotificationChannel() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -57,6 +59,8 @@ actual object NotificationHelper {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .build()
+
+        if(SharedPref.notificationPermissionStatus == NotificationStatus.ON)
         NotificationManagerCompat.from(ApplicationProvider.application).notify(1, notification)
     }
 

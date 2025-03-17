@@ -45,6 +45,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
+import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.helper.AppLinks

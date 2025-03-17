@@ -196,7 +196,10 @@ class CalendarScreen: Screen {
             }
         }
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 80.dp)
+        ) {
             item {
                 Column(modifier = Modifier) {
                     Spacer(Modifier.height(16.dp))
@@ -256,6 +259,8 @@ class CalendarScreen: Screen {
 
                     Spacer(Modifier.height(16.dp))
                     ReminderItem(
+                        modifier = Modifier,
+
                         reminderModel =    ReminderModel(
                             type = 1,
                             title = "text",
@@ -269,6 +274,8 @@ class CalendarScreen: Screen {
                     Spacer(Modifier.height(8.dp))
 
                     ReminderItem(
+                        modifier = Modifier,
+
                         reminderModel = ReminderModel(
                             type = 1,
                             title = "text",
@@ -280,6 +287,7 @@ class CalendarScreen: Screen {
                     Spacer(Modifier.height(8.dp))
 
                     ReminderItem(
+                        modifier = Modifier,
                         reminderModel =    ReminderModel(
                             type = 1,
                             title = "text",
@@ -426,6 +434,7 @@ fun MonthYearPickerDialog(
 
 @Composable
 fun ReminderItem(
+    modifier: Modifier,
     reminderModel: ReminderModel? = null,
     isSelected:Boolean? = false,
     onSelect:(Boolean)->Unit = {  },
@@ -433,7 +442,7 @@ fun ReminderItem(
 ) {
     var isChecked by remember(isSelected) { mutableStateOf(isSelected == true) }
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(MyColors.colorWhite)
