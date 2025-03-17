@@ -12,6 +12,9 @@ import com.senior25.tzakar.helper.ApplicationProvider
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
@@ -22,15 +25,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.senior25.tzakar.data.local.database.dao.ReminderDao
 import com.senior25.tzakar.data.local.preferences.NotificationStatus
 import com.senior25.tzakar.data.local.preferences.SharedPref
+import com.senior25.tzakar.ktx.encodeToJson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 
+import com.senior25.tzakar.receiver.NotificationReceiver
+//import org.koin.java.KoinJavaComponent.inject
+import org.koin.core.component.inject
+import org.koin.java.KoinJavaComponent.inject
+
+
 actual object NotificationHelper {
-    private val CHANNEL_ID = "default_channel"
+
+     const val CHANNEL_ID = "default_channel"
+//    private val reminderDao: ReminderDao by inject(ReminderDao::class.java) // Inject DAO from Koin
 
     init {
         createNotificationChannel()
@@ -52,16 +65,28 @@ actual object NotificationHelper {
 
     @SuppressLint("MissingPermission")
     actual fun showNotification(notificationModel: NotificationModel) {
-        val notification = NotificationCompat.Builder(   ApplicationProvider.application, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle(notificationModel.title)
-            .setContentText(notificationModel.body)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-            .build()
+        val context = ApplicationProvider.application
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        if(SharedPref.notificationPermissionStatus == NotificationStatus.ON)
-        NotificationManagerCompat.from(ApplicationProvider.application).notify(1, notification)
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
+            putExtra("notificationModel", notificationModel.encodeToJson())
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            notificationModel.id.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val triggerTime = System.currentTimeMillis() + 60 * 1000
+
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            triggerTime,
+            pendingIntent
+        )
+
     }
 
     actual fun isNotificationPermissionGranted(): Boolean {
@@ -71,7 +96,7 @@ actual object NotificationHelper {
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
         } else {
-            true  // Below Android 13, permission is granted by default
+            true
         }
     }
 
@@ -92,6 +117,23 @@ actual object NotificationHelper {
                     scope.launch (Dispatchers.IO) { onResult(true) }
                 }
             }
+        }
+    }
+
+    actual fun cancelNotification(ids: List<String>) {
+        val context = ApplicationProvider.application
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, NotificationReceiver::class.java)
+        ids.forEach {currentId->
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                currentId.hashCode(),
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            alarmManager.cancel(pendingIntent)
+            pendingIntent.cancel()
         }
     }
 }

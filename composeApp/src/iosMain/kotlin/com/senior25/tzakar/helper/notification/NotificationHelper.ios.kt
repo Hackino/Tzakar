@@ -3,6 +3,7 @@ package com.senior25.tzakar.helper.notification
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import com.senior25.tzakar.data.local.database.dao.ReminderDao
 import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import com.senior25.tzakar.data.local.preferences.NotificationStatus
 import com.senior25.tzakar.data.local.preferences.SharedPref
@@ -16,16 +17,18 @@ import platform.UserNotifications.UNAuthorizationOptionSound
 import platform.UserNotifications.UNAuthorizationStatusAuthorized
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotification
+import platform.UserNotifications.UNNotificationPresentationOptionAlert
 import platform.UserNotifications.UNNotificationPresentationOptions
 import platform.UserNotifications.UNNotificationRequest
 import platform.UserNotifications.UNNotificationResponse
 import platform.UserNotifications.UNNotificationSound
+import platform.UserNotifications.UNTimeIntervalNotificationTrigger
 import platform.UserNotifications.UNUserNotificationCenter
-import platform.UserNotifications.UNNotificationPresentationOptionAlert
 import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
 import platform.darwin.NSObject
 
 actual object NotificationHelper {
+//    private val reminderDao: ReminderDao by inject(ReminderDao::class.java) // Inject DAO from Koin
 
     actual fun showNotification(notificationModel:NotificationModel) {
         val content = UNMutableNotificationContent().apply {
@@ -34,8 +37,13 @@ actual object NotificationHelper {
             this.setSound(UNNotificationSound.defaultSound())
         }
 
+        // convert date to timestamp to get trigger time
         val uuid = NSUUID.UUID().UUIDString()
-        val request = UNNotificationRequest.requestWithIdentifier(uuid, content,null)
+        val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(
+            60.0, false
+        )
+        val request = UNNotificationRequest.requestWithIdentifier(uuid, content,trigger)
+
         val center = UNUserNotificationCenter.currentNotificationCenter()
 
         center.delegate = object : NSObject(), UNUserNotificationCenterDelegateProtocol {
@@ -89,5 +97,14 @@ actual object NotificationHelper {
                     }
             }
         }
+    }
+
+    actual fun cancelNotification(ids: List<String>) {
+        UNUserNotificationCenter
+            .currentNotificationCenter()
+            .removePendingNotificationRequestsWithIdentifiers(ids)
+
+        // turn off from database
+
     }
 }
