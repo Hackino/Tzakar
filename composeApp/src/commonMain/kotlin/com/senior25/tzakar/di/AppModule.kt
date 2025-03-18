@@ -1,5 +1,6 @@
 package com.senior25.tzakar.di
 
+import com.senior25.tzakar.data.local.database.dao.NotificationDao
 import com.senior25.tzakar.data.local.database.dao.ReminderDao
 import com.senior25.tzakar.data.local.database.myDatabase.CreateDatabase
 import com.senior25.tzakar.data.local.database.myDatabase.MyDatabase
@@ -30,8 +31,10 @@ import org.koin.dsl.module
 
 val sharedModule = module {
     single<ReminderDao> { get<MyDatabase>().reminderDao() }
+    single<NotificationDao> { get<MyDatabase>().notificationDao() }
+
     single<RegistrationRepository> { RegistrationRepositoryImpl() }
-    single< MainRepository>{MainRepositoryImpl(get())}
+    single< MainRepository>{MainRepositoryImpl(get(),get())}
 
     factory { RegistrationScreenViewModel(get()) }
     factory { SignInScreenViewModel(get()) }

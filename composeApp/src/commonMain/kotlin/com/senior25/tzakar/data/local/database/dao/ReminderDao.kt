@@ -12,15 +12,15 @@ interface ReminderDao {
     @Upsert
     suspend fun insert(reminder: ReminderModel): Long
 
-    @Query("SELECT * FROM reminder WHERE id = :reminderId")
-    suspend fun getReminderById(reminderId: Long): ReminderModel?
+    @Query("SELECT * FROM reminder_table WHERE id = :id")
+    suspend fun getReminderById(id: Long): ReminderModel?
 
     @Delete
     suspend fun delete(reminder: ReminderModel)
 
-    @Query("DELETE FROM reminder WHERE id = :reminderId")
-    suspend fun deleteById(reminderId: Long): Int
+    @Query("DELETE FROM reminder_table WHERE id = :id")
+    suspend fun deleteById(id: String): Int
 
-    @Query("SELECT * FROM reminder")
+    @Query("SELECT * FROM reminder_table")
     suspend fun getAllUsers(): List<ReminderModel>
 }

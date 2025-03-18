@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase
 import com.senior25.tzakar.data.local.database.myDatabase.MyDatabase
 
 fun androidDatabaseBuilder(context: Context): RoomDatabase.Builder<MyDatabase>{
-    val dbFile = context.applicationContext.getDatabasePath(  "room_db.db")
+    val dbFile = context.applicationContext.getDatabasePath("room_db.db")
     return Room. databaseBuilder(
         context,
         dbFile.absolutePath

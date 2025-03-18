@@ -9,15 +9,21 @@ import com.senior25.tzakar.data.local.database.dao.ReminderDao
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import androidx.room.RoomDatabaseConstructor
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.senior25.tzakar.data.local.database.dao.NotificationDao
+import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 @Database(
-    entities = [ReminderModel::class], version = 1
+    entities = [
+        ReminderModel::class,
+        NotificationModel::class,
+    ], version = 2
 )
 @ConstructedBy(MyDatabaseConstructor::class)
 abstract class MyDatabase : RoomDatabase() {
     abstract fun reminderDao(): ReminderDao
+    abstract fun notificationDao(): NotificationDao
 }
 
 

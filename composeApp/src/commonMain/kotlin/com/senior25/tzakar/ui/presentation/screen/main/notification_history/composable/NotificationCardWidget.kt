@@ -76,28 +76,7 @@ fun NotificationCardWidget(
         Box(modifier.align(Alignment.BottomCenter).padding(horizontal = 16.dp)) {
             if (addSpacer) Separator()
         }
-
     }
-}
-
-@Composable
-fun MediaSmallCardWidget1() {
-    Scaffold(
-        containerColor = Color.Red
-    ) {p->
-        NotificationCardWidget(
-            modifier = Modifier,
-            item =   NotificationModel(
-                title = "New Message",
-                date = "August 1, 2021",
-                body = "You have received a new message.",
-                image = "https://example.com/image1.jpg",
-                isRead = false,
-                tag = "message"
-            ),
-        )
-    }
-
 }
 
 interface NotificationItemInteraction{

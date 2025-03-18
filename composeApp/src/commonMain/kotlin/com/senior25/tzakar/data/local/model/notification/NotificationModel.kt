@@ -1,7 +1,12 @@
 package com.senior25.tzakar.data.local.model.notification
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "notification_table")
 data class NotificationModel(
-    var id: String? = null,
+    @PrimaryKey
+    val id:String = "",
     var title: String? = null,
     val body:String? =null,
     var isRead:Boolean? =null,
@@ -11,5 +16,6 @@ data class NotificationModel(
     val time:String? =null,
     val image:String? =null,
     val sectionTitle:String? = null,
-    val sectionType:String? = null
+    val sectionType:String? = null,
+    val referenceId:String? = null
 )

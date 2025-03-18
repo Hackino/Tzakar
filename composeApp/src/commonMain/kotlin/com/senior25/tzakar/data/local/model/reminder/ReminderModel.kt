@@ -3,10 +3,10 @@ package com.senior25.tzakar.data.local.model.reminder
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "reminder")
+@Entity(tableName = "reminder_table")
 data class ReminderModel(
-    @PrimaryKey(autoGenerate = true) val rowId: Int = 0,
-    val id:Long? = null,
+    @PrimaryKey
+    val id:String = "",
     val type:Int? = null,
     val title:String? = null,
     val description:String? = null,

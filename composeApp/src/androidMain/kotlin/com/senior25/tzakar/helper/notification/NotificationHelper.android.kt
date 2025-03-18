@@ -1,48 +1,34 @@
 package com.senior25.tzakar.helper.notification
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import androidx.core.app.NotificationCompat
-import com.senior25.tzakar.application.MyApplication
-import com.senior25.tzakar.data.local.model.notification.NotificationModel
-import com.senior25.tzakar.helper.ApplicationProvider
-
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.senior25.tzakar.data.local.database.dao.ReminderDao
-import com.senior25.tzakar.data.local.preferences.NotificationStatus
-import com.senior25.tzakar.data.local.preferences.SharedPref
+import com.senior25.tzakar.data.local.model.notification.NotificationModel
+import com.senior25.tzakar.helper.ApplicationProvider
 import com.senior25.tzakar.ktx.encodeToJson
+import com.senior25.tzakar.receiver.NotificationReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
-
-import com.senior25.tzakar.receiver.NotificationReceiver
-//import org.koin.java.KoinJavaComponent.inject
-import org.koin.core.component.inject
-import org.koin.java.KoinJavaComponent.inject
 
 
 actual object NotificationHelper {
 
-     const val CHANNEL_ID = "default_channel"
+    const val CHANNEL_ID = "default_channel"
 //    private val reminderDao: ReminderDao by inject(ReminderDao::class.java) // Inject DAO from Koin
 
     init {

@@ -3,7 +3,6 @@ package com.senior25.tzakar.helper.notification
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import com.senior25.tzakar.data.local.database.dao.ReminderDao
 import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import com.senior25.tzakar.data.local.preferences.NotificationStatus
 import com.senior25.tzakar.data.local.preferences.SharedPref
@@ -28,7 +27,6 @@ import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
 import platform.darwin.NSObject
 
 actual object NotificationHelper {
-//    private val reminderDao: ReminderDao by inject(ReminderDao::class.java) // Inject DAO from Koin
 
     actual fun showNotification(notificationModel:NotificationModel) {
         val content = UNMutableNotificationContent().apply {
@@ -37,7 +35,6 @@ actual object NotificationHelper {
             this.setSound(UNNotificationSound.defaultSound())
         }
 
-        // convert date to timestamp to get trigger time
         val uuid = NSUUID.UUID().UUIDString()
         val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(
             60.0, false
