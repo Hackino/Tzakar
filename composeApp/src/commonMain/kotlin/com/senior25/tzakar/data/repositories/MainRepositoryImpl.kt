@@ -5,7 +5,8 @@ import com.senior25.tzakar.data.local.database.dao.ReminderDao
 import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.domain.MainRepository
-import com.senior25.tzakar.platform_specific.utils.generateUUID
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class MainRepositoryImpl(
     private val reminderDao: ReminderDao,
@@ -21,5 +22,9 @@ class MainRepositoryImpl(
     override fun getAllNotifications() = notificationDao.getAllNotificationFlow()
     override suspend fun addNotification(notificationModel: NotificationModel) {
         notificationDao.insert(notificationModel)
+    }
+
+    override fun getReminderById(reminderId: String?): Flow<ReminderModel?>  = flow {
+        reminderId?.let { emit(reminderDao.getReminderById(it)) }
     }
 }

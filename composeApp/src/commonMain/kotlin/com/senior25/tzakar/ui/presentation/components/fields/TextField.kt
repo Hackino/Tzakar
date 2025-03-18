@@ -124,6 +124,7 @@ fun DateField(
     focusRequester:FocusRequester? = null,
     onKeyPressed:()->Unit = {},
     leadingIcon: Painter? = null,
+    isMandatory: Boolean?  = true,
     validate:Boolean? = true,
     enabled:Boolean? = true
 ) {
@@ -136,6 +137,7 @@ fun DateField(
         placeHolder = placeHolder,
         keyboardType = KeyboardType.Text,
         onValueChange =onValueChange,
+        isMandatory = isMandatory,
         validate = {
             if (validate == true) {
                 val isValid = if (selectedDate?.ifEmpty { null } == null){
@@ -223,6 +225,7 @@ fun TimeField(
     onKeyPressed:()->Unit = {},
     leadingIcon: Painter? = null,
     validate:Boolean? = true,
+    isMandatory: Boolean?  = true,
     validateDateBefore:(()->Boolean)? = null,
     selectedDate:String? = null,
     enabled: Boolean? = true
@@ -240,6 +243,7 @@ fun TimeField(
         placeHolder = placeHolder,
         keyboardType = KeyboardType.Text,
         onValueChange =onValueChange,
+        isMandatory = isMandatory,
         validate = {
             val isValid =    if (validate == true) {
                 if (inputDate == today) {

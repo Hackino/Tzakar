@@ -38,6 +38,7 @@ import com.senior25.tzakar.ui.presentation.app.AppNavigator
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.screen.common.composable.no_data.NoDataWidget
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.category_details.CategoryDetailsScreen
 import com.senior25.tzakar.ui.presentation.screen.main.notification_history.composable.ListShimmer
 import com.senior25.tzakar.ui.presentation.screen.main.notification_history.composable.NotificationCardWidget
 import com.senior25.tzakar.ui.presentation.screen.main.notification_history.composable.NotificationItemInteraction
@@ -83,7 +84,9 @@ class NotificationHistoryScreen: Screen {
             override fun getUiState(): StateFlow<NotificationHistoryPageUiState?> = viewModel.uiState
             override fun onUIEvent(event: NotificationHistoryPageEvent) {  }
             override fun getNotifications(): StateFlow<List<NotificationModel>?> = viewModel.notifications
-            override fun onNotificationClick(data: NotificationModel?) {}
+            override fun onNotificationClick(data: NotificationModel?) {
+                navigator?.push(CategoryDetailsScreen(data?.referenceId))
+            }
         }
         Scaffold(
             backgroundColor = MyColors.colorOffWhite,

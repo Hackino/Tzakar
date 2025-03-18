@@ -3,11 +3,7 @@ package com.senior25.tzakar.ui.presentation.screen.main.notification_history
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import com.senior25.tzakar.domain.MainRepository
-import com.senior25.tzakar.platform_specific.utils.generateUUID
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

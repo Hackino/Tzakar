@@ -269,7 +269,7 @@ class CalendarScreen: Screen {
                             time = "11:11"
                         )
                     ){
-                        navigator.push(CategoryDetailsScreen(it))
+                        navigator.push(CategoryDetailsScreen(it?.id))
                     }
                     Spacer(Modifier.height(8.dp))
 

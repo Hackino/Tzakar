@@ -12,6 +12,7 @@ import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.calendar.CalendarViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.categories.CategoryViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.category_details.CategoryDetailsScreen
+import com.senior25.tzakar.ui.presentation.screen.main.category_details.CategoryDetailsScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.change_password.ChangePasswordScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.home.HomeScreenViewModel
@@ -51,6 +52,7 @@ val sharedModule = module {
 
     factory { HomeScreenViewModel(get()) }
     factory { NotificationHistoryViewModel(get()) }
+    factory { CategoryDetailsScreenViewModel(get()) }
 
     factory { CategoryViewModel(get()) }
     factory { CalendarViewModel(get()) }

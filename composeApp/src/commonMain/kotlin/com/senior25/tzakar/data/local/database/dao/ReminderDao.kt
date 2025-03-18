@@ -13,7 +13,7 @@ interface ReminderDao {
     suspend fun insert(reminder: ReminderModel): Long
 
     @Query("SELECT * FROM reminder_table WHERE id = :id")
-    suspend fun getReminderById(id: Long): ReminderModel?
+    suspend fun getReminderById(id: String): ReminderModel?
 
     @Delete
     suspend fun delete(reminder: ReminderModel)
