@@ -6,11 +6,14 @@ import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.notification_history.NotificationHistoryPageUiState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
 
 class CategoryDetailsScreenViewModel(
     private val maiRepository: MainRepository
@@ -22,8 +25,9 @@ class CategoryDetailsScreenViewModel(
 
 
     fun init(reminderId:String?){
-        screenModelScope.launch {
+        screenModelScope.launch(Dispatchers.IO) {
             maiRepository.getReminderById(reminderId).collectLatest {
+
                 _reminder.value = it
             }
         }

@@ -12,4 +12,9 @@ interface MainRepository{
 
     fun getReminderById(reminderId:String?):Flow<ReminderModel?>
 
+    suspend fun fetchServerNotifications()
+    suspend fun insertNotification(notificationModel: NotificationModel)
+    suspend fun insertNotifications(notifications: List<NotificationModel>)
+    suspend fun deleteNotification(ids: List<String>)
+
 }

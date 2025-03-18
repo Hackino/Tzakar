@@ -18,18 +18,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.senior25.tzakar.data.local.model.notification.NotificationModel
+import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.helper.ApplicationProvider
 import com.senior25.tzakar.ktx.encodeToJson
 import com.senior25.tzakar.receiver.NotificationReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 
-actual object NotificationHelper {
+actual object NotificationHelper: KoinComponent {
+    private val mainRepository: MainRepository by inject()
 
     const val CHANNEL_ID = "default_channel"
-//    private val reminderDao: ReminderDao by inject(ReminderDao::class.java) // Inject DAO from Koin
 
     init {
         createNotificationChannel()
@@ -120,6 +124,9 @@ actual object NotificationHelper {
 
             alarmManager.cancel(pendingIntent)
             pendingIntent.cancel()
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            mainRepository.deleteNotification(ids)
         }
     }
 }

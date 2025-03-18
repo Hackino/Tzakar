@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,19 +33,13 @@ import com.senior25.tzakar.ui.presentation.components.fields.TimeField
 import com.senior25.tzakar.ui.presentation.components.fields.normalTextField
 import com.senior25.tzakar.ui.presentation.components.toolbar.BackPressInteraction
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
-import com.senior25.tzakar.ui.presentation.screen.main.notification_history.NotificationHistoryViewModel
 import com.senior25.tzakar.ui.theme.MyColors
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import org.jetbrains.compose.resources.stringResource
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.description
-import tzakar_reminder.composeapp.generated.resources.enter_description
-import tzakar_reminder.composeapp.generated.resources.enter_title
 import tzakar_reminder.composeapp.generated.resources.reminder_data
 import tzakar_reminder.composeapp.generated.resources.reminder_time
-import tzakar_reminder.composeapp.generated.resources.select_date
-import tzakar_reminder.composeapp.generated.resources.select_time
 import tzakar_reminder.composeapp.generated.resources.title
 
 data class CategoryDetailsScreen(val reminderId:String? = null): Screen {
@@ -88,11 +81,6 @@ private fun CategoryPageScreen(paddingValues: PaddingValues,interaction: Categor
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
-
-
-
-
             Column(
                 modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -165,10 +153,6 @@ private fun CategoryPageScreen(paddingValues: PaddingValues,interaction: Categor
 //        )
                 Spacer(modifier = Modifier.height(16.dp))
             }
-
-
-
-
         }
     }
 }

@@ -2,7 +2,9 @@ package com.senior25.tzakar.data.local.model.reminder
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = "reminder_table")
 data class ReminderModel(
     @PrimaryKey

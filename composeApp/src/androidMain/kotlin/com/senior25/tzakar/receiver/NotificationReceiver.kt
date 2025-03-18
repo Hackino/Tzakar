@@ -9,15 +9,29 @@ import androidx.core.app.NotificationManagerCompat
 import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import com.senior25.tzakar.data.local.preferences.NotificationStatus
 import com.senior25.tzakar.data.local.preferences.SharedPref
-import  com.senior25.tzakar.helper.notification.*
+import com.senior25.tzakar.domain.MainRepository
+import com.senior25.tzakar.helper.notification.NotificationHelper
 import com.senior25.tzakar.ktx.decodeJson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class NotificationReceiver : BroadcastReceiver() {
+class NotificationReceiver : BroadcastReceiver(), KoinComponent {
+
+    private val mainRepository: MainRepository by inject()
+
+
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
 
         val notificationModel = intent.getStringExtra("notificationModel")?.decodeJson(NotificationModel())
+
+        CoroutineScope(Dispatchers.Default).launch {
+            if (notificationModel != null) mainRepository.insertNotification(notificationModel)
+        }
 
         val notification = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
@@ -27,6 +41,6 @@ class NotificationReceiver : BroadcastReceiver() {
             .setAutoCancel(true)
             .build()
         if(SharedPref.notificationPermissionStatus == NotificationStatus.ON)
-        NotificationManagerCompat.from(context).notify(notificationModel?.title.hashCode(), notification)
+            NotificationManagerCompat.from(context).notify(notificationModel?.title.hashCode(), notification)
     }
 }

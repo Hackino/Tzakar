@@ -2,7 +2,9 @@ package com.senior25.tzakar.data.local.model.notification
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = "notification_table")
 data class NotificationModel(
     @PrimaryKey

@@ -58,7 +58,7 @@ fun NotificationCardWidget(
                 Text(
                     text = item?.title?:"",
                     style = fontH3,
-                    fontSize = 17.sp,
+                    fontSize = 20.sp,
                     textAlign = TextAlign.Start,
                     modifier = Modifier.fillMaxWidth()
                 )
