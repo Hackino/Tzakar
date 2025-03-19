@@ -18,7 +18,6 @@ class HomeScreenViewModel(
     private val _tabIndexState = MutableStateFlow<ReminderTabType?>(ReminderTabType.CURRENT)
     val tabIndexState: StateFlow<ReminderTabType?> get() = _tabIndexState.asStateFlow()
 
-
     private val _popUpState = MutableStateFlow<HomePagePopUp?>(HomePagePopUp.None)
     val popUpState: StateFlow<HomePagePopUp?> get() = _popUpState.asStateFlow()
 
@@ -42,7 +41,6 @@ class HomeScreenViewModel(
             }
             is HomePageEvent.LoadExpired -> {
                 _tabIndexState.value  = ReminderTabType.COMPLETED
-
             }
         }
     }
@@ -60,7 +58,6 @@ sealed class HomePageEvent {
     data object LoaderView: HomePageEvent()
     data object Refresh: HomePageEvent()
     data class UpdatePopUpState(val popUp: HomePagePopUp) : HomePageEvent()
-
     data object LoadCurrent : HomePageEvent()
     data object LoadExpired : HomePageEvent()
 }

@@ -60,7 +60,7 @@ class CategoryViewModel(
                 description = description,
                 date = _reminderDate.value,
                 time = _reminderTime.value,
-                isEnabled = true
+                isEnabled = 1
             )
             maiRepository.addReminder(reminder)
             onSuccess()

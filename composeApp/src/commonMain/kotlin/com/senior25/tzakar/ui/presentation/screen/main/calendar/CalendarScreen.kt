@@ -289,7 +289,7 @@ class CalendarScreen: Screen {
                     ReminderItem(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         reminderModel =  item,
-                        isSelected = item.isEnabled == true,
+                        isSelected = item.isEnabled == 1,
                         onSelect = { interaction.updateReminderStatus(it) }
                     ){ navigator.push(CategoryDetailsScreen(it?.id)) }
                     Spacer(Modifier.height(8.dp))
@@ -477,7 +477,7 @@ fun ReminderItem(
                 modifier = Modifier.size(52.dp, 32.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .background(if (isChecked) MyColors.colorDarkBlue else MyColors.colorLightGrey)
-                    .clickable { isChecked = !isChecked; onSelect(reminderModel?.copy(isEnabled = isChecked)) }
+                    .clickable { isChecked = !isChecked; onSelect(reminderModel?.copy(isEnabled = if (isChecked)1 else 0)) }
                     .padding(horizontal = 4.dp)
             ) {
                 Box(

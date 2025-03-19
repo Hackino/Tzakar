@@ -48,8 +48,6 @@ import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.helper.authentication.google.GoogleAuthResponse
 import com.senior25.tzakar.helper.encode.encodeUrl
-import com.senior25.tzakar.ktx.decodeJson
-import com.senior25.tzakar.ktx.encodeToJson
 import com.senior25.tzakar.ktx.ifEmpty
 import com.senior25.tzakar.ktx.koinParentScreenModel
 import com.senior25.tzakar.ktx.koinScreenModel
@@ -83,6 +81,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -324,16 +323,17 @@ private fun SignUpScreen(interaction: SignUpScreenInteraction? = null) {
                             is GoogleAuthResponse.Success -> {
                                 CoroutineScope(Dispatchers.Main).launch{
                                     val email = response.account.profile.email
-                                    val ref  = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(email.encodeBase64()).child("profile")
-                                    val userJson  = ref.valueEvents.first().value
-                                    val user =  userJson.toString().decodeJson(UserProfile())
-                                    val updatedUser =   user?.copy(
+                                    val ref  = Firebase.database.reference(DataBaseReference.UserProfiles.reference)
+                                        .child(email.encodeBase64())
+                                        .child("profile")
+
+                                    val snapshot = ref.valueEvents.firstOrNull()
+                                    val profile  = snapshot?.value<UserProfile?>()
+                                    val updatedUser =   profile?.copy(
                                         email = email,
-                                        userName = user.userName?.ifEmpty { null }?:response.account.profile.name
+                                        userName = profile.userName?.ifEmpty { null }?:response.account.profile.name
                                     )
-                                    ref.setValue(
-                                        updatedUser.encodeToJson()
-                                    )
+                                    ref.setValue(updatedUser)
                                     SharedPref.loggedInProfile = updatedUser
                                     Firebase.auth.signOut()
                                     interaction?.navigate(SignUpAction.GOOGLE)

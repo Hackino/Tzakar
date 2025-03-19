@@ -1,6 +1,5 @@
 package com.senior25.tzakar.data.local.database.myDatabase
 
-//import androidx.room.Database
 import androidx.room.ConstructedBy
 import androidx.room.Database
 
@@ -18,7 +17,7 @@ import kotlinx.coroutines.IO
     entities = [
         ReminderModel::class,
         NotificationModel::class,
-    ], version = 2
+    ], version = 3
 )
 @ConstructedBy(MyDatabaseConstructor::class)
 abstract class MyDatabase : RoomDatabase() {

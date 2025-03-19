@@ -2,6 +2,7 @@ package com.senior25.tzakar.ui.presentation.screen.registration.forget_password
 
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.firebase.StatusCode
+import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.domain.RegistrationRepository
 import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
@@ -33,8 +35,11 @@ class ForgotPasswordScreenViewModel(
             _isLoading.update { true }
             email?.encodeBase64()?.let {
                 val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it).child("profile")
-                val exist =ref.valueEvents.first().value != null
-                if (exist) proceed()
+
+                val snapshot = ref.valueEvents.firstOrNull()
+                val profile  = snapshot?.value<UserProfile?>()
+
+                if (profile != null) proceed()
                 else{
                     _errorStatusCode.update {
                         StatusCode(errorMessage = getString(Res.string.user_doesnt_exist))

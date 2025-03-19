@@ -66,7 +66,7 @@ class CalendarViewModel(
     fun init() {
         screenModelScope.launch {
             screenModelScope.launch(Dispatchers.IO) {
-                maiRepository.fetchServerNotifications()
+                maiRepository.fetchServerReminder()
             }
             val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
             _selectedYear.value = currentDate.year
@@ -105,7 +105,7 @@ class CalendarViewModel(
             CalendarPageEvent.LoaderView ->  _uiState.value = CalendarPageUiState.ProgressLoader
             is CalendarPageEvent.UpdateMonthYear ->{
                 screenModelScope.launch(Dispatchers.IO) {
-                    maiRepository.fetchServerNotifications()
+                    maiRepository.fetchServerReminder()
                 }
                 _selectedYear.value = uiEvent.year
                 _selectedMonth.value = uiEvent.month
@@ -116,7 +116,7 @@ class CalendarViewModel(
 
             }
             is CalendarPageEvent.UpdateDayDate -> {
-                screenModelScope.launch(Dispatchers.IO) { maiRepository.fetchServerNotifications() }
+                screenModelScope.launch(Dispatchers.IO) { maiRepository.fetchServerReminder() }
                 _selectedDate.value = uiEvent.dayDate
                 filterData(_reminders.value)
             }

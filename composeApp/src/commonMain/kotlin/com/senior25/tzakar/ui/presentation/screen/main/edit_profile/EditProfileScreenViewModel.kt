@@ -9,8 +9,6 @@ import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.ktx.decodeJson
-import com.senior25.tzakar.ktx.encodeToJson
-import com.senior25.tzakar.ktx.fixAvatarDbJson
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
@@ -22,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 
@@ -50,12 +49,8 @@ class EditProfileViewModel(
     init {
         screenModelScope.launch(Dispatchers.IO) {
             val ref = Firebase.database.reference(DataBaseReference.Avatars.reference)
-            val avatarsJson = ref.valueEvents.first().value
-            val jsonInput = avatarsJson.toString().fixAvatarDbJson()
-
-//            println(jsonInput)
-            if (avatarsJson != null) avatars = jsonInput.decodeJson(AvatarsModel())
-
+            val snapshot = ref.valueEvents.firstOrNull()
+            avatars = snapshot?.value<AvatarsModel?>()
         }
     }
 
@@ -80,17 +75,16 @@ class EditProfileViewModel(
             email?.let {
                 val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference)
                     .child(it.encodeBase64()).child("profile")
-                val userJson = ref.valueEvents.first().value
-                if (userJson != null) {
-                    val user = userJson.toString().decodeJson(UserProfile())
 
-                    val updatedUser = user?.copy(
+                val snapshot = ref.valueEvents.firstOrNull()
+                val profile  = snapshot?.value<UserProfile?>()
+                if (profile != null) {
+                    val updatedUser = profile.copy(
                         userName = username,
                         genderId = _selectedGender.value,
                         image =_image.value
                     )
-
-                    ref.setValue(updatedUser.encodeToJson())
+                    ref.setValue(updatedUser)
                     SharedPref.loggedInProfile = updatedUser
                     onSuccess(FirebaseAuthRsp().authResult)
                     return@launch

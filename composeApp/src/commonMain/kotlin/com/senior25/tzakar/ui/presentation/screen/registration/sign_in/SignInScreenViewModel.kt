@@ -10,9 +10,6 @@ import com.senior25.tzakar.domain.RegistrationRepository
 import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.helper.authentication.email.AuthService
 import com.senior25.tzakar.helper.authentication.email.AuthServiceImpl
-import com.senior25.tzakar.ktx.decodeJson
-import com.senior25.tzakar.ktx.encodeToJson
-import com.senior25.tzakar.platform_specific.toast_helper.showToast
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
@@ -24,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
@@ -69,14 +66,15 @@ class SignInScreenViewModel(
         screenModelScope.launch{
             email?.let {
                 val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64()).child("profile")
-                val userJson = ref.valueEvents.first().value
-                if (userJson != null) {
-                    println( userJson.toString())
-                    val user =  userJson.toString().decodeJson(UserProfile())
-                    if (user?.password != password){
+
+                val snapshot = ref.valueEvents.firstOrNull()
+                val profile  = snapshot?.value<UserProfile?>()
+
+                if (profile != null) {
+                    if (profile.password != password){
                         _errorStatusCode.update { StatusCode(errorMessage = getString(Res.string.invalid_credentials)) }
                     }else{
-                        SharedPref.loggedInProfile = user
+                        SharedPref.loggedInProfile = profile
                         SharedPref.isRememberMeChecked = isRememberMe == true
                         onSuccess(FirebaseAuthRsp().authResult)
 
@@ -128,14 +126,15 @@ class SignInScreenViewModel(
                     email?.let {
                         val ref = Firebase.database
                             .reference(DataBaseReference.UserProfiles.reference)
-                            .child(it.encodeBase64())
-                        val userJson = ref.valueEvents.first().value
-                        val user =  userJson.toString().decodeJson(UserProfile())
-                       val updatedUser =  user?.copy(
+                            .child(it.encodeBase64()).child("profile")
+
+                        val snapshot = ref.valueEvents.firstOrNull()
+                        val profile  = snapshot?.value<UserProfile?>()
+                       val updatedUser =  profile?.copy(
                             email = email,
                             password = password
                         )
-                        ref.setValue(updatedUser.encodeToJson())
+                        ref.setValue(updatedUser)
                         SharedPref.loggedInProfile = updatedUser
                         SharedPref.isRememberMeChecked = isRememberMe == true
                         onSuccess(result.authResult)

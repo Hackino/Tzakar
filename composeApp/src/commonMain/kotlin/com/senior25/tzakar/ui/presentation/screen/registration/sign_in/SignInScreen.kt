@@ -48,7 +48,6 @@ import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.helper.authentication.google.GoogleAuthResponse
 import com.senior25.tzakar.helper.encode.encodeUrl
 import com.senior25.tzakar.ktx.decodeJson
-import com.senior25.tzakar.ktx.encodeToJson
 import com.senior25.tzakar.ktx.ifEmpty
 import com.senior25.tzakar.ktx.koinParentScreenModel
 import com.senior25.tzakar.ktx.koinScreenModel
@@ -347,7 +346,7 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                                         email = email,
                                         userName = user.userName?.ifEmpty { null }?:response.account.profile.name
                                     )
-                                    ref.setValue(updatedUser.encodeToJson())
+                                    ref.setValue(updatedUser)
                                     SharedPref.loggedInProfile = updatedUser
                                     interaction?.signOut()
                                     interaction?.navigate(SignInAction.GOOGLE)

@@ -23,10 +23,11 @@ class ProfileViewModel(private val maiRepository: MainRepository): CommonViewMod
     private val _popUpState = MutableStateFlow<ProfilePagePopUp?>(ProfilePagePopUp.None)
     val popUpState: StateFlow<ProfilePagePopUp?> get() = _popUpState.asStateFlow()
 
-    private val _notificationState = MutableStateFlow<Boolean?>(SharedPref.notificationPermissionStatus.value == 1)
-    val notificationState: StateFlow<Boolean?> get() = _notificationState.asStateFlow()
+    private val _notificationState = MutableStateFlow(SharedPref.notificationPermissionStatus.value == 1)
+    val notificationState: StateFlow<Boolean> get() = _notificationState.asStateFlow()
 
     private var _profilePageData = MutableStateFlow<ProfilePageData?>(ProfilePageData())
+
 
     fun deleteAccount(onSuccess:()->Unit) {
         screenModelScope.launch {

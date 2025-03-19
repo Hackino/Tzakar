@@ -45,14 +45,12 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
-import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.encode.encodeUrl
 import com.senior25.tzakar.helper.notification.NotificationHelper
 import com.senior25.tzakar.ktx.koinScreenModel
-import com.senior25.tzakar.platform_specific.toast_helper.showToast
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
 import com.senior25.tzakar.ui.presentation.components.separator.Separator
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
@@ -66,7 +64,6 @@ import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH3
 import com.senior25.tzakar.ui.theme.fontParagraphL
 import com.senior25.tzakar.ui.theme.fontParagraphS
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -383,17 +380,20 @@ fun MenuItemSwitch(
 ) {
     var isChecked by remember(isSelected) { mutableStateOf(isSelected == true) }
 
+    println("is selected ${isSelected}")
+
     val scope = rememberCoroutineScope()
 
-    var shouldRequestPermission by remember { mutableStateOf(false) } // Trigger state
+    var shouldRequestPermission by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit){
         scope.launch{
-           val checked =  withContext(Dispatchers.Main){
-                NotificationHelper.isNotificationPermissionGranted()
+            withContext(Dispatchers.Main){
+                NotificationHelper.isNotificationPermissionGranted{
+                    isChecked =  it
+                    onSelect(isChecked)
+                }
             }
-            isChecked =  checked
-            onSelect(isChecked)
         }
     }
 
@@ -403,7 +403,6 @@ fun MenuItemSwitch(
             isChecked = result
             onSelect(result)
             shouldRequestPermission = false
-//            if (result) showToast("Permission Granted") else showToast("Permission Not Granted")
         }
     }
 
@@ -445,7 +444,6 @@ fun MenuItemSwitch(
                         isChecked = !isChecked
                         onSelect(isChecked)
                     }
-
                 }
                 .padding(horizontal = 4.dp)
 

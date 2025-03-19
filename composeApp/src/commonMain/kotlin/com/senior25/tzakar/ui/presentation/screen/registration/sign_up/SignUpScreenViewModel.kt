@@ -9,8 +9,6 @@ import com.senior25.tzakar.domain.RegistrationRepository
 import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.helper.authentication.email.AuthService
 import com.senior25.tzakar.helper.authentication.email.AuthServiceImpl
-import com.senior25.tzakar.ktx.decodeJson
-import com.senior25.tzakar.ktx.encodeToJson
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
@@ -23,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
@@ -65,13 +64,14 @@ class SignUpScreenViewModel(
         screenModelScope.launch{
             email?.let {
                 val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64()).child("profile")
-                val userJson  = ref.valueEvents.first().value
-                if (userJson != null) {
-                    val user =  userJson.toString().decodeJson(UserProfile())
-                    if (user?.password == null && user?.email == null){
+
+                val snapshot = ref.valueEvents.firstOrNull()
+                val profile  = snapshot?.value<UserProfile?>()
+                if (profile != null) {
+                    if (profile.password == null && profile.email == null){
                         email?.let {
-                          val updatedUser =   user?.copy(userName = username,email = email, password = password)
-                            ref.setValue(updatedUser.encodeToJson())
+                          val updatedUser =   profile.copy(userName = username,email = email, password = password)
+                            ref.setValue(updatedUser)
                             SharedPref.loggedInProfile = updatedUser
                             onSuccess(FirebaseAuthRsp().authResult)
                         }
@@ -127,13 +127,14 @@ class SignUpScreenViewModel(
                         val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference)
                             .child(it)
                             .child("profile")
-                        val userJson = ref.valueEvents.first().value
-                        val user =  userJson.toString().decodeJson(UserProfile())
-                        ref.setValue(user?.copy(
+
+                        val snapshot = ref.valueEvents.firstOrNull()
+                        val profile  = snapshot?.value<UserProfile?>()
+                        ref.setValue(profile?.copy(
                             userName = username,
                             email = email,
                             password = password
-                        ).encodeToJson())
+                        ))
                         onSuccess(result.authResult)
                     }
                 }

@@ -103,12 +103,10 @@ actual object NotificationHelper: KoinComponent {
         }
     }
 
-    actual fun isNotificationPermissionGranted(): Boolean {
-        var isGranted = false
+    actual fun isNotificationPermissionGranted(result:(Boolean)->Unit) {
         UNUserNotificationCenter.currentNotificationCenter().getNotificationSettingsWithCompletionHandler { settings ->
-            isGranted = settings?.authorizationStatus == UNAuthorizationStatusAuthorized
+            result(settings?.authorizationStatus == UNAuthorizationStatusAuthorized)
         }
-        return isGranted
     }
 
     @Composable

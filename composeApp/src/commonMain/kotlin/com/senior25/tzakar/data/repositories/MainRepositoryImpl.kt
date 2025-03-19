@@ -9,18 +9,12 @@ import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.helper.notification.NotificationHelper
-import com.senior25.tzakar.ktx.decodeJson
-import com.senior25.tzakar.ktx.fixStringObjectJson
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 
 class MainRepositoryImpl(
     private val reminderDao: ReminderDao,
@@ -34,7 +28,7 @@ class MainRepositoryImpl(
                 .child("reminders")
             ref.child(reminderModel.id).setValue(reminderModel)
         }
-        if (reminderModel.isEnabled == true) {
+        if (reminderModel.isEnabled == 1) {
             NotificationHelper.showNotification(reminderModel.toNotificationModel())
         } else {
             NotificationHelper.cancelNotification(listOf(reminderModel.id))
@@ -43,7 +37,7 @@ class MainRepositoryImpl(
     }
 
     override suspend fun updateReminder(reminderModel: ReminderModel) {
-        if (reminderModel.isEnabled == true) {
+        if (reminderModel.isEnabled == 1) {
             NotificationHelper.showNotification(reminderModel.toNotificationModel())
         } else {
             NotificationHelper.cancelNotification(listOf(reminderModel.id))
@@ -68,35 +62,29 @@ class MainRepositoryImpl(
 
     override suspend fun fetchServerNotifications() {
         SharedPref.loggedInEmail?.let {
-            val ref = Firebase.database
-                .reference(DataBaseReference.UserProfiles.reference)
-                .child(it.encodeBase64())
-                .child("Notifications")
-            val notificationsString = ref.valueEvents.firstOrNull()?.value
-            if (notificationsString != null) {
-                val notifications = notificationsString.toString().fixStringObjectJson().decodeJson(hashMapOf<String?, NotificationModel?>())
-                insertNotifications(notifications?.map { it.value }?.filterNotNull() ?: emptyList())
-                return
-            }
+            val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference)
+                .child(it.encodeBase64()).child("Notifications")
+
+            val snapshot = ref.valueEvents.firstOrNull()
+            val notifications = snapshot?.value<Map<String?, NotificationModel?>>()?.values?.filterNotNull()
+            insertNotifications(notifications ?: emptyList())
         }
     }
 
     override suspend fun fetchServerReminder() {
         SharedPref.loggedInEmail?.let {
-            val ref = Firebase.database
-                .reference(DataBaseReference.UserProfiles.reference)
-                .child(it.encodeBase64())
-                .child("reminders")
+            val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference)
+                .child(it.encodeBase64()).child("reminders")
 
-            val reminderString = ref.valueEvents.firstOrNull()?.value
-            if (reminderString != null) {
-                val reminders = reminderString.toString().fixStringObjectJson().apply {
-                    println(this)
+            val snapshot = ref.valueEvents.firstOrNull()
+            val reminders = snapshot?.value<Map<String?, ReminderModel?>>()?.values?.filterNotNull()
+            reminders?.forEach { reminder ->
+                reminderDao.insert(reminder)
+                if (reminder.isEnabled == 1) {
+                    NotificationHelper.showNotification(reminder.toNotificationModel())
+                } else {
+                    NotificationHelper.cancelNotification(listOf(reminder.id))
                 }
-
-//                    .decodeJson(hashMapOf<String?, ReminderModel?>())
-//                (reminders?.map { it.value }?.filterNotNull() ?: emptyList()).onEach { addReminder(it) }
-                return
             }
         }
     }
@@ -119,10 +107,6 @@ class MainRepositoryImpl(
         }
     }
 
-    override suspend fun deleteNotification(ids: List<String>) {
-        CoroutineScope(Dispatchers.IO).launch {
-//            ids.onEach { notificationDao.deleteByReferenceId(it)
-        }
-    }
+    override suspend fun deleteNotification(ids: List<String>) {}
 
 }

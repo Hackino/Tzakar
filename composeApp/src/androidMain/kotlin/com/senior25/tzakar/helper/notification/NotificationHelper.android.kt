@@ -70,22 +70,17 @@ actual object NotificationHelper: KoinComponent {
 
         val triggerTime = System.currentTimeMillis() + 60 * 1000
 
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            triggerTime,
-            pendingIntent
-        )
-
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
     }
 
-    actual fun isNotificationPermissionGranted(): Boolean {
+    actual fun isNotificationPermissionGranted(result:(Boolean)->Unit) {
         return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            ContextCompat.checkSelfPermission(
+            result(ContextCompat.checkSelfPermission(
                 ApplicationProvider.application,
                 Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_GRANTED)
         } else {
-            true
+            result(true)
         }
     }
 
@@ -101,7 +96,9 @@ actual object NotificationHelper: KoinComponent {
                         arrayOf(Manifest.permission.POST_NOTIFICATIONS),
                         1001
                     )
-                    onResult(isNotificationPermissionGranted())
+                    isNotificationPermissionGranted{
+                        onResult(it)
+                    }
                 } else {
                     scope.launch (Dispatchers.IO) { onResult(true) }
                 }
@@ -123,8 +120,5 @@ actual object NotificationHelper: KoinComponent {
             alarmManager.cancel(pendingIntent)
             pendingIntent.cancel()
         }
-//        CoroutineScope(Dispatchers.IO).launch {
-//            mainRepository.deleteNotification(ids)
-//        }
     }
 }

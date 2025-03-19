@@ -6,7 +6,6 @@ import com.senior25.tzakar.data.local.preferences.NotificationStatus
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.RegistrationRepository
 import com.senior25.tzakar.helper.DataBaseReference
-import com.senior25.tzakar.ktx.decodeJson
 import com.senior25.tzakar.platform_specific.common.getCurrentDateFormatted
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.Firebase
@@ -17,7 +16,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class MainScreenViewModel(
@@ -36,12 +35,11 @@ class MainScreenViewModel(
         screenModelScope.launch(Dispatchers.IO) {
             SharedPref.loggedInEmail?.let {
                 val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64()).child("profile")
-                val userJson = ref.valueEvents.first().value
-                if (userJson != null) {
-                    _userProfile.value  =  userJson.toString().decodeJson(SharedPref.loggedInProfile)
-                    SharedPref.loggedInProfile = _userProfile.value
-                    return@launch
-                }
+                val snapshot = ref.valueEvents.firstOrNull()
+                val profile  = snapshot?.value<UserProfile?>()
+                _userProfile.value  =  profile?:SharedPref.loggedInProfile
+                SharedPref.loggedInProfile = _userProfile.value
+                return@launch
             }
         }
     }
