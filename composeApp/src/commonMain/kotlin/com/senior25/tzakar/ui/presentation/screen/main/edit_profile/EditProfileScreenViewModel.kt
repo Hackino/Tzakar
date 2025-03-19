@@ -51,6 +51,7 @@ class EditProfileViewModel(
             val ref = Firebase.database.reference(DataBaseReference.Avatars.reference)
             val snapshot = ref.valueEvents.firstOrNull()
             avatars = snapshot?.value<AvatarsModel?>()
+            println(avatars.toString())
         }
     }
 

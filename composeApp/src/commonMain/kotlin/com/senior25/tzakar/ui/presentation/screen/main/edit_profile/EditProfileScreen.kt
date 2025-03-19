@@ -30,6 +30,7 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -157,12 +158,29 @@ private fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: Edit
         selectedGender?.value!= -1 && selectedGender?.value != null
     ) }
 
+
     val keyboardController = LocalSoftwareKeyboardController.current
     val usernameFocusRequester = remember { FocusRequester() }
     val uiState =  interaction?.getUiState()?.collectAsState()
     val image =  interaction?.getImage()?.collectAsState()
 
     val popUpState = interaction?.getPopupState()?.collectAsState()
+
+    val avatars by remember(selectedGender) {
+        derivedStateOf {
+            when (Genders.getByValue(selectedGender?.value)) {
+                Genders.UNKNOWN -> emptyList()
+                Genders.MALE -> interaction?.getAvatars()?.maleAvatars?.filter { it != "null" } ?: emptyList()
+                Genders.FEMALE -> interaction?.getAvatars()?.femaleAvatars?.filter { it != "null" } ?: emptyList()
+                Genders.NON_BINARY -> {
+                    listOfNotNull(
+                        interaction?.getAvatars()?.maleAvatars?.filter { it != "null" },
+                        interaction?.getAvatars()?.femaleAvatars?.filter { it != "null" }
+                    ).flatten()
+                }
+            }
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp).padding(bottom = 50.dp),
@@ -220,8 +238,11 @@ private fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: Edit
                             tint = MyColors.colorDarkBlue
                         )
                     }
+
+
+
                     DropdownMenu(
-                        expanded = expanded,
+                        expanded = expanded &&   avatars.ifEmpty { null } != null,
                         onDismissRequest = { expanded = false },
                         offset = DpOffset(
                             x = with(density){ ((getScreenWidth() / 2) - (250.dp / 2))-32.dp },
@@ -229,34 +250,22 @@ private fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: Edit
                         ),
                         modifier = Modifier.width(250.dp).padding(horizontal = 8.dp).background(Color.White)
                     ) {
-                        val avatars  = when(Genders.getByValue(selectedGender?.value)){
-                            Genders.UNKNOWN -> emptyList()
-                            Genders.MALE -> interaction?.getAvatars()?.maleAvatars?.filter { it != "null" }
-                            Genders.FEMALE -> interaction?.getAvatars()?.femaleAvatars?.filter { it != "null" }
-                            Genders.NON_BINARY -> {
-                                listOfNotNull(
-                                    interaction?.getAvatars()?.maleAvatars?.filter { it != "null" },
-                                    interaction?.getAvatars()?.femaleAvatars?.filter { it != "null" }
-                                ).flatten()
-                            }
-                        }
+
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(3),
                             modifier = Modifier.width(250.dp).height(200.dp),
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            itemsIndexed(items = (avatars)?: listOf()) { index, item ->
+                            itemsIndexed(items = avatars) { _, item ->
                                 DropdownMenuItem(onClick = {
                                     if (item != image?.value)interaction?.onUIEvent(EditProfilePageEvent.UpdateImage(item))
                                     expanded = false
-
                                 },
                                     contentPadding = PaddingValues(0.dp)
                                 ) {
                                     LoadMediaImage(
-                                        modifier = Modifier
-                                            .size(80.dp)
+                                        modifier = Modifier.size(80.dp)
                                             .background(Color.White, RoundedCornerShape(8.dp))
                                             .clip(RoundedCornerShape(8.dp)),
                                         url = item,
@@ -267,7 +276,6 @@ private fun EditProfilePageScreen(paddingValues: PaddingValues,interaction: Edit
                         }
                     }
                 }
-
                 userNameField(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     label = stringResource(Res.string.username),

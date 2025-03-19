@@ -35,6 +35,8 @@ import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
+import com.senior25.tzakar.data.local.preferences.NotificationStatus
+import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.di.mainScreenViewModelModule
 import com.senior25.tzakar.helper.notification.NotificationHelper
 import com.senior25.tzakar.ktx.koinScreenModel
@@ -97,6 +99,7 @@ class MainScreen:Screen {
 
         LaunchedEffect(key1 = Unit){
             mainViewModel.init()
+            if (SharedPref.notificationPermissionStatus == NotificationStatus.UNKNOWN)
             shouldRequestPermission = true
         }
 
@@ -159,11 +162,11 @@ class MainScreen:Screen {
             )
         }
 
-        if (popUpState?.value is MainPagePopUp.CategoriesSheet) {
+        if (popUpState.value is MainPagePopUp.CategoriesSheet) {
             categoriesBottomSheet(
                 data = getCategories(),
                 onItemClick = {navigator?.push(CategoryScreen(CategoryType.getByValue(it?.id))) },
-                onDismiss = { mainViewModel?.onUIEvent(MainPageEvent.UpdatePopUpState(MainPagePopUp.None)) },
+                onDismiss = { mainViewModel.onUIEvent(MainPageEvent.UpdatePopUpState(MainPagePopUp.None)) },
             )
         }
     }
