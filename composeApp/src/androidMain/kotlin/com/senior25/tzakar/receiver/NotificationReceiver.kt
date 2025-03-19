@@ -22,7 +22,6 @@ class NotificationReceiver : BroadcastReceiver(), KoinComponent {
 
     private val mainRepository: MainRepository by inject()
 
-
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
@@ -30,7 +29,10 @@ class NotificationReceiver : BroadcastReceiver(), KoinComponent {
         val notificationModel = intent.getStringExtra("notificationModel")?.decodeJson(NotificationModel())
 
         CoroutineScope(Dispatchers.Default).launch {
-            if (notificationModel != null) mainRepository.insertNotification(notificationModel)
+            if (notificationModel != null) {
+                mainRepository.insertNotification(notificationModel)
+//                mainRepository.updateReminder(notificationModel)
+            }
         }
 
         val notification = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_ID)

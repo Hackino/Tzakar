@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,8 +47,11 @@ data class CategoryDetailsScreen(val reminderId:String? = null): Screen {
 
     @Composable
     override fun Content() {
+
         val navigator = LocalNavigator.currentOrThrow
         val viewModel = koinScreenModel<CategoryDetailsScreenViewModel>()
+
+        LaunchedEffect(key1 = Unit){ viewModel.init(reminderId) }
 
         val interaction = object :CategoryPageInteraction{
             override fun getReminder(): StateFlow<ReminderModel?> = viewModel.reminder

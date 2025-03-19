@@ -143,14 +143,15 @@ fun getCategories() = listOf(
 fun getSortingFilter() = listOf(
     MenuModel(
         id = 1,
-        iconRes = Res.drawable.sort_ascending,
-        title = "Ascending"
+        iconRes = Res.drawable.sort_descending,
+        title = "Descending"
     ),
     MenuModel(
         id = 2,
-        iconRes = Res.drawable.sort_descending,
-        title = "Descending"
-    )
+        iconRes = Res.drawable.sort_ascending,
+        title = "Ascending"
+    ),
+
 )
 
 enum class CategoryType(val value: Int) {

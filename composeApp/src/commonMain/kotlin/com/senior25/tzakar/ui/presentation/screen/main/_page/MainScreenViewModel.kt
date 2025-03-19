@@ -35,10 +35,11 @@ class MainScreenViewModel(
     fun fetchProfile() {
         screenModelScope.launch(Dispatchers.IO) {
             SharedPref.loggedInEmail?.let {
-                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64())
+                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64()).child("profile")
                 val userJson = ref.valueEvents.first().value
                 if (userJson != null) {
                     _userProfile.value  =  userJson.toString().decodeJson(SharedPref.loggedInProfile)
+                    SharedPref.loggedInProfile = _userProfile.value
                     return@launch
                 }
             }
@@ -50,17 +51,15 @@ class MainScreenViewModel(
     }
 
     fun onUIEvent(uiEvent: MainPageEvent) = screenModelScope.launch {
-            when (uiEvent) {
-                is MainPageEvent.UpdatePopUpState -> _popUpState.value = uiEvent.popUp
-                is MainPageEvent.UpdateProfile ->{
-                    _userProfile.value = SharedPref.loggedInProfile
-                }
+        when (uiEvent) {
+            is MainPageEvent.UpdatePopUpState -> _popUpState.value = uiEvent.popUp
+            is MainPageEvent.UpdateProfile ->{
+                _userProfile.value = SharedPref.loggedInProfile
             }
         }
-
+    }
 
     fun getCurrentDate() = getCurrentDateFormatted()
-
 }
 
 sealed class MainPageEvent {

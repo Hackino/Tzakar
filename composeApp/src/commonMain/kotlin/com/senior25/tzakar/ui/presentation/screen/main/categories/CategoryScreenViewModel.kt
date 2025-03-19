@@ -3,6 +3,7 @@ package com.senior25.tzakar.ui.presentation.screen.main.categories
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.domain.MainRepository
+import com.senior25.tzakar.platform_specific.utils.generateUUID
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.auth.AuthResult
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,36 +49,21 @@ class CategoryViewModel(
         }
     }
 
-    fun setCategory(type:Int? = null,onSuccess:(AuthResult?)->Unit) {
+    fun setCategory(type:Int? = null,onSuccess:()->Unit) {
         screenModelScope.launch {
             _uiState.value = CategoryPageUiState.ProgressLoader
 
-            ReminderModel(
+            val reminder = ReminderModel(
+                id = generateUUID(),
                 type = type,
                 title = title,
                 description = description,
                 date = _reminderDate.value,
-                time = _reminderTime.value
+                time = _reminderTime.value,
+                isEnabled = true
             )
-//            email?.let {
-//                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference)
-//                    .child(it.encodeBase64())
-//                val userJson = ref.valueEvents.first().value
-//                if (userJson != null) {
-//                    val user = userJson.toString().decodeJson(UserProfile())
-//
-//                    val updatedUser = user?.copy(
-//                        userName = username,
-//                        genderId = _selectedGender.value,
-//                        image =_image.value
-//                    )
-//
-//                    ref.setValue(updatedUser.encodeToJson())
-//                    SharedPref.loggedInProfile = updatedUser
-//                    onSuccess(FirebaseAuthRsp().authResult)
-//                    return@launch
-//                }
-//            }
+            maiRepository.addReminder(reminder)
+            onSuccess()
         }
     }
 }

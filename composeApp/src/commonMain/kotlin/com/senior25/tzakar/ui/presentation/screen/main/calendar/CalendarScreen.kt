@@ -65,6 +65,7 @@ import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType.
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButton
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
+import com.senior25.tzakar.ui.presentation.screen.common.composable.no_data.NoDataWidget
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.category_details.CategoryDetailsScreen
 import com.senior25.tzakar.ui.theme.MyColors
@@ -111,17 +112,35 @@ class CalendarScreen: Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         val interaction  = object : CalendarScreenInteraction {
+
             override fun getUiState(): StateFlow<CalendarPageUiState?> = viewModel.uiState
+
             override fun onUIEvent(event: CalendarPageEvent) { viewModel.onUIEvent(event) }
+
             override fun navigate(action: NavigationAction) {}
+
             override fun getSelectedMonth(): StateFlow<Month?>  = viewModel.selectedMonth
+
             override fun getSelectedYear(): StateFlow<Int?> = viewModel.selectedYear
+
             override fun getSelectedDate(): StateFlow<Int?> = viewModel.selectedDate
+
             override fun getMonthDates(): StateFlow<List<Pair<Int,String>>?> =  viewModel.monthDates
+
             override fun getShouldScroll(): SharedFlow<Boolean?> = viewModel.shouldAutoScroll
+
             override fun getPopupState(): StateFlow<CalendarPagePopUp?> = viewModel.popUpState
+
             override fun getAllMenuFilters(): StateFlow<MutableList<MenuModel>?>  =  viewModel.selectedFilters
+
             override fun getAllSorting(): StateFlow<MutableList<MenuModel>?>  =  viewModel.selectedSorting
+
+            override fun getFilteredReminder(): StateFlow<List<ReminderModel>?>  = viewModel.filteredReminders
+
+            override fun updateReminderStatus(reminderModel: ReminderModel?) {
+                viewModel.onUIEvent(CalendarPageEvent.UpdateReminderStatus(reminderModel))
+            }
+
             override fun applyCategoriesFilters(filters: List<MenuModel>,sorting:List<MenuModel>) {
                 viewModel.updateFilter(filters,sorting)
             }
@@ -145,7 +164,10 @@ class CalendarScreen: Screen {
 
         val popUpState = interaction.getPopupState().collectAsState()
 
+        val reminders = interaction.getFilteredReminder().collectAsState()
+
         val filters = interaction.getAllMenuFilters().collectAsState()
+
         val sorting = interaction.getAllSorting().collectAsState()
 
         val selectedMonth = interaction.getSelectedMonth().collectAsState()
@@ -180,13 +202,11 @@ class CalendarScreen: Screen {
 
         val listState = rememberLazyListState()
 
-        LaunchedEffect(key1 = Unit) {
-            interaction.onUIEvent(CalendarPageEvent.Init)
-        }
+        LaunchedEffect(key1 = Unit) { interaction.onUIEvent(CalendarPageEvent.Init) }
 
         LaunchedEffect(interaction.getShouldScroll()) {
             interaction.getShouldScroll().collectLatest { shouldScroll ->
-                if (shouldScroll == true){
+                if ( shouldScroll == true ) {
                     selectedDate.value?.let { selectedDay ->
                         val index = monthDays.value?.map { it.first }?.indexOf(selectedDay) ?: -1
                         if (index != -1) listState.scrollToItem(index)
@@ -234,72 +254,54 @@ class CalendarScreen: Screen {
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     Spacer(Modifier.height(16.dp))
-                    Row(modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth(),
-                        verticalAlignment =Alignment.CenterVertically,
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            "${if (filters?.value?.isNotEmpty() ==true ) "Filtered - " else "" }Reminders",
-                            textAlign =  TextAlign.Start,
+                            "${if (filters?.value?.isNotEmpty() == true) "Filtered - " else ""}Reminders",
+                            textAlign = TextAlign.Start,
                             color = MyColors.colorDarkBlue,
                             style = fontH3,
                             modifier = Modifier
                         )
-
                         CustomButton(
                             modifier = Modifier.padding(bottom = 8.dp),
                             text = "Filter",
                             endIcon = painterResource(Res.drawable.filter),
                             buttonColor = MyColors.colorPurple,
-                            onClick = { interaction.onUIEvent(CalendarPageEvent.UpdatePopUpState(CalendarPagePopUp.ShowCategoriesFilterSheet)) },
+                            onClick = {
+                                interaction.onUIEvent(
+                                    CalendarPageEvent.UpdatePopUpState(
+                                        CalendarPagePopUp.ShowCategoriesFilterSheet
+                                    )
+                                )
+                            },
                         )
                     }
-
                     Spacer(Modifier.height(16.dp))
-                    ReminderItem(
-                        modifier = Modifier,
-
-                        reminderModel =    ReminderModel(
-                            type = 1,
-                            title = "text",
-                            description = "description",
-                            date = "2025-03-13",
-                            time = "11:11"
-                        )
-                    ){
-                        navigator.push(CategoryDetailsScreen(it?.id))
-                    }
-                    Spacer(Modifier.height(8.dp))
-
-                    ReminderItem(
-                        modifier = Modifier,
-
-                        reminderModel = ReminderModel(
-                            type = 1,
-                            title = "text",
-                            description = "description",
-                            date = "11/11/1111",
-                            time = "11:11"
-                        )
-                    ){}
-                    Spacer(Modifier.height(8.dp))
-
-                    ReminderItem(
-                        modifier = Modifier,
-                        reminderModel =    ReminderModel(
-                            type = 1,
-                            title = "text",
-                            description = "description",
-                            date = "11/11/1111",
-                            time = "11:11"
-                        )
-                    ){}
-
                 }
             }
+
+            reminders.value?.ifEmpty { null }?.let {
+                itemsIndexed(it){_,item->
+                    ReminderItem(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        reminderModel =  item,
+                        isSelected = item.isEnabled == true,
+                        onSelect = { interaction.updateReminderStatus(it) }
+                    ){ navigator.push(CategoryDetailsScreen(it?.id)) }
+                    Spacer(Modifier.height(8.dp))
+                }
+            }?:run {
+                item {
+                    NoDataWidget(modifier = Modifier.fillMaxWidth().padding(top = 128.dp).height(200.dp))
+                }
+            }
+
         }
+
     }
 
     @Composable
@@ -345,6 +347,9 @@ class CalendarScreen: Screen {
         fun getPopupState(): StateFlow<CalendarPagePopUp?>
         fun getAllMenuFilters(): StateFlow<MutableList<MenuModel>?>
         fun getAllSorting(): StateFlow<MutableList<MenuModel>?>
+        fun getFilteredReminder(): StateFlow<List<ReminderModel>?>
+        fun updateReminderStatus(reminderModel: ReminderModel?)
+
     }
 
     enum class NavigationAction {
@@ -396,7 +401,7 @@ fun MonthYearPickerDialog(
                             color = MyColors.colorDarkBlue,
                             textAlign = TextAlign.Center,
                             style = fontParagraphS.copy(fontSize = 20.sp)
-                            )
+                        )
                     }
                 }
                 Row(
@@ -437,7 +442,7 @@ fun ReminderItem(
     modifier: Modifier,
     reminderModel: ReminderModel? = null,
     isSelected:Boolean? = false,
-    onSelect:(Boolean)->Unit = {  },
+    onSelect:(ReminderModel?)->Unit = {  },
     onClick:(ReminderModel?) ->Unit = {}
 ) {
     var isChecked by remember(isSelected) { mutableStateOf(isSelected == true) }
@@ -450,14 +455,12 @@ fun ReminderItem(
             .padding(bottom = 8.dp)
             .padding(horizontal = 16.dp),
     ) {
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RectangleShape)
                 .then(Modifier.padding(vertical = 8.dp))
                 .padding(bottom = 8.dp),
-
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -474,9 +477,8 @@ fun ReminderItem(
                 modifier = Modifier.size(52.dp, 32.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .background(if (isChecked) MyColors.colorDarkBlue else MyColors.colorLightGrey)
-                    .clickable { isChecked = !isChecked; onSelect(isChecked) }
+                    .clickable { isChecked = !isChecked; onSelect(reminderModel?.copy(isEnabled = isChecked)) }
                     .padding(horizontal = 4.dp)
-
             ) {
                 Box(
                     modifier = Modifier
@@ -511,6 +513,5 @@ fun ReminderItem(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-
     }
 }

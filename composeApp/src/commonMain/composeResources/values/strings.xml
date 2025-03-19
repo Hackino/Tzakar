@@ -131,4 +131,8 @@
     <string name="invalid_time">Invalid time</string>
 
     <string name="filter">Filter</string>
+
+
+    <string name="are_you_you_sure_you_want_to_set_this_reminder">Are you sure you want to set this reminder?</string>
+
 </resources>

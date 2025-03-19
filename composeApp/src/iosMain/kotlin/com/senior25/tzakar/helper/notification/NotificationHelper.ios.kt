@@ -40,55 +40,64 @@ actual object NotificationHelper: KoinComponent {
     private val mainRepository: MainRepository by inject()
 
     actual fun showNotification(notificationModel:NotificationModel) {
-        val content = UNMutableNotificationContent().apply {
-            this.setTitle(notificationModel.title?:"")
-            this.setBody(notificationModel.body?:"")
-            this.setSound(UNNotificationSound.defaultSound())
-            this.setUserInfo(mapOf<Any?,Any>(
-               "notificationData" to notificationModel.encodeToJson(),
-            )
-            )
-        }
 
-        val uuid = NSUUID.UUID().UUIDString()
-        val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(60.0, false)
-        val request = UNNotificationRequest.requestWithIdentifier(uuid, content,trigger)
+        val canterExternal = UNUserNotificationCenter.currentNotificationCenter()
 
-        val center = UNUserNotificationCenter.currentNotificationCenter()
+        canterExternal.getPendingNotificationRequestsWithCompletionHandler { requests ->
+            val notificationRequests = requests?.filterIsInstance<UNNotificationRequest>()
 
-        center.delegate = object : NSObject(), UNUserNotificationCenterDelegateProtocol {
-            override fun userNotificationCenter(
-                center: UNUserNotificationCenter,
-                willPresentNotification: UNNotification,
-                withCompletionHandler: (UNNotificationPresentationOptions) -> Unit
-            ) {
+            val existingRequest = notificationRequests?.firstOrNull { it.identifier == notificationModel.referenceId }
 
-                val notificationData = willPresentNotification.request.content.userInfo
-
-                val model = notificationData["notificationData"]?.toString()?.decodeJson(NotificationModel())
-
-                CoroutineScope(Dispatchers.Default).launch {
-                    if (model != null) mainRepository.insertNotification(model)
+            if (existingRequest == null) {
+                val content = UNMutableNotificationContent().apply {
+                    this.setTitle(notificationModel.title ?: "")
+                    this.setBody(notificationModel.body ?: "")
+                    this.setSound(UNNotificationSound.defaultSound())
+                    this.setUserInfo(mapOf("notificationData" to notificationModel.encodeToJson()))
                 }
 
-                withCompletionHandler(UNNotificationPresentationOptionAlert or UNNotificationPresentationOptionSound)
-            }
+                val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(60.0, false)
 
-            override fun userNotificationCenter(
-                center: UNUserNotificationCenter,
-                didReceiveNotificationResponse: UNNotificationResponse,
-                withCompletionHandler: () -> Unit
-            ) {
-                withCompletionHandler()
-            }
-        }
+                val request = UNNotificationRequest.requestWithIdentifier(
+                    notificationModel.referenceId ?: "",
+                    content,
+                    trigger
+                )
 
-        if(SharedPref.notificationPermissionStatus == NotificationStatus.ON) {
-            center.addNotificationRequest(request) { error ->
-                if (error != null) {
-                    println("Error -> $error")
-                } else {
-                    println("Notification sent")
+                val centerInternal = UNUserNotificationCenter.currentNotificationCenter()
+
+                centerInternal.delegate = object : NSObject(), UNUserNotificationCenterDelegateProtocol {
+
+                    override fun userNotificationCenter(
+                        center: UNUserNotificationCenter,
+                        willPresentNotification: UNNotification,
+                        withCompletionHandler: (UNNotificationPresentationOptions) -> Unit
+                    ) {
+
+                        val notificationData = willPresentNotification.request.content.userInfo
+
+                        val model = notificationData["notificationData"]?.toString()
+                            ?.decodeJson(NotificationModel())
+
+                        CoroutineScope(Dispatchers.Default).launch {
+                            if (model != null) mainRepository.insertNotification(model)
+                        }
+                        withCompletionHandler(UNNotificationPresentationOptionAlert or UNNotificationPresentationOptionSound)
+                    }
+
+                    override fun userNotificationCenter(
+                        center: UNUserNotificationCenter,
+                        didReceiveNotificationResponse: UNNotificationResponse,
+                        withCompletionHandler: () -> Unit
+                    ) {
+                        withCompletionHandler()
+                    }
+                }
+
+                if (SharedPref.notificationPermissionStatus == NotificationStatus.ON) {
+                    centerInternal.addNotificationRequest(request) { error ->
+                        if (error != null) println("Error -> $error") else println("Notification sent")
+                    }
                 }
             }
         }
@@ -110,9 +119,7 @@ actual object NotificationHelper: KoinComponent {
                 UNUserNotificationCenter.currentNotificationCenter()
                     .requestAuthorizationWithOptions(
                         options = UNAuthorizationOptionAlert or UNAuthorizationOptionSound or UNAuthorizationOptionBadge
-                    ) { granted, error ->
-                        scope.launch (Dispatchers.IO) { onResult(granted) }
-                    }
+                    ) { granted, error -> scope.launch (Dispatchers.IO) { onResult(granted) } }
             }
         }
     }
@@ -121,8 +128,5 @@ actual object NotificationHelper: KoinComponent {
         UNUserNotificationCenter
             .currentNotificationCenter()
             .removePendingNotificationRequestsWithIdentifiers(ids)
-        CoroutineScope(Dispatchers.IO).launch {
-            mainRepository.deleteNotification(ids)
-        }
     }
 }

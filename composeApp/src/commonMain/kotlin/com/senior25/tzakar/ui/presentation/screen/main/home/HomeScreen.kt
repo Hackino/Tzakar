@@ -227,32 +227,6 @@ class HomeScreen: Screen {
                         ){
                             navigator.push(CategoryDetailsScreen(it?.id))
                         }
-                        Spacer(Modifier.height(8.dp))
-
-                        ReminderItem(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-
-                            reminderModel = ReminderModel(
-                                type = 1,
-                                title = "text",
-                                description = "description",
-                                date = "11/11/1111",
-                                time = "11:11"
-                            )
-                        ){}
-                        Spacer(Modifier.height(8.dp))
-
-                        ReminderItem(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-
-                            reminderModel =    ReminderModel(
-                                type = 1,
-                                title = "text",
-                                description = "description",
-                                date = "11/11/1111",
-                                time = "11:11"
-                            )
-                        ){}
                     }
                 }
             }

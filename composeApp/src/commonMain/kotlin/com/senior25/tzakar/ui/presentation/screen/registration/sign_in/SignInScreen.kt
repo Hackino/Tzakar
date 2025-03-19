@@ -340,7 +340,7 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                             is GoogleAuthResponse.Success -> {
                                 CoroutineScope(Dispatchers.Main).launch{
                                     val email = response.account.profile.email
-                                    val ref  = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(email.encodeBase64())
+                                    val ref  = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(email.encodeBase64()).child("profile")
                                     val userJson  = ref.valueEvents.first().value
                                     val user =  userJson.toString().decodeJson(UserProfile())
                                    val updatedUser =  user?.copy(

@@ -8,6 +8,7 @@ import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources._confirm
 import tzakar_reminder.composeapp.generated.resources.alert
 import tzakar_reminder.composeapp.generated.resources.are_you_sure_you_want_save_changes
+import tzakar_reminder.composeapp.generated.resources.are_you_you_sure_you_want_to_set_this_reminder
 import tzakar_reminder.composeapp.generated.resources.close
 import tzakar_reminder.composeapp.generated.resources.no
 import tzakar_reminder.composeapp.generated.resources.profile_updated_successfully
@@ -51,7 +52,7 @@ fun ShowAddReminderConfirmation(
     BaseDialog(
         okButtonColor = MyColors.colorPurple,
         title = stringResource(Res.string.set_reminder),
-        description = stringResource(Res.string.reminder_set_successfully),
+        description = stringResource(Res.string.are_you_you_sure_you_want_to_set_this_reminder),
         okButton = stringResource(Res.string._confirm),
         cancelButton = stringResource(Res.string.no),
         onConfirm = onConfirm,

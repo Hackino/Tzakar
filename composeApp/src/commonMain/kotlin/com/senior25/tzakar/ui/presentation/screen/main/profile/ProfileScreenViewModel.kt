@@ -32,7 +32,7 @@ class ProfileViewModel(private val maiRepository: MainRepository): CommonViewMod
         screenModelScope.launch {
             SharedPref.loggedInEmail?.let {
                 Firebase.database.reference(DataBaseReference.UserProfiles.reference)
-                    .child(it.encodeBase64()).removeValue()
+                    .child(it.encodeBase64()).child("profile").removeValue()
                 onSuccess()
                 return@launch
             }

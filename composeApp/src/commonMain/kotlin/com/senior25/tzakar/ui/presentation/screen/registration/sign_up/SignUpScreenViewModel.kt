@@ -64,7 +64,7 @@ class SignUpScreenViewModel(
     fun createUser(onSuccess:(AuthResult?)->Unit) {
         screenModelScope.launch{
             email?.let {
-                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64())
+                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64()).child("profile")
                 val userJson  = ref.valueEvents.first().value
                 if (userJson != null) {
                     val user =  userJson.toString().decodeJson(UserProfile())
@@ -124,7 +124,9 @@ class SignUpScreenViewModel(
             }else{
                 CoroutineScope(Dispatchers.Main).launch{
                     email?.encodeBase64()?.let {
-                        val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it)
+                        val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference)
+                            .child(it)
+                            .child("profile")
                         val userJson = ref.valueEvents.first().value
                         val user =  userJson.toString().decodeJson(UserProfile())
                         ref.setValue(user?.copy(

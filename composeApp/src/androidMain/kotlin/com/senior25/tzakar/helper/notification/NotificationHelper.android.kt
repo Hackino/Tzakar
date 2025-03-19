@@ -24,7 +24,6 @@ import com.senior25.tzakar.ktx.encodeToJson
 import com.senior25.tzakar.receiver.NotificationReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -64,7 +63,7 @@ actual object NotificationHelper: KoinComponent {
 
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            notificationModel.id.hashCode(),
+            notificationModel.referenceId.hashCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -72,7 +71,7 @@ actual object NotificationHelper: KoinComponent {
         val triggerTime = System.currentTimeMillis() + 60 * 1000
 
         alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            AlarmManager.RTC_WAKEUP,
             triggerTime,
             pendingIntent
         )
@@ -121,12 +120,11 @@ actual object NotificationHelper: KoinComponent {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-
             alarmManager.cancel(pendingIntent)
             pendingIntent.cancel()
         }
-        CoroutineScope(Dispatchers.IO).launch {
-            mainRepository.deleteNotification(ids)
-        }
+//        CoroutineScope(Dispatchers.IO).launch {
+//            mainRepository.deleteNotification(ids)
+//        }
     }
 }

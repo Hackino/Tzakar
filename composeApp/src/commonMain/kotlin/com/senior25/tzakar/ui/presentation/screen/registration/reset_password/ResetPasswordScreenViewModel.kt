@@ -47,7 +47,7 @@ class ResetPasswordScreenViewModel(
         screenModelScope.launch{
             _isLoading.update { true }
             email?.let {
-                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64())
+                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64()).child("profile")
                 val userJson = ref.valueEvents.first().value
                 if (userJson != null) {
                     val user =  userJson.toString().decodeJson(UserProfile())

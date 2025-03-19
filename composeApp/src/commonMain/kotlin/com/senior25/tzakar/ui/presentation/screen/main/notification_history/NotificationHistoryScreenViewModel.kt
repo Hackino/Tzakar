@@ -34,6 +34,7 @@ class NotificationHistoryViewModel(private val maiRepository: MainRepository): C
             maiRepository.fetchServerNotifications()
             _uiState.value = NotificationHistoryPageUiState.Loading
             maiRepository.getAllNotifications().collectLatest {
+
                 val sorted =  it.sortedWith(compareBy(
                     { it.date?.let { it1 -> LocalDate.parse(it1) } },
                     { it.time?.let { it1 -> LocalTime.parse(it1) } },

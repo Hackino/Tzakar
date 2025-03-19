@@ -10,6 +10,7 @@ import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.ktx.decodeJson
 import com.senior25.tzakar.ktx.encodeToJson
+import com.senior25.tzakar.ktx.fixAvatarDbJson
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
@@ -50,15 +51,9 @@ class EditProfileViewModel(
         screenModelScope.launch(Dispatchers.IO) {
             val ref = Firebase.database.reference(DataBaseReference.Avatars.reference)
             val avatarsJson = ref.valueEvents.first().value
-            val jsonInput = avatarsJson.toString()
-                .replace(Regex("(\\w+)="), "\"$1\":") // Replace '=' with ':'
-                .replace(Regex("\\[([^\\]]+)\\]")) { matchResult ->
-                val items = matchResult.groupValues[1].split(",").map { it.trim() }
-                "[" + items.joinToString(", ") { "\"$it\"" } + "]"
-            }
-                .replace(Regex(",\\s*(?=\\w)"), ", ")
+            val jsonInput = avatarsJson.toString().fixAvatarDbJson()
 
-            println(jsonInput)
+//            println(jsonInput)
             if (avatarsJson != null) avatars = jsonInput.decodeJson(AvatarsModel())
 
         }
@@ -84,7 +79,7 @@ class EditProfileViewModel(
             _uiState.value = EditProfilePageUiState.ProgressLoader
             email?.let {
                 val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference)
-                    .child(it.encodeBase64())
+                    .child(it.encodeBase64()).child("profile")
                 val userJson = ref.valueEvents.first().value
                 if (userJson != null) {
                     val user = userJson.toString().decodeJson(UserProfile())
@@ -109,7 +104,6 @@ sealed class EditProfilePageEvent {
     data class UpdateUserName(var text:String?):EditProfilePageEvent()
     data class UpdateSelectedGender(var gender:GenderModel?):EditProfilePageEvent()
     data class UpdateImage(var image:String?):EditProfilePageEvent()
-
     data object Success: EditProfilePageEvent()
     data object LoaderView: EditProfilePageEvent()
     data class UpdatePopUpState(val popUp: EditProfilePagePopUp) : EditProfilePageEvent()

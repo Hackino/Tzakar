@@ -2,6 +2,8 @@ package com.senior25.tzakar.data.local.model.reminder
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.senior25.tzakar.data.local.model.notification.NotificationModel
+import com.senior25.tzakar.platform_specific.utils.generateUUID
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,3 +18,14 @@ data class ReminderModel(
     val time:String? = null,
     val isEnabled:Boolean? = null
 )
+
+fun ReminderModel.toNotificationModel():NotificationModel{
+    return NotificationModel(
+        id = generateUUID(),
+        title = title,
+        body = description,
+        date = date,
+        time = time,
+        referenceId = id
+    )
+}

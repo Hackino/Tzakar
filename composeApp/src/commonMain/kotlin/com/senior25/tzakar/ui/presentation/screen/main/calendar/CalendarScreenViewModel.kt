@@ -2,21 +2,21 @@ package com.senior25.tzakar.ui.presentation.screen.main.calendar
 
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.menu.MenuModel
+import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.getSortingFilter
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
-import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfilePageEvent
-import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfilePagePopUp
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
@@ -54,16 +54,36 @@ class CalendarViewModel(
     private val _monthDates = MutableStateFlow<List<Pair<Int,String>>?>(null)
     val monthDates: StateFlow<List<Pair<Int,String>>?> get() = _monthDates.asStateFlow()
 
+    private val _reminders = MutableStateFlow<List<ReminderModel>?>(emptyList())
+    val reminders: StateFlow<List<ReminderModel>?> get() = _reminders.asStateFlow()
+
+    private val _filteredReminders = MutableStateFlow<List<ReminderModel>?>(emptyList())
+    val filteredReminders: StateFlow<List<ReminderModel>?> get() = _filteredReminders.asStateFlow()
+
     private val _shouldAutoScroll = MutableStateFlow<Boolean?>(false)
     val shouldAutoScroll: StateFlow<Boolean?> get() = _shouldAutoScroll.asStateFlow()
 
     fun init() {
-        val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-        _selectedYear.value = currentDate.year
-        _selectedMonth.value = currentDate.month
-        _selectedDate.value = currentDate.dayOfMonth
-        _monthDates.value = getDaysInMonthWithWeekdays(currentDate.year, currentDate.month)
-        requestScroll(true)
+        screenModelScope.launch {
+            screenModelScope.launch(Dispatchers.IO) {
+                maiRepository.fetchServerNotifications()
+            }
+            val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+            _selectedYear.value = currentDate.year
+            _selectedMonth.value = currentDate.month
+            _selectedDate.value = currentDate.dayOfMonth
+            _monthDates.value = getDaysInMonthWithWeekdays(currentDate.year, currentDate.month)
+            requestScroll(true)
+            screenModelScope.launch {
+                maiRepository.getAllReminders().collectLatest {
+                    _reminders.value = it?.toList()
+                }
+            }
+
+            screenModelScope.launch {
+                reminders.collectLatest { filterData(it) }
+            }
+        }
     }
 
     private fun getDaysInMonthWithWeekdays(year: Int, month: Month): List<Pair<Int, String>> {
@@ -84,17 +104,58 @@ class CalendarViewModel(
             CalendarPageEvent.Success -> _uiState.value = CalendarPageUiState.Success
             CalendarPageEvent.LoaderView ->  _uiState.value = CalendarPageUiState.ProgressLoader
             is CalendarPageEvent.UpdateMonthYear ->{
+                screenModelScope.launch(Dispatchers.IO) {
+                    maiRepository.fetchServerNotifications()
+                }
                 _selectedYear.value = uiEvent.year
                 _selectedMonth.value = uiEvent.month
                 _selectedDate.value = 1
                 _monthDates.value =getDaysInMonthWithWeekdays(uiEvent.year, uiEvent.month)
                 requestScroll(true)
+                filterData(_reminders.value)
+
             }
-            is CalendarPageEvent.UpdateDayDate -> _selectedDate.value = uiEvent.dayDate
+            is CalendarPageEvent.UpdateDayDate -> {
+                screenModelScope.launch(Dispatchers.IO) { maiRepository.fetchServerNotifications() }
+                _selectedDate.value = uiEvent.dayDate
+                filterData(_reminders.value)
+            }
+
             is CalendarPageEvent.RemoveAutoScroll -> requestScroll(false)
             CalendarPageEvent.Init -> { init() }
             is CalendarPageEvent.UpdatePopUpState ->_popUpState.value = uiEvent.popUp
+            is CalendarPageEvent.UpdateReminderStatus ->{
+                uiEvent.reminderModel?.let { maiRepository.updateReminder(it) }
+            }
         }
+    }
+
+    private fun filterData(list:List<ReminderModel>?){
+
+        val types = _selectedFilters.value?.map { it.id } ?: emptyList()
+
+        val month =((_selectedMonth.value?.ordinal?:0)+1).toString()
+
+        val currentDate = "${_selectedYear.value}-${if (month.length==1) ("0$month") else month }-${_selectedDate.value}"
+
+        val filterByDate = list?.filter { currentDate == it.date }
+
+        val filterByCategory = if (types.isNotEmpty()) {
+            filterByDate?.filter { types.contains(it.type) }
+        } else {
+            filterByDate
+        }
+
+        val sorted = filterByCategory?.sortedWith(
+            compareBy({ it.time?.let { it1 -> LocalTime.parse(it1) } },)
+        )
+
+        val finale = when (selectedSorting.value?.first()?.id) {
+            1 -> sorted
+            2 -> sorted?.reversed()
+            else -> sorted
+        }
+        _filteredReminders.value = finale
     }
 
     private fun requestScroll(scroll: Boolean) {
@@ -104,11 +165,13 @@ class CalendarViewModel(
     fun updateFilter(filters:List<MenuModel>,sorting:List<MenuModel>) {
         _selectedFilters.value = filters.toMutableList()
         _selectedSorting.value = sorting.toMutableList()
+        filterData(_reminders.value)
     }
 
     fun resetFilters() {
         _selectedFilters.value = mutableListOf()
         _selectedSorting.value = mutableListOf(getSortingFilter().first())
+        filterData(_reminders.value)
     }
 
 }
@@ -122,6 +185,8 @@ sealed class CalendarPageEvent {
     data object Success: CalendarPageEvent()
     data object LoaderView: CalendarPageEvent()
     data class UpdateMonthYear(val month:Month, val year:Int): CalendarPageEvent()
+    data class UpdateReminderStatus(val reminderModel: ReminderModel?): CalendarPageEvent()
+
     data class UpdateDayDate( val dayDate:Int): CalendarPageEvent()
     data object Init: CalendarPageEvent()
     data class UpdatePopUpState(val popUp: CalendarPagePopUp) : CalendarPageEvent()

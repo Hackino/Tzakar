@@ -5,12 +5,17 @@ import androidx.room.Query
 import androidx.room.Upsert
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import androidx.room.Delete
+import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ReminderDao {
 
     @Upsert
     suspend fun insert(reminder: ReminderModel): Long
+
+    @Update
+    suspend fun update(reminder: ReminderModel)
 
     @Query("SELECT * FROM reminder_table WHERE id = :id")
     suspend fun getReminderById(id: String): ReminderModel?
@@ -22,5 +27,8 @@ interface ReminderDao {
     suspend fun deleteById(id: String): Int
 
     @Query("SELECT * FROM reminder_table")
-    suspend fun getAllUsers(): List<ReminderModel>
+    suspend fun getAllReminder(): List<ReminderModel>
+
+    @Query("SELECT * FROM reminder_table")
+    fun getAllRemindersFlow(): Flow<List<ReminderModel>>
 }

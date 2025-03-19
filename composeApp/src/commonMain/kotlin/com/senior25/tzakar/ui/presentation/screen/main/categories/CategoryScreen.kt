@@ -34,7 +34,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType.Companion.categoryHeaderRes
-import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType.Companion.categoryRes
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.fields.DateField
 import com.senior25.tzakar.ui.presentation.components.fields.TimeField
@@ -49,14 +48,7 @@ import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.theme.MyColors
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.stringResource
-import tzakar_reminder.composeapp.generated.resources.Custom
 import tzakar_reminder.composeapp.generated.resources.Res
-import tzakar_reminder.composeapp.generated.resources.add_Birthday
-import tzakar_reminder.composeapp.generated.resources.add_bills
-import tzakar_reminder.composeapp.generated.resources.add_games
-import tzakar_reminder.composeapp.generated.resources.add_medication
-import tzakar_reminder.composeapp.generated.resources.add_store
-import tzakar_reminder.composeapp.generated.resources.add_tv_movies
 import tzakar_reminder.composeapp.generated.resources.description
 import tzakar_reminder.composeapp.generated.resources.enter_description
 import tzakar_reminder.composeapp.generated.resources.enter_title

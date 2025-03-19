@@ -32,7 +32,7 @@ class ForgotPasswordScreenViewModel(
         screenModelScope.launch {
             _isLoading.update { true }
             email?.encodeBase64()?.let {
-                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it)
+                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it).child("profile")
                 val exist =ref.valueEvents.first().value != null
                 if (exist) proceed()
                 else{
