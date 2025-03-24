@@ -389,9 +389,7 @@ class HomeScreen: Screen {
 
     private fun calculateProgress(totalPoints: Int, pendingAmount: Int): Float {
         if (totalPoints == 0) return 0f // Prevent division by zero
-
         val result = (pendingAmount.toFloat() * 100f) / totalPoints.toFloat()
-
         return result.coerceIn(0f, 100f) // Ensure value stays between 0 and 100
     }
 

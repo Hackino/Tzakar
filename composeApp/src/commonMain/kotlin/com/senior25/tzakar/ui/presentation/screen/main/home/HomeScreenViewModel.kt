@@ -111,7 +111,7 @@ class HomeScreenViewModel(
     }
 
     private fun filterData(list:List<ReminderModel>?){
-        _filteredReminders.value =list?.filter { if (_tabIndexState.value == ReminderTabType.COMPLETED) it.isCompleted == true else it.isCompleted == false}
+        _filteredReminders.value =list?.filter { if (_tabIndexState.value == ReminderTabType.COMPLETED) it.isCompleted == true else it.isCompleted !=true}
     }
 
 
