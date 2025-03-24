@@ -37,6 +37,8 @@ class CalendarViewModel(
         mutableListOf(getSortingFilter().first())
     )
 
+    private var isInit: Boolean  = false
+
     val selectedSorting: StateFlow<MutableList<MenuModel>?> get() = _selectedSorting.asStateFlow()
 
     private val _uiState = MutableStateFlow<CalendarPageUiState?>(CalendarPageUiState.Success)
@@ -65,24 +67,39 @@ class CalendarViewModel(
 
     fun init() {
         screenModelScope.launch {
-            screenModelScope.launch(Dispatchers.IO) {
-                maiRepository.fetchServerReminder()
+            if (!isInit) {
+                screenModelScope.launch(Dispatchers.IO) {
+                    maiRepository.fetchServerReminder()
+                }
+                val currentDate =
+                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                _selectedYear.value = currentDate.year
+                _selectedMonth.value = currentDate.month
+                _selectedDate.value = currentDate.dayOfMonth
+                _monthDates.value = getDaysInMonthWithWeekdays(currentDate.year, currentDate.month)
+                requestScroll(true)
+                isInit = true
             }
-            val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-            _selectedYear.value = currentDate.year
-            _selectedMonth.value = currentDate.month
-            _selectedDate.value = currentDate.dayOfMonth
-            _monthDates.value = getDaysInMonthWithWeekdays(currentDate.year, currentDate.month)
-            requestScroll(true)
             screenModelScope.launch {
                 maiRepository.getAllReminders().collectLatest {
-                    _reminders.value = it?.toList()
+                    _reminders.value = it?.onEach{
+                        val latestDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                        val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
+                        it.date?.let { dateStr ->
+                            val parsedDate = LocalDate.parse(dateStr)
+                            if (parsedDate < latestDate)it.isCompleted = true
+                            else if(parsedDate == latestDate){
+                                it.time?.let { timeStr ->
+                                    val parsedTime = LocalTime.parse(timeStr)
+                                   if (parsedTime <= currentTime)it.isCompleted = true
+                                }
+                            }
+                        }
+                    }?.toList()
                 }
             }
 
-            screenModelScope.launch {
-                reminders.collectLatest { filterData(it) }
-            }
+            screenModelScope.launch { reminders.collectLatest { filterData(it) } }
         }
     }
 
@@ -173,7 +190,6 @@ class CalendarViewModel(
         _selectedSorting.value = mutableListOf(getSortingFilter().first())
         filterData(_reminders.value)
     }
-
 }
 
 sealed class CalendarPagePopUp{

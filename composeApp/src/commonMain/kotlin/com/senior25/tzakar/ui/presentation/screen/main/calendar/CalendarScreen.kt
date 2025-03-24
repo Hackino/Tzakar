@@ -202,7 +202,10 @@ class CalendarScreen: Screen {
 
         val listState = rememberLazyListState()
 
-        LaunchedEffect(key1 = Unit) { interaction.onUIEvent(CalendarPageEvent.Init) }
+        LaunchedEffect(key1 = Unit) {
+            println("init called")
+            interaction.onUIEvent(CalendarPageEvent.Init)
+        }
 
         LaunchedEffect(interaction.getShouldScroll()) {
             interaction.getShouldScroll().collectLatest { shouldScroll ->
@@ -327,7 +330,7 @@ class CalendarScreen: Screen {
                 text = date.second.substring(0,3) +"\n"+ date.first,
                 maxLines = 3,
                 style = fontHighlight,
-                color =      if (date.first == selected) MyColors.colorWhite
+                color = if (date.first == selected) MyColors.colorWhite
                 else Color.Gray,
                 modifier = Modifier.padding(horizontal = 8.dp).align(Alignment.Center),
                 textAlign = TextAlign.Center
@@ -472,21 +475,26 @@ fun ReminderItem(
                 modifier = Modifier.weight(1f)
             )
 
-            Box(
-                contentAlignment = Alignment.CenterStart,
-                modifier = Modifier.size(52.dp, 32.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(if (isChecked) MyColors.colorDarkBlue else MyColors.colorLightGrey)
-                    .clickable { isChecked = !isChecked; onSelect(reminderModel?.copy(isEnabled = if (isChecked)1 else 0)) }
-                    .padding(horizontal = 4.dp)
-            ) {
+            if (reminderModel?.isCompleted != true) {
                 Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .align(if (isChecked) Alignment.CenterEnd else Alignment.CenterStart) // Thumb position
-                        .clip(CircleShape)
-                        .background(MyColors.colorPurple)
-                )
+                    contentAlignment = Alignment.CenterStart,
+                    modifier = Modifier.size(52.dp, 32.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(if (isChecked) MyColors.colorDarkBlue else MyColors.colorLightGrey)
+                        .clickable {
+                            isChecked =
+                                !isChecked; onSelect(reminderModel?.copy(isEnabled = if (isChecked) 1 else 0))
+                        }
+                        .padding(horizontal = 4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .align(if (isChecked) Alignment.CenterEnd else Alignment.CenterStart) // Thumb position
+                            .clip(CircleShape)
+                            .background(MyColors.colorPurple)
+                    )
+                }
             }
         }
 

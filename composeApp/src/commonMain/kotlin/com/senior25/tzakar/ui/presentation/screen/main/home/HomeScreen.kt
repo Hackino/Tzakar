@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +36,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,9 +69,11 @@ import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
 import com.senior25.tzakar.ui.presentation.components.image.LoadMediaImage
 import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
+import com.senior25.tzakar.ui.presentation.screen.common.composable.no_data.NoDataWidget
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainPageEvent
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainPagePopUp
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.calendar.CalendarPageEvent
 import com.senior25.tzakar.ui.presentation.screen.main.calendar.ReminderItem
 import com.senior25.tzakar.ui.presentation.screen.main.category_details.CategoryDetailsScreen
 import com.senior25.tzakar.ui.presentation.screen.main.profile.NavigationAction
@@ -120,6 +124,15 @@ class HomeScreen: Screen {
                     }
                 }
             }
+            override fun getFilteredReminder(): StateFlow<List<ReminderModel>?>  = screenModel.filteredReminders
+            override fun updateReminderStatus(reminderModel: ReminderModel?) {
+                screenModel.onUIEvent(HomePageEvent.UpdateReminderStatus(reminderModel))
+            }
+
+            override fun countToday(): StateFlow<Int>  = screenModel.todayReminderCount
+            override fun countTodayCompleted(): StateFlow<Int> =screenModel.todayCompletedReminderCount
+            override fun countTotal(): StateFlow<Int> = screenModel.totalReminderCount
+            override fun countTotalCompleted(): StateFlow<Int> = screenModel.totalCompleteReminderCount
         }
 
         Scaffold(
@@ -177,6 +190,11 @@ class HomeScreen: Screen {
         val listState = rememberLazyListState()
         val navigator = LocalNavigator.currentOrThrow
 
+
+        LaunchedEffect(key1 = Unit) {
+            println("init called")
+            interaction.onUIEvent(HomePageEvent.Init)
+        }
         val pullRefreshState = rememberPullRefreshState(
             refreshing = uiState?.value is HomePageUiState.Refreshing,
             onRefresh =   {
@@ -185,6 +203,8 @@ class HomeScreen: Screen {
                 ) interaction.onUIEvent(HomePageEvent.Refresh)
             }
         )
+
+        val reminders = interaction.getFilteredReminder().collectAsState()
 
         Box(
             Modifier
@@ -212,22 +232,24 @@ class HomeScreen: Screen {
                     item{ Spacer(modifier = Modifier.height(8.dp)) }
 
                     item{ DrawTabs(interaction) }
-                    item {
-                        Spacer(Modifier.height(16.dp))
-                        ReminderItem(
-                            modifier = Modifier.padding(horizontal = 16.dp),
 
-                            reminderModel =    ReminderModel(
-                                type = 1,
-                                title = "text",
-                                description = "description",
-                                date = "2025-03-13",
-                                time = "11:11"
-                            )
-                        ){
-                            navigator.push(CategoryDetailsScreen(it?.id))
+                    item{Spacer(Modifier.height(16.dp))}
+                    reminders.value?.ifEmpty { null }?.let {
+                        itemsIndexed(it){_,item->
+                            ReminderItem(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                reminderModel =  item,
+                                isSelected = item.isEnabled == 1,
+                                onSelect = { interaction.updateReminderStatus(it) }
+                            ){ navigator.push(CategoryDetailsScreen(it?.id)) }
+                            Spacer(Modifier.height(8.dp))
+                        }
+                    }?:run {
+                        item {
+                            NoDataWidget(modifier = Modifier.fillMaxWidth().padding(top = 128.dp).height(200.dp))
                         }
                     }
+
                 }
             }
             PullRefreshIndicator(
@@ -244,6 +266,11 @@ class HomeScreen: Screen {
         pageData: HomePageData?,
         interaction: HomeScreenInteraction?,
     ){
+        val todayCount = interaction?.countToday()?.collectAsState()
+        val todayCompletedCount = interaction?.countTodayCompleted()?.collectAsState()
+        val totalCount = interaction?.countTotal()?.collectAsState()
+        val totalCompletedCount = interaction?.countTotalCompleted()?.collectAsState()
+
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(bottomEnd = 20.dp, bottomStart = 20.dp,))
@@ -254,31 +281,26 @@ class HomeScreen: Screen {
             Column(modifier = Modifier.fillMaxWidth().padding(top = topPadding)) {
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
 
-//                        val progress = pageData?.loyaltyDetails?.nextLevelDetails?.let {
-//                            calculateProgress((it.totalPoint ?: 0) , (it.pendingAmount ?: 0))
-//                        }?:0f
-                    val progress = calculateProgress(100 , 10)
+                    val progress = calculateProgress(todayCount?.value?:0 , todayCompletedCount?.value?:0)
                     HalfRingDashedProgressBar(
                         progress =progress,
                         modifier = Modifier.weight(2f),
                         strokeWidth = 12.dp,
                         dashLength = 390f,
                         gapLength = 0f,
-                        textBelow = "Today Reminders",
+                        textBelow = "Today's Reminders",
                     ){
                         Column(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "10",
+                                text = "${todayCompletedCount?.value?:0}",
                                 style = fontParagraphM,
                                 color =  MyColors.colorDarkBlue ,
                                 modifier = Modifier  .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -290,7 +312,7 @@ class HomeScreen: Screen {
                                     .background(MyColors.colorDarkBlue)
                             )
                             Text(
-                                text = "100",
+                                text = "${todayCount?.value?:0}",
                                 style = fontH3,
                                 color =  MyColors.colorDarkBlue ,
                                 modifier = Modifier  .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -300,7 +322,8 @@ class HomeScreen: Screen {
 
                     Spacer(modifier = Modifier.width(24.dp))
 
-                    val progress2 =   calculateProgress(100 , 10)
+                    val progress2 = calculateProgress(totalCount?.value?:0 , totalCompletedCount?.value?:0)
+
                     HalfRingDashedProgressBar(
                         progress =progress2,
                         modifier = Modifier.weight(3f),
@@ -315,7 +338,7 @@ class HomeScreen: Screen {
 
                         ) {
                             Text(
-                                text = "10",
+                                text = "${totalCompletedCount?.value?:0}",
                                 style = fontParagraphM,
                                 color =  MyColors.colorDarkBlue ,
                                 modifier = Modifier  .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -327,7 +350,7 @@ class HomeScreen: Screen {
                                     .background(MyColors.colorDarkBlue)
                             )
                             Text(
-                                text = "100",
+                                text = "${totalCount?.value?:0}",
                                 style = fontH3,
                                 color =  MyColors.colorDarkBlue ,
                                 modifier = Modifier  .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -364,12 +387,12 @@ class HomeScreen: Screen {
         }
     }
 
-    private fun calculateProgress(totalPoints: Int, pendingAmount: Int):Float {
-        val nextLevelTotalPoints:Float = totalPoints.toFloat() + pendingAmount.toFloat()
-        if (nextLevelTotalPoints != 0F) {
-            return  ((totalPoints/nextLevelTotalPoints))
-        }
-        return 0f
+    private fun calculateProgress(totalPoints: Int, pendingAmount: Int): Float {
+        if (totalPoints == 0) return 0f // Prevent division by zero
+
+        val result = (pendingAmount.toFloat() * 100f) / totalPoints.toFloat()
+
+        return result.coerceIn(0f, 100f) // Ensure value stays between 0 and 100
     }
 
     @Composable
@@ -383,7 +406,7 @@ class HomeScreen: Screen {
         totalSweepAngle: Float = 270f,
         textBelow:String = "",
         colorReached: Color = MyColors.colorDarkBlue,
-        colorNotReached: Color = MyColors.colorLightDarkBlue,
+        colorNotReached: Color = MyColors.colorLightDarkBlue.copy(alpha = 0.5f),
         onClick: (() -> Unit)? = null,
         content: @Composable BoxScope.() -> Unit={}
     ) {
@@ -422,8 +445,8 @@ class HomeScreen: Screen {
                         )
                     )
 
-                    val progressSweepAngle = totalSweepAngle * progress
-
+                   val progressSweepAngle = progress*(totalSweepAngle/100)
+                    println(progressSweepAngle)
                     drawArc(
                         color = colorReached,
                         startAngle = startAngle,
@@ -523,6 +546,15 @@ class HomeScreen: Screen {
         fun getCurrentDate(): String?
         fun getTabIndexState(): StateFlow<ReminderTabType?>
         fun navigate(action:HomeNavigationAction)
+        fun getFilteredReminder(): StateFlow<List<ReminderModel>?>
+        fun updateReminderStatus(reminderModel: ReminderModel?)
+
+        fun countToday():StateFlow<Int>
+        fun countTodayCompleted():StateFlow<Int>
+        fun countTotal():StateFlow<Int>
+        fun countTotalCompleted():StateFlow<Int>
+
+
     }
 
     enum class HomeNavigationAction{
