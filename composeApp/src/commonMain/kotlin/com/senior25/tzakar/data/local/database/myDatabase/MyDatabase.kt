@@ -17,7 +17,7 @@ import kotlinx.coroutines.IO
     entities = [
         ReminderModel::class,
         NotificationModel::class,
-    ], version = 4
+    ], version = 5
 )
 @ConstructedBy(MyDatabaseConstructor::class)
 abstract class MyDatabase : RoomDatabase() {

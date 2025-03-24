@@ -96,9 +96,9 @@ class CalendarViewModel(
                             }
                         }
                     }?.toList()
+                    println("receiving ${ _reminders.value }")
                 }
             }
-
             screenModelScope.launch { reminders.collectLatest { filterData(it) } }
         }
     }

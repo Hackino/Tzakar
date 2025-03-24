@@ -19,8 +19,9 @@ data class ReminderModel(
     val isEnabled:Int? = 0,
     val lastUpdateTimestamp:Long? = 0L,
     val shownTimestamp:Long? = 0L,
-    var isCompleted:Boolean? = null
-    )
+    var isCompleted:Boolean? = null,
+    val dateTimeEpoch:Long? =null
+)
 
 fun ReminderModel.toNotificationModel():NotificationModel{
     return NotificationModel(
@@ -29,6 +30,7 @@ fun ReminderModel.toNotificationModel():NotificationModel{
         body = description,
         date = date,
         time = time,
-        referenceId = id
+        referenceId = id,
+        dateTimeEpoch = dateTimeEpoch
     )
 }

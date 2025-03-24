@@ -10,6 +10,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 
 
 class CategoryViewModel(
@@ -52,6 +57,10 @@ class CategoryViewModel(
     fun setCategory(type:Int? = null,onSuccess:()->Unit) {
         screenModelScope.launch {
             _uiState.value = CategoryPageUiState.ProgressLoader
+            val parsedDate = _reminderDate.value?.let { LocalDate.parse(it) }
+            val parsedTime = _reminderTime.value?.let { LocalTime.parse(it) }
+            val reminderDateTime = LocalDateTime(parsedDate!!, parsedTime!!)
+            val reminderInstant = reminderDateTime.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
 
             val reminder = ReminderModel(
                 id = generateUUID(),
@@ -60,7 +69,8 @@ class CategoryViewModel(
                 description = description,
                 date = _reminderDate.value,
                 time = _reminderTime.value,
-                isEnabled = 1
+                isEnabled = 1,
+                dateTimeEpoch =reminderInstant
             )
             maiRepository.addReminder(reminder)
             onSuccess()

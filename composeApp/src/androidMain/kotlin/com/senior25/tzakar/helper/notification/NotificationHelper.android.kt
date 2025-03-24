@@ -68,7 +68,8 @@ actual object NotificationHelper: KoinComponent {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val triggerTime = System.currentTimeMillis() + 60 * 1000
+        val triggerTime = (notificationModel.dateTimeEpoch?.toLong()?:0L) + 60 * 1000
+
 
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
     }

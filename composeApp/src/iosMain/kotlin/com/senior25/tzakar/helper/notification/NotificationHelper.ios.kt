@@ -3,11 +3,9 @@ package com.senior25.tzakar.helper.notification
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import com.senior25.tzakar.data.local.database.dao.NotificationDao
 import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import com.senior25.tzakar.data.local.preferences.NotificationStatus
 import com.senior25.tzakar.data.local.preferences.SharedPref
-import com.senior25.tzakar.data.repositories.MainRepositoryImpl
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.ktx.decodeJson
 import com.senior25.tzakar.ktx.encodeToJson
@@ -15,10 +13,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import platform.Foundation.NSUUID
 import platform.UserNotifications.UNAuthorizationOptionAlert
 import platform.UserNotifications.UNAuthorizationOptionBadge
 import platform.UserNotifications.UNAuthorizationOptionSound
@@ -55,8 +51,9 @@ actual object NotificationHelper: KoinComponent {
                     this.setSound(UNNotificationSound.defaultSound())
                     this.setUserInfo(mapOf("notificationData" to notificationModel.encodeToJson()))
                 }
+                // Combine date and time into LocalDateTime
 
-                val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(60.0, false)
+                val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(notificationModel.dateTimeEpoch?.toDouble()?:60.0, false)
 
                 val request = UNNotificationRequest.requestWithIdentifier(
                     notificationModel.referenceId ?: "",
@@ -95,6 +92,7 @@ actual object NotificationHelper: KoinComponent {
                 }
 
                 if (SharedPref.notificationPermissionStatus == NotificationStatus.ON) {
+                    cancelNotification(listOf(request.identifier))
                     centerInternal.addNotificationRequest(request) { error ->
                         if (error != null) println("Error -> $error") else println("Notification sent")
                     }

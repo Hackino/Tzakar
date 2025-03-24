@@ -12,6 +12,7 @@ import com.senior25.tzakar.helper.notification.NotificationHelper
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
@@ -85,6 +86,7 @@ class MainRepositoryImpl(
             NotificationHelper.cancelNotification(listOf(reminderModel.id))
         }
 
+        println("saving ${reminderModel}")
         reminderDao.update(reminderModel)
     }
 

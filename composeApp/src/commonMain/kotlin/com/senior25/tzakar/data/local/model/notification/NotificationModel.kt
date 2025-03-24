@@ -16,6 +16,7 @@ data class NotificationModel(
     val tag:String? =null,
     val date:String? =null,
     val time:String? =null,
+    val dateTimeEpoch:Long? =null,
     val image:String? =null,
     val sectionTitle:String? = null,
     val sectionType:String? = null,

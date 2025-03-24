@@ -156,6 +156,7 @@ ksp {
 }
 dependencies {
     implementation(libs.androidx.material3.android)
+    implementation(libs.places)
     debugImplementation(compose.uiTooling)
     listOf(
         "kspAndroid",
