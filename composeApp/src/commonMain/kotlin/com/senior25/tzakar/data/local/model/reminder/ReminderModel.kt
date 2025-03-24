@@ -25,7 +25,7 @@ data class ReminderModel(
 
 fun ReminderModel.toNotificationModel():NotificationModel{
     return NotificationModel(
-        id = generateUUID(),
+        id = "$id-1",
         title = title,
         body = description,
         date = date,

@@ -18,9 +18,12 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import network.chaintech.kmp_date_time_picker.utils.now
 
 class MainRepositoryImpl(
     private val reminderDao: ReminderDao,
@@ -85,9 +88,8 @@ class MainRepositoryImpl(
         } else {
             NotificationHelper.cancelNotification(listOf(reminderModel.id))
         }
-
-        println("saving ${reminderModel}")
-        reminderDao.update(reminderModel)
+        val currentTime = LocalDateTime.now().toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+        reminderDao.update(reminderModel.copy(lastUpdateTimestamp = currentTime))
     }
 
     override fun enableReminder(reminderModel: ReminderModel) {}

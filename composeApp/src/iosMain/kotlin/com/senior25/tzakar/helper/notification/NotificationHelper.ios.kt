@@ -13,6 +13,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import network.chaintech.kmp_date_time_picker.utils.now
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import platform.UserNotifications.UNAuthorizationOptionAlert
@@ -51,9 +55,20 @@ actual object NotificationHelper: KoinComponent {
                     this.setSound(UNNotificationSound.defaultSound())
                     this.setUserInfo(mapOf("notificationData" to notificationModel.encodeToJson()))
                 }
-                // Combine date and time into LocalDateTime
 
-                val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(notificationModel.dateTimeEpoch?.toDouble()?:60.0, false)
+
+                val currentTime = LocalDateTime.now().toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+                println("current time in millisecond "+currentTime)
+
+                println("current time in notification "+"${notificationModel.dateTimeEpoch}")
+
+                val  time = (notificationModel.dateTimeEpoch?.let { (currentTime - it)/1000.0 }?:60.0).let { it->
+                    if (it<0) it * -1 else it
+                }
+
+                println("current time in notification "+"${time}")
+
+                val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(time.toDouble(), false)
 
                 val request = UNNotificationRequest.requestWithIdentifier(
                     notificationModel.referenceId ?: "",

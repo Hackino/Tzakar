@@ -15,6 +15,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import network.chaintech.kmp_date_time_picker.utils.now
 
 
 class CategoryViewModel(
@@ -44,13 +45,8 @@ class CategoryViewModel(
             is CategoryPageEvent.UpdatePopUpState -> _popUpState.value = uiEvent.popUp
             is CategoryPageEvent.UpdateTitle -> { title = uiEvent.title }
             is CategoryPageEvent.UpdateDescription -> { description = uiEvent.description }
-            is CategoryPageEvent.UpdateReminderDate -> {
-                _reminderDate.value = uiEvent.date
-            }
-            is CategoryPageEvent.UpdateReminderTime -> {
-                _reminderTime.value = uiEvent.time
-
-            }
+            is CategoryPageEvent.UpdateReminderDate -> _reminderDate.value = uiEvent.date
+            is CategoryPageEvent.UpdateReminderTime -> _reminderTime.value = uiEvent.time
         }
     }
 
@@ -61,6 +57,7 @@ class CategoryViewModel(
             val parsedTime = _reminderTime.value?.let { LocalTime.parse(it) }
             val reminderDateTime = LocalDateTime(parsedDate!!, parsedTime!!)
             val reminderInstant = reminderDateTime.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+            val currentTime = LocalDateTime.now().toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
 
             val reminder = ReminderModel(
                 id = generateUUID(),
@@ -70,7 +67,8 @@ class CategoryViewModel(
                 date = _reminderDate.value,
                 time = _reminderTime.value,
                 isEnabled = 1,
-                dateTimeEpoch =reminderInstant
+                dateTimeEpoch =reminderInstant,
+                lastUpdateTimestamp = currentTime
             )
             maiRepository.addReminder(reminder)
             onSuccess()
