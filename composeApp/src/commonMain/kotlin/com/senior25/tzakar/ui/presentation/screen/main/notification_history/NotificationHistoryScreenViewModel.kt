@@ -2,21 +2,14 @@ package com.senior25.tzakar.ui.presentation.screen.main.notification_history
 
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.notification.NotificationModel
-import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.MainRepository
-import com.senior25.tzakar.helper.DataBaseReference
-import com.senior25.tzakar.ktx.decodeJson
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.database.database
-import io.ktor.util.encodeBase64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -29,10 +22,15 @@ class NotificationHistoryViewModel(private val maiRepository: MainRepository): C
     private val _notifications = MutableStateFlow<List<NotificationModel>?>(null)
     val notifications: StateFlow<List<NotificationModel>?> get() = _notifications.asStateFlow()
 
+    private var isInit: Boolean  = false
+
     fun init() {
         screenModelScope.launch(Dispatchers.IO) {
-            maiRepository.fetchServerNotifications()
-            _uiState.value = NotificationHistoryPageUiState.Loading
+            if (!isInit) {
+                maiRepository.fetchServerNotifications()
+                _uiState.value = NotificationHistoryPageUiState.Loading
+                isInit = true
+            }
             maiRepository.getAllNotifications().collectLatest {
 
                 val sorted =  it.sortedWith(compareBy(

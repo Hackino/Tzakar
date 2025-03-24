@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.senior25.tzakar.R
 import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import com.senior25.tzakar.data.local.preferences.NotificationStatus
 import com.senior25.tzakar.data.local.preferences.SharedPref
@@ -36,7 +37,7 @@ class NotificationReceiver : BroadcastReceiver(), KoinComponent {
         }
 
         val notification = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.mipmap.ic_launcher_round)
             .setContentTitle(notificationModel?.title)
             .setContentText(notificationModel?.body)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

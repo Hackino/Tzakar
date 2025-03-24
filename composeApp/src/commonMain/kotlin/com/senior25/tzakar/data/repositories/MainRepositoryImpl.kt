@@ -12,9 +12,12 @@ import com.senior25.tzakar.helper.notification.NotificationHelper
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -88,7 +91,16 @@ class MainRepositoryImpl(
             NotificationHelper.cancelNotification(listOf(reminderModel.id))
         }
         val currentTime = LocalDateTime.now().toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
-        reminderDao.update(reminderModel.copy(lastUpdateTimestamp = currentTime))
+        val reminder= reminderModel.copy(lastUpdateTimestamp = currentTime)
+        reminderDao.update(reminder)
+        withContext(Dispatchers.IO) {
+            SharedPref.loggedInEmail?.let {
+                val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference)
+                    .child(it.encodeBase64())
+                    .child("reminders")
+                ref.child(reminder.id).setValue(reminder)
+            }
+        }
     }
 
     override fun enableReminder(reminderModel: ReminderModel) {}
@@ -124,7 +136,14 @@ class MainRepositoryImpl(
             val snapshot = ref.valueEvents.firstOrNull()
             val reminders = snapshot?.value<Map<String?, ReminderModel?>>()?.values?.filterNotNull()
             reminders?.forEach { reminder ->
-                reminderDao.insert(reminder)
+                val cached = reminderDao.getReminderById(reminder.id)
+                if ( (cached?.lastUpdateTimestamp?:0) >= (reminder.lastUpdateTimestamp?:0)){
+                    ref.child(reminder.id).setValue(cached)
+                }else{
+                    reminderDao.insert(reminder)
+                }
+
+
                 if (reminder.isEnabled == 1) {
                     val latestDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
                     val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
