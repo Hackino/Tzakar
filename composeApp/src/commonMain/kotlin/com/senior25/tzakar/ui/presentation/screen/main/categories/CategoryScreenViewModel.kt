@@ -37,6 +37,8 @@ class CategoryViewModel(
     private val _reminderTime = MutableStateFlow<String?>(null)
     val reminderTime: StateFlow<String?> get() = _reminderTime.asStateFlow()
 
+    private val _sound = MutableStateFlow<String?>("sound_1")
+    val sound: StateFlow<String?> get() = _sound.asStateFlow()
 
     fun onUIEvent(uiEvent: CategoryPageEvent) = screenModelScope.launch {
         when (uiEvent) {
@@ -68,7 +70,8 @@ class CategoryViewModel(
                 time = _reminderTime.value,
                 isEnabled = 1,
                 dateTimeEpoch =reminderInstant,
-                lastUpdateTimestamp = currentTime
+                lastUpdateTimestamp = currentTime,
+                sound = _sound.value + ".wav"
             )
             maiRepository.addReminder(reminder)
             onSuccess()

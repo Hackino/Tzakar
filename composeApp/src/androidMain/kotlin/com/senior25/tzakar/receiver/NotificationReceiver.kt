@@ -1,9 +1,14 @@
 package com.senior25.tzakar.receiver
 
 import android.annotation.SuppressLint
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.RingtoneManager
+import android.net.Uri
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.senior25.tzakar.R
@@ -11,6 +16,7 @@ import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import com.senior25.tzakar.data.local.preferences.NotificationStatus
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.MainRepository
+import com.senior25.tzakar.helper.ApplicationProvider
 import com.senior25.tzakar.helper.notification.NotificationHelper
 import com.senior25.tzakar.ktx.decodeJson
 import kotlinx.coroutines.CoroutineScope
@@ -35,13 +41,18 @@ class NotificationReceiver : BroadcastReceiver(), KoinComponent {
 //                mainRepository.updateReminder(notificationModel)
             }
         }
+        val soundUri =notificationModel?.sound?.let {
+            Uri.parse("android.resource://${ApplicationProvider.application.packageName}/raw/${it}")
+        }?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
-        val notification = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_ID)
+        NotificationHelper.createNotificationChannel(notificationModel?.id,notificationModel?.sound)
+        val notification = NotificationCompat.Builder(context, notificationModel?.id?:"Default-Channel")
             .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setSound(soundUri, AudioManager.STREAM_NOTIFICATION) // Old method
             .setContentTitle(notificationModel?.title)
             .setContentText(notificationModel?.body)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
+            .setPriority(NotificationManager.IMPORTANCE_HIGH)
+            .setAutoCancel(false)
             .build()
         if(SharedPref.notificationPermissionStatus == NotificationStatus.ON)
             NotificationManagerCompat.from(context).notify(notificationModel?.title.hashCode(), notification)

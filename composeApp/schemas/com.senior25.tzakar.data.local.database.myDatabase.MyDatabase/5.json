@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "b17c8b2fd5945191075ecde861f5a739",
+    "identityHash": "66b9b1c3f8aa9f5ac3611c6bd3e48892",
     "entities": [
       {
         "tableName": "reminder_table",
@@ -74,7 +74,7 @@
       },
       {
         "tableName": "notification_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT, `body` TEXT, `isRead` INTEGER, `redirection` TEXT, `tag` TEXT, `date` TEXT, `time` TEXT, `dateTimeEpoch` INTEGER, `image` TEXT, `sectionTitle` TEXT, `sectionType` TEXT, `referenceId` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT, `body` TEXT, `isRead` INTEGER, `redirection` TEXT, `tag` TEXT, `date` TEXT, `time` TEXT, `dateTimeEpoch` INTEGER, `image` TEXT, `sectionTitle` TEXT, `sectionType` TEXT, `referenceId` TEXT, `sound` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -141,6 +141,11 @@
             "fieldPath": "referenceId",
             "columnName": "referenceId",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sound",
+            "columnName": "sound",
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -153,7 +158,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b17c8b2fd5945191075ecde861f5a739')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '66b9b1c3f8aa9f5ac3611c6bd3e48892')"
     ]
   }
 }

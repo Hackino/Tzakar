@@ -9,6 +9,8 @@ import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.ktx.decodeJson
 import com.senior25.tzakar.ktx.encodeToJson
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.memScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -19,6 +21,11 @@ import kotlinx.datetime.toInstant
 import network.chaintech.kmp_date_time_picker.utils.now
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import platform.AVFAudio.AVAudioPlayer
+import platform.Foundation.NSBundle
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSLog
+import platform.Foundation.NSURL
 import platform.UserNotifications.UNAuthorizationOptionAlert
 import platform.UserNotifications.UNAuthorizationOptionBadge
 import platform.UserNotifications.UNAuthorizationOptionSound
@@ -35,10 +42,12 @@ import platform.UserNotifications.UNTimeIntervalNotificationTrigger
 import platform.UserNotifications.UNUserNotificationCenter
 import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
 import platform.darwin.NSObject
+import tzakar_reminder.composeapp.generated.resources.Res
 
 actual object NotificationHelper: KoinComponent {
     private val mainRepository: MainRepository by inject()
 
+    @OptIn(ExperimentalForeignApi::class)
     actual fun showNotification(notificationModel:NotificationModel) {
 
         val canterExternal = UNUserNotificationCenter.currentNotificationCenter()
@@ -52,23 +61,34 @@ actual object NotificationHelper: KoinComponent {
                 val content = UNMutableNotificationContent().apply {
                     this.setTitle(notificationModel.title ?: "")
                     this.setBody(notificationModel.body ?: "")
-                    this.setSound(UNNotificationSound.defaultSound())
+//                    println("sound of ${notificationModel.title} ${notificationModel.sound}")
+
+//                    val bundle = NSBundle.mainBundle
+//                    val path = bundle.URLForResource("sound_1", "wav")
+//                    listBundleFiles()
+//                    if (path != null) {
+//                        println("playing")
+//                        val url = path.path?.let { NSURL.fileURLWithPath(it) }
+//                        val avAudioPlayer = url?.let { AVAudioPlayer(it, error = null) }
+//                        avAudioPlayer?.prepareToPlay()
+//                        avAudioPlayer?.play()
+//                    } else {
+//                        println("Sound file NOT found in bundle")
+//                    }
+
+                    notificationModel.sound?.let {
+                        this.setSound(UNNotificationSound.soundNamed(it))
+                    } ?: this.setSound(UNNotificationSound.defaultSound())
+
                     this.setUserInfo(mapOf("notificationData" to notificationModel.encodeToJson()))
                 }
 
-
                 val currentTime = LocalDateTime.now().toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
-                println("current time in millisecond "+currentTime)
-
-                println("current time in notification "+"${notificationModel.dateTimeEpoch}")
-
-                val  time = (notificationModel.dateTimeEpoch?.let { (currentTime - it)/1000.0 }?:60.0).let { it->
+                val  time = (notificationModel.dateTimeEpoch?.let { (currentTime - it)/1000.0 }?:60.0).let {
                     if (it<0) it * -1 else it
                 }
 
-                println("current time in notification "+"${time}")
-
-                val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(time.toDouble(), false)
+                val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(time, false)
 
                 val request = UNNotificationRequest.requestWithIdentifier(
                     notificationModel.referenceId ?: "",
@@ -113,6 +133,21 @@ actual object NotificationHelper: KoinComponent {
                     }
                 }
             }
+        }
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    fun listBundleFiles() {
+        val resourcePath = NSBundle.mainBundle.resourcePath
+        if (resourcePath != null) {
+            val fileManager = NSFileManager.defaultManager
+
+            val files = fileManager.contentsOfDirectoryAtPath(resourcePath, null)
+            if (files != null) {
+                files.forEach { println(it) }
+            }
+        } else {
+            println("Error: Resource path is null")
         }
     }
 

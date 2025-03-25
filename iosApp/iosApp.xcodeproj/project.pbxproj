@@ -37,15 +37,51 @@
 		13DBC07D2D46E53400AFC20B /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 13DBC07C2D46E53400AFC20B /* GoogleSignIn */; };
 		13DBC07F2D46E53400AFC20B /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 13DBC07E2D46E53400AFC20B /* GoogleSignInSwift */; };
 		13DD1C8A2D3CC43C0099B166 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 13DD1C892D3CC43C0099B166 /* Launch Screen.storyboard */; };
+		13F975152D92368000AD68D3 /* sound_7.wav in Resources */ = {isa = PBXBuildFile; fileRef = 13F975092D92367F00AD68D3 /* sound_7.wav */; };
+		13F975162D92368000AD68D3 /* sound_8.wav in Resources */ = {isa = PBXBuildFile; fileRef = 13F9750A2D92367F00AD68D3 /* sound_8.wav */; };
+		13F975172D92368000AD68D3 /* sound_9.wav in Resources */ = {isa = PBXBuildFile; fileRef = 13F9750B2D92368000AD68D3 /* sound_9.wav */; };
+		13F975182D92368000AD68D3 /* sound_10.wav in Resources */ = {isa = PBXBuildFile; fileRef = 13F9750C2D92368000AD68D3 /* sound_10.wav */; };
+		13F975192D92368000AD68D3 /* sound_11.wav in Resources */ = {isa = PBXBuildFile; fileRef = 13F9750D2D92368000AD68D3 /* sound_11.wav */; };
+		13F9751A2D92368000AD68D3 /* sound_12.wav in Resources */ = {isa = PBXBuildFile; fileRef = 13F9750E2D92368000AD68D3 /* sound_12.wav */; };
+		13F9751B2D92368000AD68D3 /* sound_6.wav in Resources */ = {isa = PBXBuildFile; fileRef = 13F9750F2D92368000AD68D3 /* sound_6.wav */; };
+		13F9751C2D92368000AD68D3 /* sound_5.wav in Resources */ = {isa = PBXBuildFile; fileRef = 13F975102D92368000AD68D3 /* sound_5.wav */; };
+		13F9751D2D92368000AD68D3 /* sound_1.wav in Resources */ = {isa = PBXBuildFile; fileRef = 13F975112D92368000AD68D3 /* sound_1.wav */; };
+		13F9751E2D92368000AD68D3 /* sound_2.wav in Resources */ = {isa = PBXBuildFile; fileRef = 13F975122D92368000AD68D3 /* sound_2.wav */; };
+		13F9751F2D92368000AD68D3 /* sound_3.wav in Resources */ = {isa = PBXBuildFile; fileRef = 13F975132D92368000AD68D3 /* sound_3.wav */; };
+		13F975202D92368000AD68D3 /* sound_4.wav in Resources */ = {isa = PBXBuildFile; fileRef = 13F975142D92368000AD68D3 /* sound_4.wav */; };
 		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
 		7555FF83242A565900829871 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FF82242A565900829871 /* ContentView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		13F975082D92362300AD68D3 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		058557BA273AAA24004C7B11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		13CE61112D3C14D200A30CD5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "iosApp/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		13DD1C892D3CC43C0099B166 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		13F975092D92367F00AD68D3 /* sound_7.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound_7.wav; sourceTree = "<group>"; };
+		13F9750A2D92367F00AD68D3 /* sound_8.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound_8.wav; sourceTree = "<group>"; };
+		13F9750B2D92368000AD68D3 /* sound_9.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound_9.wav; sourceTree = "<group>"; };
+		13F9750C2D92368000AD68D3 /* sound_10.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound_10.wav; sourceTree = "<group>"; };
+		13F9750D2D92368000AD68D3 /* sound_11.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound_11.wav; sourceTree = "<group>"; };
+		13F9750E2D92368000AD68D3 /* sound_12.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound_12.wav; sourceTree = "<group>"; };
+		13F9750F2D92368000AD68D3 /* sound_6.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound_6.wav; sourceTree = "<group>"; };
+		13F975102D92368000AD68D3 /* sound_5.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound_5.wav; sourceTree = "<group>"; };
+		13F975112D92368000AD68D3 /* sound_1.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound_1.wav; sourceTree = "<group>"; };
+		13F975122D92368000AD68D3 /* sound_2.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound_2.wav; sourceTree = "<group>"; };
+		13F975132D92368000AD68D3 /* sound_3.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound_3.wav; sourceTree = "<group>"; };
+		13F975142D92368000AD68D3 /* sound_4.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound_4.wav; sourceTree = "<group>"; };
 		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* Tzakar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tzakar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7555FF82242A565900829871 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -101,6 +137,18 @@
 		7555FF72242A565900829871 = {
 			isa = PBXGroup;
 			children = (
+				13F975112D92368000AD68D3 /* sound_1.wav */,
+				13F975122D92368000AD68D3 /* sound_2.wav */,
+				13F975132D92368000AD68D3 /* sound_3.wav */,
+				13F975142D92368000AD68D3 /* sound_4.wav */,
+				13F975102D92368000AD68D3 /* sound_5.wav */,
+				13F9750F2D92368000AD68D3 /* sound_6.wav */,
+				13F975092D92367F00AD68D3 /* sound_7.wav */,
+				13F9750A2D92367F00AD68D3 /* sound_8.wav */,
+				13F9750B2D92368000AD68D3 /* sound_9.wav */,
+				13F9750C2D92368000AD68D3 /* sound_10.wav */,
+				13F9750D2D92368000AD68D3 /* sound_11.wav */,
+				13F9750E2D92368000AD68D3 /* sound_12.wav */,
 				13CE61112D3C14D200A30CD5 /* GoogleService-Info.plist */,
 				AB1DB47929225F7C00F7AF9C /* Configuration */,
 				7555FF7D242A565900829871 /* iosApp */,
@@ -148,6 +196,7 @@
 				7555FF77242A565900829871 /* Sources */,
 				B92378962B6B1156000C7307 /* Frameworks */,
 				7555FF79242A565900829871 /* Resources */,
+				13F975082D92362300AD68D3 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -229,6 +278,18 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				13F975152D92368000AD68D3 /* sound_7.wav in Resources */,
+				13F975162D92368000AD68D3 /* sound_8.wav in Resources */,
+				13F975172D92368000AD68D3 /* sound_9.wav in Resources */,
+				13F975182D92368000AD68D3 /* sound_10.wav in Resources */,
+				13F975192D92368000AD68D3 /* sound_11.wav in Resources */,
+				13F9751A2D92368000AD68D3 /* sound_12.wav in Resources */,
+				13F9751B2D92368000AD68D3 /* sound_6.wav in Resources */,
+				13F9751C2D92368000AD68D3 /* sound_5.wav in Resources */,
+				13F9751D2D92368000AD68D3 /* sound_1.wav in Resources */,
+				13F9751E2D92368000AD68D3 /* sound_2.wav in Resources */,
+				13F9751F2D92368000AD68D3 /* sound_3.wav in Resources */,
+				13F975202D92368000AD68D3 /* sound_4.wav in Resources */,
 				058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */,
 				058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */,
 				13DD1C8A2D3CC43C0099B166 /* Launch Screen.storyboard in Resources */,
@@ -308,6 +369,8 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
+				ENABLE_ON_DEMAND_RESOURCES = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -371,7 +434,9 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
 				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_ON_DEMAND_RESOURCES = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

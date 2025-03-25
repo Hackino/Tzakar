@@ -54,6 +54,8 @@ class MainScreenViewModel(
             is MainPageEvent.UpdateProfile ->{
                 _userProfile.value = SharedPref.loggedInProfile
             }
+
+            MainPageEvent.Refresh ->fetchProfile()
         }
     }
 
@@ -63,6 +65,8 @@ class MainScreenViewModel(
 sealed class MainPageEvent {
     data class UpdatePopUpState(val popUp: MainPagePopUp) : MainPageEvent()
     data object UpdateProfile : MainPageEvent()
+    data object Refresh : MainPageEvent()
+
 }
 
 sealed class MainPagePopUp{

@@ -11,6 +11,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioAttributes
+import android.media.RingtoneManager
+import android.net.Uri
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,23 +31,26 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-
 actual object NotificationHelper: KoinComponent {
     private val mainRepository: MainRepository by inject()
 
-    const val CHANNEL_ID = "default_channel"
-
-    init {
-        createNotificationChannel()
-    }
-
-    private  fun createNotificationChannel() {
+    fun createNotificationChannel(id:String?,sound:String?) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val soundUri =sound?.let {
+                Uri.parse("android.resource://${ApplicationProvider.application.packageName}/raw/${it}")
+            }?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+
+            val attributes = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
             val name = "Default Channel"
             val descriptionText = "This is a test notification channel"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(id?:"Default-Channel", name, importance).apply {
                 description = descriptionText
+                setSound(soundUri, attributes) // For Android 8.0+
+
             }
             val notificationManager: NotificationManager =
                 ApplicationProvider.application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

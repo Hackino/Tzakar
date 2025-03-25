@@ -115,7 +115,12 @@ class HomeScreen: Screen {
             override fun getProfileState(): StateFlow<UserProfile?> = mainViewModel.userProfile
             override fun getCurrentDate(): String? = mainViewModel.getCurrentDate()
             override fun getTabIndexState(): StateFlow<ReminderTabType?> = screenModel.tabIndexState
-            override fun onUIEvent(event: HomePageEvent) { screenModel.onUIEvent(event) }
+            override fun onUIEvent(event: HomePageEvent) {
+                if(event == HomePageEvent.Refresh){
+                    mainViewModel.onUIEvent(MainPageEvent.Refresh)
+                }
+                screenModel.onUIEvent(event)
+            }
             override fun navigate(action: HomeNavigationAction) {
                 when(action){
                     HomeNavigationAction.ReminderDetail -> {}

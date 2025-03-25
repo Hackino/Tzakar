@@ -20,5 +20,7 @@ data class NotificationModel(
     val image:String? =null,
     val sectionTitle:String? = null,
     val sectionType:String? = null,
-    val referenceId:String? = null
+    val referenceId:String? = null,
+    val sound:String? = null
+
 )
