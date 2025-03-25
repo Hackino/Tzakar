@@ -13,13 +13,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -39,6 +44,8 @@ import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.screen.common.composable.no_data.NoDataWidget
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.category_details.CategoryDetailsScreen
+import com.senior25.tzakar.ui.presentation.screen.main.home.HomePageEvent
+import com.senior25.tzakar.ui.presentation.screen.main.home.HomePageUiState
 import com.senior25.tzakar.ui.presentation.screen.main.notification_history.composable.ListShimmer
 import com.senior25.tzakar.ui.presentation.screen.main.notification_history.composable.NotificationCardWidget
 import com.senior25.tzakar.ui.presentation.screen.main.notification_history.composable.NotificationItemInteraction
@@ -82,7 +89,9 @@ class NotificationHistoryScreen: Screen {
         LaunchedEffect(key1 = Unit) { viewModel.init() }
         val interaction  = object : NotificationHistoryPageScreenInteraction {
             override fun getUiState(): StateFlow<NotificationHistoryPageUiState?> = viewModel.uiState
-            override fun onUIEvent(event: NotificationHistoryPageEvent) {  }
+            override fun onUIEvent(event: NotificationHistoryPageEvent) {
+                viewModel.onUIEvent(event)
+            }
             override fun getNotifications(): StateFlow<List<NotificationModel>?> = viewModel.notifications
             override fun onNotificationClick(data: NotificationModel?) {
                 navigator?.push(CategoryDetailsScreen(data?.referenceId))
@@ -96,6 +105,7 @@ class NotificationHistoryScreen: Screen {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NotificationPageScreen(
     interaction: NotificationHistoryPageScreenInteraction?,
@@ -105,9 +115,21 @@ fun NotificationPageScreen(
     val screenWidthDp = getScreenWidth()
     val lazyState = rememberLazyListState()
 
-    Box(modifier = Modifier.fillMaxSize()){
+
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = uiState?.value is NotificationHistoryPageUiState.Refreshing,
+        onRefresh =   {
+            println(uiState?.value.toString())
+            if (uiState?.value !is NotificationHistoryPageUiState.Refreshing
+                && uiState?.value != NotificationHistoryPageUiState.Loading
+            ) interaction?.onUIEvent(NotificationHistoryPageEvent.Refresh)
+        }
+    )
+
+
+    Box(modifier = Modifier.fillMaxSize().pullRefresh(pullRefreshState)){
         Column(modifier = Modifier.fillMaxSize().background(MyColors.colorOffWhite)) {
-            if (uiState?.value is NotificationHistoryPageUiState.Loading) {
+            if (uiState?.value is NotificationHistoryPageUiState.Refreshing || uiState?.value is NotificationHistoryPageUiState.Loading) {
                 Spacer(modifier = Modifier.height(8.dp));ListShimmer()
             }else{
                 notifications?.value?.ifEmpty { null }?.let { data ->
@@ -137,11 +159,14 @@ fun NotificationPageScreen(
                             )
                         }
                     }
-                }?:run{
-                    NoDataWidget(modifier = Modifier.fillMaxSize())
-                }
+                }?:run{ NoDataWidget(modifier = Modifier.fillMaxSize()) }
             }
         }
+        PullRefreshIndicator(
+            refreshing = uiState?.value is NotificationHistoryPageUiState.Refreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 
@@ -149,5 +174,4 @@ interface NotificationHistoryPageScreenInteraction: NotificationItemInteraction 
     fun getUiState(): StateFlow<NotificationHistoryPageUiState?>
     fun onUIEvent(event: NotificationHistoryPageEvent)
     fun getNotifications(): StateFlow<List<NotificationModel>?>
-
 }

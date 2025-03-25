@@ -165,16 +165,6 @@ private fun CategoryPageScreen(paddingValues: PaddingValues,interaction: Categor
                     isMandatory = false,
                     enabled = false
                 )
-
-                //Tone
-//        DateTimeField(
-//            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-//            label = stringResource(Res.string.reminder_data_time),
-//            placeHolder = stringResource(Res.string.select_date_and_time),
-//            value = interaction?.getDescription(),
-//            onValueChange = { interaction?.onUIEvent(CategoryPageEvent.UpdateReminderDate(it)) },
-//            isInputValid = { isValidReminderData = it },
-//        )
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }

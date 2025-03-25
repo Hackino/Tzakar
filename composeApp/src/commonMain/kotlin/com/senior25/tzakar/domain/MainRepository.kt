@@ -13,6 +13,7 @@ interface MainRepository {
     fun enableReminder(reminderModel: ReminderModel)
 
     fun getAllNotifications():Flow<List<NotificationModel>>
+    suspend fun getAllNotificationsFromDb():List<NotificationModel>?
 
     suspend fun addNotification(notificationModel: NotificationModel)
 

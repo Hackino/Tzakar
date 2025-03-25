@@ -6,6 +6,7 @@ import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,22 +26,37 @@ class NotificationHistoryViewModel(private val maiRepository: MainRepository): C
     private var isInit: Boolean  = false
 
     fun init() {
-        screenModelScope.launch(Dispatchers.IO) {
+        screenModelScope.launch {
             if (!isInit) {
-                maiRepository.fetchServerNotifications()
+                screenModelScope.launch(Dispatchers.IO) { maiRepository.fetchServerNotifications() }
                 _uiState.value = NotificationHistoryPageUiState.Loading
                 isInit = true
             }
-            maiRepository.getAllNotifications().collectLatest {
+            maiRepository.getAllNotifications().collectLatest { notifications(it) }
+        }
+    }
 
-                val sorted =  it.sortedWith(compareBy(
-                    { it.date?.let { it1 -> LocalDate.parse(it1) } },
-                    { it.time?.let { it1 -> LocalTime.parse(it1) } },
-                ))
-                _uiState.value = NotificationHistoryPageUiState.Success
-                _notifications.value = sorted
+    fun onUIEvent(uiEvent: NotificationHistoryPageEvent) = screenModelScope.launch {
+        when (uiEvent) {
+            NotificationHistoryPageEvent.Success -> _uiState.value = NotificationHistoryPageUiState.Success
+            NotificationHistoryPageEvent.LoaderView ->  _uiState.value = NotificationHistoryPageUiState.ProgressLoader
+            NotificationHistoryPageEvent.Refresh ->{
+                _uiState.value = NotificationHistoryPageUiState.Refreshing
+                screenModelScope.launch(Dispatchers.IO) { maiRepository.fetchServerNotifications() }
+                val notifications = maiRepository.getAllNotificationsFromDb()
+                delay(2000)
+                notifications(notifications)
             }
         }
+    }
+
+    fun notifications(notifications:List<NotificationModel>?){
+        val sorted =  notifications?.sortedWith(compareBy(
+            { it.date?.let { it1 -> LocalDate.parse(it1) } },
+            { it.time?.let { it1 -> LocalTime.parse(it1) } },
+        ))
+        _notifications.value = sorted?.reversed()
+        _uiState.value = NotificationHistoryPageUiState.Success
     }
 }
 
@@ -53,4 +69,6 @@ sealed class NotificationHistoryPageEvent {
 sealed class NotificationHistoryPageUiState() {
     data object Loading : NotificationHistoryPageUiState()
     data object Success : NotificationHistoryPageUiState()
+    data object Refreshing : NotificationHistoryPageUiState()
+    data object ProgressLoader : NotificationHistoryPageUiState()
 }

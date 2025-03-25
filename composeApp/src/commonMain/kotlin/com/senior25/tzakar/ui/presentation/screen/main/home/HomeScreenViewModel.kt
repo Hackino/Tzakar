@@ -99,7 +99,6 @@ class HomeScreenViewModel(
                 }
                 delay(2000)
                 updateState(HomePageUiState.Success)
-
             }
             is HomePageEvent.LoadCurrent -> {
                 _tabIndexState.value = ReminderTabType.CURRENT

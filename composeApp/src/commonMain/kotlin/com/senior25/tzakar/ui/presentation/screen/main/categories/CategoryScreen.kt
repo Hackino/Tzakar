@@ -84,20 +84,14 @@ data class CategoryScreen(val type:CategoryType = CategoryType.UNKNOWN): Screen 
                     onUIEvent(CategoryPageEvent.UpdatePopUpState(CategoryPagePopUp.SaveChangesSuccess))
                 }
             }
-
             override fun onUIEvent(event: CategoryPageEvent) { screenModel.onUIEvent(event) }
-
             override fun getUiState(): StateFlow<CategoryPageUiState?> = screenModel.uiState
-
             override fun getPopupState(): StateFlow<CategoryPagePopUp?> = screenModel.popUpState
             override fun getReminderDate(): StateFlow<String?>  = screenModel.reminderDate
-
             override fun getReminderTime(): StateFlow<String?> =  screenModel.reminderTime
             override fun getTone(): StateFlow<String?>  = screenModel.sound
-
             override fun onBackPress() { navigator.pop() }
             override fun isPlaying():StateFlow<Boolean?>  = screenModel.isPlaying
-
         }
 
         Scaffold(
@@ -286,11 +280,8 @@ interface CategoryPageInteraction: BackPressInteraction {
     fun getPopupState(): StateFlow<CategoryPagePopUp?>
     fun getTitle(): String? = ""
     fun getDescription(): String? = ""
-
     fun getReminderDate(): StateFlow<String?>
     fun getReminderTime(): StateFlow<String?>
     fun getTone(): StateFlow<String?>
     fun isPlaying():StateFlow<Boolean?>
-
-
 }

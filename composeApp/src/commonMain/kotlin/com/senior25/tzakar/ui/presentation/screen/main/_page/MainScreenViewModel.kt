@@ -37,8 +37,9 @@ class MainScreenViewModel(
                 val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(it.encodeBase64()).child("profile")
                 val snapshot = ref.valueEvents.firstOrNull()
                 val profile  = snapshot?.value<UserProfile?>()
-                _userProfile.value  =  profile?:SharedPref.loggedInProfile
+                _userProfile.value =  profile?:SharedPref.loggedInProfile
                 SharedPref.loggedInProfile = _userProfile.value
+                println(profile)
                 return@launch
             }
         }

@@ -113,7 +113,7 @@ class HomeScreen: Screen {
         val interaction  = object : HomeScreenInteraction {
             override fun getUiState(): StateFlow<HomePageUiState?> = screenModel.uiState
             override fun getProfileState(): StateFlow<UserProfile?> = mainViewModel.userProfile
-            override fun getCurrentDate(): String? = mainViewModel.getCurrentDate()
+            override fun getCurrentDate(): String = mainViewModel.getCurrentDate()
             override fun getTabIndexState(): StateFlow<ReminderTabType?> = screenModel.tabIndexState
             override fun onUIEvent(event: HomePageEvent) {
                 if(event == HomePageEvent.Refresh){
@@ -140,6 +140,9 @@ class HomeScreen: Screen {
             override fun countTotalCompleted(): StateFlow<Int> = screenModel.totalCompleteReminderCount
         }
 
+
+        val profile  = interaction.getProfileState().collectAsState()
+
         Scaffold(
             backgroundColor = MyColors.colorOffWhite,
             topBar = {
@@ -157,7 +160,7 @@ class HomeScreen: Screen {
                                 )
                             }
                             Text(
-                                "Hello, ${interaction.getProfileState().value?.userName?:""}",
+                                "Hello, ${profile.value?.userName?:""}",
                                 textAlign =  TextAlign.Start,
                                 color = MyColors.colorDarkBlue,
                                 maxLines = 1,
@@ -168,15 +171,11 @@ class HomeScreen: Screen {
                         }
                     },
                     actions = {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        ) {
+                        Row(modifier = Modifier.padding(horizontal = 16.dp)) {
                             LoadMediaImage(
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .background(Color.White, CircleShape)
+                                modifier = Modifier.size(50.dp).background(Color.White, CircleShape)
                                     .clip(CircleShape),
-                                url =interaction.getProfileState().value?.image,
+                                url =profile.value?.image,
                                 default = Res.drawable.ic_profile_placeholder
                             )
                         }

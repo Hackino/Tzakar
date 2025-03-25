@@ -107,6 +107,8 @@ class MainRepositoryImpl(
 
     override fun getAllNotifications() = notificationDao.getAllNotificationFlow()
 
+    override suspend fun getAllNotificationsFromDb(): List<NotificationModel>?  = notificationDao.getAllNotification()
+
     override suspend fun addNotification(notificationModel: NotificationModel) {
         notificationDao.insert(notificationModel)
     }

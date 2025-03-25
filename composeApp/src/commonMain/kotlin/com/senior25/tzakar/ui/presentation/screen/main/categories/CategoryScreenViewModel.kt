@@ -70,6 +70,11 @@ class CategoryViewModel(
         }
     }
 
+    override fun onDispose() {
+        super.onDispose()
+        //release
+    }
+
     fun setCategory(type:Int? = null,onSuccess:()->Unit) {
         screenModelScope.launch {
             _uiState.value = CategoryPageUiState.ProgressLoader
@@ -107,7 +112,6 @@ sealed class CategoryPageEvent {
     data class UpdateReminderTime(val time: String?) : CategoryPageEvent()
     data class UpdateReminderTone(val tone: String?) : CategoryPageEvent()
     data object UpdatePlayingStatus : CategoryPageEvent()
-
 }
 
 sealed class CategoryPagePopUp{
@@ -115,9 +119,7 @@ sealed class CategoryPagePopUp{
     data object SaveChanges:CategoryPagePopUp()
     data object SaveChangesSuccess:CategoryPagePopUp()
     data object SelectAValidDateBefore:CategoryPagePopUp()
-
 }
-
 
 sealed class CategoryPageUiState {
     data object ProgressLoader : CategoryPageUiState()
