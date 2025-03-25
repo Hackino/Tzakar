@@ -42,12 +42,11 @@ import platform.UserNotifications.UNTimeIntervalNotificationTrigger
 import platform.UserNotifications.UNUserNotificationCenter
 import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
 import platform.darwin.NSObject
-import tzakar_reminder.composeapp.generated.resources.Res
 
 actual object NotificationHelper: KoinComponent {
+
     private val mainRepository: MainRepository by inject()
 
-    @OptIn(ExperimentalForeignApi::class)
     actual fun showNotification(notificationModel:NotificationModel) {
 
         val canterExternal = UNUserNotificationCenter.currentNotificationCenter()

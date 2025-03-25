@@ -190,5 +190,6 @@ class MainRepositoryImpl(
     }
 
     override suspend fun deleteNotification(ids: List<String>) {}
+    override suspend fun getAllRemindersFromDb(): List<ReminderModel>? = reminderDao.getAllReminder()
 
 }

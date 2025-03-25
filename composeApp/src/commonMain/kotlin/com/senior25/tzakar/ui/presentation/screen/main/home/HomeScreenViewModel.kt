@@ -54,33 +54,35 @@ class HomeScreenViewModel(
     fun init() {
         screenModelScope.launch {
             screenModelScope.launch(Dispatchers.IO) { mainRepository.fetchServerReminder() }
-            val todayDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
             screenModelScope.launch {
-                mainRepository.getAllReminders().collectLatest {
-                    val allReminders = it?.onEach{
-                        val latestDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-                        val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
-                        it.date?.let { dateStr ->
-                            val parsedDate = LocalDate.parse(dateStr)
-                            if (parsedDate < latestDate)it.isCompleted = true
-                            else if(parsedDate == latestDate){
-                                it.time?.let { timeStr ->
-                                    val parsedTime = LocalTime.parse(timeStr)
-                                    if (parsedTime <= currentTime)it.isCompleted = true
-                                }
-                            }
-                        }
-                    }?.toList()
-
-                    _totalReminderCount.value = allReminders?.size?:0
-                    _totalCompleteReminderCount.value =allReminders?.filter { it.isCompleted == true }?.size?:0
-                    _reminders.value = allReminders?.filter {   it.date?.let { LocalDate.parse(it) == todayDate }?:false }
-                    _todayReminderCount.value = _reminders.value?.size?:0
-                    _todayCompletedReminderCount.value =_reminders.value?.filter { it.isCompleted == true }?.size?:0
-                }
+                mainRepository.getAllReminders().collectLatest { reminder(it) }
             }
             screenModelScope.launch { reminders.collectLatest { filterData(it) } }
         }
+    }
+
+    fun reminder(reminders:List<ReminderModel>?){
+        val todayDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val allReminders = reminders?.onEach{
+            val latestDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+            val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
+            it.date?.let { dateStr ->
+                val parsedDate = LocalDate.parse(dateStr)
+                if (parsedDate < latestDate)it.isCompleted = true
+                else if(parsedDate == latestDate){
+                    it.time?.let { timeStr ->
+                        val parsedTime = LocalTime.parse(timeStr)
+                        if (parsedTime <= currentTime)it.isCompleted = true
+                    }
+                }
+            }
+        }?.toList()
+
+        _totalReminderCount.value = allReminders?.size?:0
+        _totalCompleteReminderCount.value =allReminders?.filter { it.isCompleted == true }?.size?:0
+        _reminders.value = allReminders?.filter {   it.date?.let { LocalDate.parse(it) == todayDate }?:false }
+        _todayReminderCount.value = _reminders.value?.size?:0
+        _todayCompletedReminderCount.value =_reminders.value?.filter { it.isCompleted == true }?.size?:0
     }
 
     fun onUIEvent(uiEvent: HomePageEvent) = screenModelScope.launch {
@@ -91,7 +93,11 @@ class HomeScreenViewModel(
             HomePageEvent.Refresh ->{
                 updateState(HomePageUiState.Refreshing)
                 screenModelScope.launch(Dispatchers.IO) { mainRepository.fetchServerReminder() }
-                delay(3000)
+                screenModelScope.launch {
+                    val reminders = mainRepository.getAllRemindersFromDb()
+                    reminder(reminders)
+                }
+                delay(2000)
                 updateState(HomePageUiState.Success)
 
             }

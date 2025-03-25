@@ -30,4 +30,5 @@ interface MainRepository {
 
     suspend fun deleteNotification(ids: List<String>)
 
+    suspend fun getAllRemindersFromDb():List<ReminderModel>?
 }

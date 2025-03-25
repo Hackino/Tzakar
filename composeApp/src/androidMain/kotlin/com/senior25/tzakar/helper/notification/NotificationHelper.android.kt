@@ -37,7 +37,7 @@ actual object NotificationHelper: KoinComponent {
     fun createNotificationChannel(id:String?,sound:String?) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val soundUri =sound?.let {
-                Uri.parse("android.resource://${ApplicationProvider.application.packageName}/raw/${it}")
+                Uri.parse("android.resource://${ApplicationProvider.application.packageName}/raw/${it.replace(".wav","")}")
             }?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
             val attributes = AudioAttributes.Builder()
