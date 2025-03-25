@@ -31,11 +31,13 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.senior25.tzakar.data.local.model.reminder.RingTones
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType.Companion.categoryHeaderRes
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.fields.DateField
+import com.senior25.tzakar.ui.presentation.components.fields.DropDownField
 import com.senior25.tzakar.ui.presentation.components.fields.TimeField
 import com.senior25.tzakar.ui.presentation.components.fields.normalTextField
 import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
@@ -47,11 +49,16 @@ import com.senior25.tzakar.ui.presentation.dialog.reminder_set.ShowSelectValidDa
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.theme.MyColors
 import kotlinx.coroutines.flow.StateFlow
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.description
 import tzakar_reminder.composeapp.generated.resources.enter_description
 import tzakar_reminder.composeapp.generated.resources.enter_title
+import tzakar_reminder.composeapp.generated.resources.ic_arrow_down
+import tzakar_reminder.composeapp.generated.resources.ic_pause
+import tzakar_reminder.composeapp.generated.resources.ic_play
+import tzakar_reminder.composeapp.generated.resources.please_specify_your_gender
 import tzakar_reminder.composeapp.generated.resources.reminder_data
 import tzakar_reminder.composeapp.generated.resources.reminder_time
 import tzakar_reminder.composeapp.generated.resources.select_date
@@ -86,8 +93,11 @@ data class CategoryScreen(val type:CategoryType = CategoryType.UNKNOWN): Screen 
             override fun getReminderDate(): StateFlow<String?>  = screenModel.reminderDate
 
             override fun getReminderTime(): StateFlow<String?> =  screenModel.reminderTime
+            override fun getTone(): StateFlow<String?>  = screenModel.sound
 
             override fun onBackPress() { navigator.pop() }
+            override fun isPlaying():StateFlow<Boolean?>  = screenModel.isPlaying
+
         }
 
         Scaffold(
@@ -155,6 +165,8 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
     val reminderTime = interaction?.getReminderTime()?.collectAsState()
 
     val reminderDate = interaction?.getReminderDate()?.collectAsState()
+    val tone = interaction?.getTone()?.collectAsState()
+    val isPlaying = interaction?.isPlaying()?.collectAsState()
 
     Column(
         modifier = Modifier.weight(1f),
@@ -205,9 +217,7 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
             onValueChange = { interaction?.onUIEvent(CategoryPageEvent.UpdateReminderDate(it)) },
             isInputValid = {
                 println("valid time $isValidReminderTime and valid date $isValidReminderData")
-
                 isValidReminderData = it
-
                 isValidReminderTime = it && isValidReminderTime
             },
         )
@@ -232,15 +242,25 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
             }
         )
 
-        //Tone
-//        DateTimeField(
-//            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-//            label = stringResource(Res.string.reminder_data_time),
-//            placeHolder = stringResource(Res.string.select_date_and_time),
-//            value = interaction?.getDescription(),
-//            onValueChange = { interaction?.onUIEvent(CategoryPageEvent.UpdateReminderDate(it)) },
-//            isInputValid = { isValidReminderData = it },
-//        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        DropDownField(
+            selectedItem = RingTones.getAllRingTones().firstOrNull { it == tone?.value },
+            label = "Tone",
+            startIcon = if (isPlaying?.value == true)
+                painterResource(Res.drawable.ic_pause) else painterResource(Res.drawable.ic_play),
+            endIcon = painterResource(Res.drawable.ic_arrow_down),
+            onItemSelected={
+                interaction?.onUIEvent(CategoryPageEvent.UpdateReminderTone(it))
+            },
+            displayValue = {it.replace("_"," ")?:""},
+            isMandatory = true,
+            placeHolder= stringResource(Res.string.please_specify_your_gender),
+            items =  RingTones.getAllRingTones(),
+            startIconClick = {
+                interaction?.onUIEvent(CategoryPageEvent.UpdatePlayingStatus)
+            }
+        )
         Spacer(modifier = Modifier.height(16.dp))
     }
 
@@ -269,6 +289,8 @@ interface CategoryPageInteraction: BackPressInteraction {
 
     fun getReminderDate(): StateFlow<String?>
     fun getReminderTime(): StateFlow<String?>
+    fun getTone(): StateFlow<String?>
+    fun isPlaying():StateFlow<Boolean?>
 
 
 }

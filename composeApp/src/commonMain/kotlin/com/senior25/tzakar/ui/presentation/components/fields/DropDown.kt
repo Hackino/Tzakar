@@ -2,6 +2,7 @@ package com.senior25.tzakar.ui.presentation.components.fields
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,7 +55,8 @@ fun <T>  DropDownField(
     onItemSelected: (T) -> Unit,
     isMandatory: Boolean? = null,
     placeHolder:String? = null,
-    items:List<T>? = null
+    items:List<T>? = null,
+    startIconClick:(()->Unit)? = null
     ){
     val selected by remember(selectedItem) { mutableStateOf(selectedItem) }
 
@@ -79,7 +81,8 @@ fun <T>  DropDownField(
             displayValue = displayValue,
             showPlaceholder = true,
             isMandatory = isMandatory == true,
-            placeholder = placeHolder ?: ""
+            placeholder = placeHolder ?: "",
+            startIconClick =startIconClick
         )
     }
 }
@@ -95,7 +98,8 @@ fun <T> DropdownMenuField(
     showPlaceholder: Boolean = false,
     isMandatory: Boolean = true,
     startIcon: Painter?  = null,
-    endIcon:Painter  = painterResource( Res.drawable.ic_arrow_forward_ios)
+    endIcon:Painter  = painterResource( Res.drawable.ic_arrow_forward_ios),
+    startIconClick:(()->Unit)? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
     val list by remember(items) { mutableStateOf(items) }
@@ -137,6 +141,9 @@ fun <T> DropdownMenuField(
                         contentDescription = null,
                         modifier = Modifier
                             .size(24.dp)
+                            .clickable(enabled = startIconClick!= null){
+                                startIconClick?.invoke()
+                            }
                             .align(Alignment.CenterVertically),
                         tint = MyColors.colorDarkBlue
                     )

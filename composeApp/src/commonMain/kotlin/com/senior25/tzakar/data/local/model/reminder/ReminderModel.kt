@@ -2,6 +2,7 @@ package com.senior25.tzakar.data.local.model.reminder
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.senior25.tzakar.data.local.model.gender.GenderModel
 import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import kotlinx.serialization.Serializable
 
@@ -34,4 +35,21 @@ fun ReminderModel.toNotificationModel():NotificationModel{
         dateTimeEpoch = dateTimeEpoch,
         sound = sound
     )
+}
+
+object RingTones{
+    fun getAllRingTones()= listOf(
+        "sound_1",
+        "sound_2",
+        "sound_3",
+        "sound_4",
+        "sound_5",
+        "sound_6",
+        "sound_7",
+        "sound_8",
+        "sound_9",
+        "sound_10",
+        "sound_11",
+        "sound_12",
+        )
 }

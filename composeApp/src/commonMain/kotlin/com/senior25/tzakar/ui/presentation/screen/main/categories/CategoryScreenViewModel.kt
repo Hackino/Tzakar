@@ -40,6 +40,9 @@ class CategoryViewModel(
     private val _sound = MutableStateFlow<String?>("sound_1")
     val sound: StateFlow<String?> get() = _sound.asStateFlow()
 
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying: StateFlow<Boolean> get() = _isPlaying.asStateFlow()
+
     fun onUIEvent(uiEvent: CategoryPageEvent) = screenModelScope.launch {
         when (uiEvent) {
             CategoryPageEvent.Success -> _uiState.value = CategoryPageUiState.Success
@@ -49,6 +52,21 @@ class CategoryViewModel(
             is CategoryPageEvent.UpdateDescription -> { description = uiEvent.description }
             is CategoryPageEvent.UpdateReminderDate -> _reminderDate.value = uiEvent.date
             is CategoryPageEvent.UpdateReminderTime -> _reminderTime.value = uiEvent.time
+            is CategoryPageEvent.UpdateReminderTone -> {
+                _sound.value = uiEvent.tone
+                _isPlaying.value = false
+                //release playing
+            }
+            CategoryPageEvent.UpdatePlayingStatus ->{
+                _isPlaying.value = !_isPlaying.value
+                if (_isPlaying.value){
+                    //init playing
+                }else{
+                    //release playing
+                }
+
+            }
+
         }
     }
 
@@ -87,6 +105,9 @@ sealed class CategoryPageEvent {
     data class UpdateDescription(val description: String?) : CategoryPageEvent()
     data class UpdateReminderDate(val date: String?) : CategoryPageEvent()
     data class UpdateReminderTime(val time: String?) : CategoryPageEvent()
+    data class UpdateReminderTone(val tone: String?) : CategoryPageEvent()
+    data object UpdatePlayingStatus : CategoryPageEvent()
+
 }
 
 sealed class CategoryPagePopUp{

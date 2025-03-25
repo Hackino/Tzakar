@@ -25,20 +25,27 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
+import com.senior25.tzakar.data.local.model.reminder.RingTones
 import com.senior25.tzakar.ktx.ifEmpty
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType.Companion.categoryRes
 import com.senior25.tzakar.ui.presentation.components.fields.DateField
+import com.senior25.tzakar.ui.presentation.components.fields.DropDownField
 import com.senior25.tzakar.ui.presentation.components.fields.TimeField
 import com.senior25.tzakar.ui.presentation.components.fields.normalTextField
 import com.senior25.tzakar.ui.presentation.components.toolbar.BackPressInteraction
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
+import com.senior25.tzakar.ui.presentation.screen.main.categories.CategoryPageEvent
 import com.senior25.tzakar.ui.theme.MyColors
 import kotlinx.coroutines.flow.StateFlow
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.description
+import tzakar_reminder.composeapp.generated.resources.ic_arrow_down
+import tzakar_reminder.composeapp.generated.resources.ic_tone
+import tzakar_reminder.composeapp.generated.resources.please_specify_your_gender
 import tzakar_reminder.composeapp.generated.resources.reminder_data
 import tzakar_reminder.composeapp.generated.resources.reminder_time
 import tzakar_reminder.composeapp.generated.resources.title
@@ -143,6 +150,19 @@ private fun CategoryPageScreen(paddingValues: PaddingValues,interaction: Categor
                     isMandatory = false,
                     value = reminderTime?.value?.time?:"",
                     validate = true,
+                    enabled = false
+                )
+
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                normalTextField(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    label = "Tone",
+                    value = reminderTime?.value?.sound?.replace(".wav","")?:"",
+                    validate = false,
+                    placeHolder = "",
+                    isMandatory = false,
                     enabled = false
                 )
 
