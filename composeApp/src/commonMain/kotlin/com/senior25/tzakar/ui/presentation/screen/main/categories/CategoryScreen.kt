@@ -253,7 +253,7 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
             onItemSelected={
                 interaction?.onUIEvent(CategoryPageEvent.UpdateReminderTone(it))
             },
-            displayValue = {it.replace("_"," ")?:""},
+            displayValue = {it?.replace("_"," ")?:""},
             isMandatory = true,
             placeHolder= stringResource(Res.string.please_specify_your_gender),
             items =  RingTones.getAllRingTones(),

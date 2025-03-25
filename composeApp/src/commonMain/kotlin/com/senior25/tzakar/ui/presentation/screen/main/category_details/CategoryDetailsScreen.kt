@@ -159,7 +159,7 @@ private fun CategoryPageScreen(paddingValues: PaddingValues,interaction: Categor
                 normalTextField(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     label = "Tone",
-                    value = reminderTime?.value?.sound?.replace(".wav","")?:"",
+                    value = reminderTime?.value?.sound?.replace(".wav","")?.replace("_", " ")?:"",
                     validate = false,
                     placeHolder = "",
                     isMandatory = false,
