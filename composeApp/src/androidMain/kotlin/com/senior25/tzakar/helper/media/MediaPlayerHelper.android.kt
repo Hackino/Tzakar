@@ -40,6 +40,7 @@ actual class MediaPlayerHelper actual constructor() {
         mediaPlayer?.release()
         mediaPlayer = null
     }
+
     actual fun setOnCompletionListener(listener: () -> Unit) {
         onCompletionListener = listener
     }

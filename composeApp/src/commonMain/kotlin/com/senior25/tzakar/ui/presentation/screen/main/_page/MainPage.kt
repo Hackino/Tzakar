@@ -76,7 +76,11 @@ data class MainScreenLauncher(val test:String? = null):Screen {
             Navigator(
                 screen = MainScreen(),
                 onBackPressed = {
-                    if (navigator.lastItem::class.simpleName == MainScreenLauncher::class.simpleName) exitApp()
+                    if (navigator.lastItem::class.simpleName == MainScreenLauncher::class.simpleName) {
+                        if (navigator.items.filter { it::class.simpleName == MainScreenLauncher::class.simpleName }.size==1){
+                            exitApp()
+                        }
+                    }
                     true
                 },
                 key = "MainScreenLauncherNavigator"
@@ -100,7 +104,7 @@ class MainScreen:Screen {
         LaunchedEffect(key1 = Unit){
             mainViewModel.init()
             if (SharedPref.notificationPermissionStatus == NotificationStatus.UNKNOWN)
-            shouldRequestPermission = true
+                shouldRequestPermission = true
         }
 
         if (shouldRequestPermission) {
@@ -165,7 +169,9 @@ class MainScreen:Screen {
         if (popUpState.value is MainPagePopUp.CategoriesSheet) {
             categoriesBottomSheet(
                 data = getCategories(),
-                onItemClick = {navigator?.push(CategoryScreen(CategoryType.getByValue(it?.id))) },
+                onItemClick = {
+                    navigator?.push(CategoryScreen(CategoryType.getByValue(it?.id)))
+                },
                 onDismiss = { mainViewModel.onUIEvent(MainPageEvent.UpdatePopUpState(MainPagePopUp.None)) },
             )
         }
