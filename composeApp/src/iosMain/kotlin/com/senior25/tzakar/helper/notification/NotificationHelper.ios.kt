@@ -21,8 +21,7 @@ import kotlinx.datetime.toInstant
 import network.chaintech.kmp_date_time_picker.utils.now
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import platform.AVFAudio.AVAudioPlayer
-import platform.Foundation.NSBundle
+
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSLog
 import platform.Foundation.NSURL
@@ -60,20 +59,6 @@ actual object NotificationHelper: KoinComponent {
                 val content = UNMutableNotificationContent().apply {
                     this.setTitle(notificationModel.title ?: "")
                     this.setBody(notificationModel.body ?: "")
-//                    println("sound of ${notificationModel.title} ${notificationModel.sound}")
-
-//                    val bundle = NSBundle.mainBundle
-//                    val path = bundle.URLForResource("sound_1", "wav")
-//                    listBundleFiles()
-//                    if (path != null) {
-//                        println("playing")
-//                        val url = path.path?.let { NSURL.fileURLWithPath(it) }
-//                        val avAudioPlayer = url?.let { AVAudioPlayer(it, error = null) }
-//                        avAudioPlayer?.prepareToPlay()
-//                        avAudioPlayer?.play()
-//                    } else {
-//                        println("Sound file NOT found in bundle")
-//                    }
 
                     notificationModel.sound?.let {
                         this.setSound(UNNotificationSound.soundNamed(it))
@@ -132,21 +117,6 @@ actual object NotificationHelper: KoinComponent {
                     }
                 }
             }
-        }
-    }
-
-    @OptIn(ExperimentalForeignApi::class)
-    fun listBundleFiles() {
-        val resourcePath = NSBundle.mainBundle.resourcePath
-        if (resourcePath != null) {
-            val fileManager = NSFileManager.defaultManager
-
-            val files = fileManager.contentsOfDirectoryAtPath(resourcePath, null)
-            if (files != null) {
-                files.forEach { println(it) }
-            }
-        } else {
-            println("Error: Resource path is null")
         }
     }
 

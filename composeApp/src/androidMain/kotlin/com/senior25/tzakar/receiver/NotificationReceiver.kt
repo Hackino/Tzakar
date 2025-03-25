@@ -5,9 +5,7 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.AudioAttributes
 import android.media.AudioManager
-import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.net.Uri
 import androidx.core.app.NotificationCompat
@@ -46,22 +44,7 @@ class NotificationReceiver : BroadcastReceiver(), KoinComponent {
             Uri.parse("android.resource://${ApplicationProvider.application.packageName}/raw/${it.replace(".wav", "")}")
         }?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
-//        val mediaPlayer = MediaPlayer().apply {
-//            try {
-//                setDataSource(context, soundUri)
-//                setAudioAttributes(
-//                    AudioAttributes.Builder()
-//                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-//                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-//                        .build()
-//                )
-//                prepare()
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
-//
-//        mediaPlayer.start() // Start playing the sound
+
 
         NotificationHelper.createNotificationChannel(notificationModel?.id,notificationModel?.sound)
         val notification = NotificationCompat.Builder(context, notificationModel?.id?:"Default-Channel")

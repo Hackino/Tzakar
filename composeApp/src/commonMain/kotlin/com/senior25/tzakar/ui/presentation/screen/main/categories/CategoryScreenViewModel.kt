@@ -3,6 +3,7 @@ package com.senior25.tzakar.ui.presentation.screen.main.categories
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.domain.MainRepository
+import com.senior25.tzakar.helper.media.MediaPlayerHelper
 import com.senior25.tzakar.platform_specific.utils.generateUUID
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.auth.AuthResult
@@ -43,6 +44,16 @@ class CategoryViewModel(
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> get() = _isPlaying.asStateFlow()
 
+    private var player:MediaPlayerHelper? = null
+
+    init {
+        player = MediaPlayerHelper().apply {
+            setOnCompletionListener {
+                _isPlaying.value = false
+            }
+        }
+    }
+
     fun onUIEvent(uiEvent: CategoryPageEvent) = screenModelScope.launch {
         when (uiEvent) {
             CategoryPageEvent.Success -> _uiState.value = CategoryPageUiState.Success
@@ -55,24 +66,25 @@ class CategoryViewModel(
             is CategoryPageEvent.UpdateReminderTone -> {
                 _sound.value = uiEvent.tone
                 _isPlaying.value = false
-                //release playing
+                player?.release()
             }
             CategoryPageEvent.UpdatePlayingStatus ->{
                 _isPlaying.value = !_isPlaying.value
                 if (_isPlaying.value){
-                    //init playing
+                    _sound.value?.let {
+                        player?.init(it)
+                        player?.play()
+                    }
                 }else{
-                    //release playing
+                    player?.release()
                 }
-
             }
-
         }
     }
 
     override fun onDispose() {
         super.onDispose()
-        //release
+        player?.release()
     }
 
     fun setCategory(type:Int? = null,onSuccess:()->Unit) {
