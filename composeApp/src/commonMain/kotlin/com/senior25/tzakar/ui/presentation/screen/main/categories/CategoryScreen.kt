@@ -280,7 +280,7 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
                     }
             ) {
 
-                MapView(modifier = Modifier.matchParentSize(),getLongLat?.value?.map { it.toDoubleOrNull()?:0.0 }?: listOf(33.8938,35.5018))
+                MapView(modifier = Modifier.matchParentSize(),getLongLat?.value?.ifEmpty { null }?.map { it.toDoubleOrNull()?:0.0 }?: listOf(33.8938,35.5018))
                 Box(
                     modifier = Modifier
                         .matchParentSize()

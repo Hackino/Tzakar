@@ -9,11 +9,14 @@ import kotlinx.cinterop.ExperimentalForeignApi
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
-actual  fun MapView(modifier: Modifier ,longLat:List<Double>) {
+actual fun MapView(modifier: Modifier ,longLat:List<Double>) {
     val factory = LocalNativeViewFactory.current
     UIKitViewController(
         factory = {
-            val mapViewController = factory.createGoogleMap()
+            val mapViewController = factory.createGoogleMap(object :MapInteraction{
+                override fun getMarkerLong() = longLat[0]
+                override fun getMarkerLat()  = longLat[1]
+            })
             mapViewController
         },
         modifier = Modifier.fillMaxSize(),

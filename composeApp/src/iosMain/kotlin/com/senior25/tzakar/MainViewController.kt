@@ -15,7 +15,5 @@ fun MainViewController(
 ) = ComposeUIViewController(
     configure = { initializeKoin(config = {}) }
 ) {
-    CompositionLocalProvider(LocalNativeViewFactory provides nativeViewFactory) {
-        App()
-    }
+    CompositionLocalProvider(LocalNativeViewFactory provides nativeViewFactory) { App() }
 }
