@@ -57,6 +57,7 @@ import com.senior25.tzakar.ui.presentation.dialog.reminder_set.ShowAddReminderCo
 import com.senior25.tzakar.ui.presentation.dialog.reminder_set.ShowReminderAddedSuccessDialog
 import com.senior25.tzakar.ui.presentation.dialog.reminder_set.ShowSelectValidDate
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.full_screen_map.FullScreenMap
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontParagraphM
 import kotlinx.coroutines.flow.StateFlow
@@ -105,7 +106,7 @@ data class CategoryScreen(val type:CategoryType = CategoryType.UNKNOWN): Screen 
             override fun isPlaying():StateFlow<Boolean?>  = screenModel.isPlaying
             override fun getTabIndexState(): StateFlow<CategoryTabType?> = screenModel.tabIndexState
             override fun openMap(list: List<String>?) {
-                // open map  and update longLat
+               navigator.push(FullScreenMap(list))
             }
 
             override fun getLongLat(): StateFlow<List<String>?> =  screenModel.longLat
@@ -223,14 +224,11 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-
         DrawTabs(interaction)
 
         Spacer(modifier = Modifier.height(16.dp))
 
         if (tabState?.value == CategoryTabType.TIME){
-
-
             DateField(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 label = stringResource(Res.string.reminder_data),
@@ -269,23 +267,14 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
             Box(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     .height(150.dp)
-                    .border(
-                        width =  2.dp ,
-                        color = Color.Black ,
-                        shape = RoundedCornerShape(12.dp)
-                    )
+                    .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(12.dp))
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable {
-                        interaction.openMap(getLongLat?.value)
-                    }
+                    .clickable { interaction.openMap(getLongLat?.value) }
             ) {
 
-                MapView(modifier = Modifier.matchParentSize(),getLongLat?.value?.ifEmpty { null }?.map { it.toDoubleOrNull()?:0.0 }?: listOf(33.8938,35.5018))
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .background(Color.Transparent)
-                        .clickable(enabled = false) {}
+                MapView(
+                    modifier = Modifier.fillMaxWidth().height(150.dp),
+                    longLat = getLongLat?.value?.ifEmpty { null }?.map { it.toDoubleOrNull()?:0.0 }?: listOf(35.5018,33.8938)
                 )
             }
         }
@@ -339,10 +328,7 @@ private fun DrawTabs(
     val tabState = interaction?.getTabIndexState()?.collectAsState()
     TabsRow(
         selectedTab = tabState?.value?.value ?: 0,
-        tabs = listOf(
-            "DateTime",
-            "Location",
-        ),
+        tabs = listOf("DateTime", "Location"),
         onClick = { index ->
             if (index == 0) {
                 interaction?.onUIEvent(CategoryPageEvent.TimeBased)
@@ -365,8 +351,6 @@ fun TabsRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         tabs.forEachIndexed { index, title ->
-
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable {
@@ -376,10 +360,7 @@ fun TabsRow(
             ) {
                 RadioButton(
                     selected = index == selectedTab,
-                    onClick = {
-                        newTabSelected.value = index
-                        onClick(index)
-                    },
+                    onClick = { newTabSelected.value = index;onClick(index) },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = Color.Black,
                         unselectedColor = Color.Gray

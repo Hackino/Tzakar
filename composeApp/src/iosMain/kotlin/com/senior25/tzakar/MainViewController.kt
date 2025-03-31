@@ -6,14 +6,10 @@ import com.senior25.tzakar.di.initializeKoin
 import com.senior25.tzakar.platform_specific.map.NativeViewFactory
 import com.senior25.tzakar.ui.presentation.app.App
 
-val LocalNativeViewFactory = staticCompositionLocalOf<NativeViewFactory> {
-    error("No shit")
-}
+val LocalNativeViewFactory = staticCompositionLocalOf<NativeViewFactory> { error("No shit") }
 
 fun MainViewController(
     nativeViewFactory:NativeViewFactory
-) = ComposeUIViewController(
-    configure = { initializeKoin(config = {}) }
-) {
+) = ComposeUIViewController(configure = { initializeKoin(config = {}) }) {
     CompositionLocalProvider(LocalNativeViewFactory provides nativeViewFactory) { App() }
 }
