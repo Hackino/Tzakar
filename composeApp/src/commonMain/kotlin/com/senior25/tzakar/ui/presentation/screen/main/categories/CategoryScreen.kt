@@ -42,6 +42,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.data.local.model.reminder.RingTones
 import com.senior25.tzakar.ktx.koinScreenModel
+import com.senior25.tzakar.platform_specific.map.MapView
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType.Companion.categoryHeaderRes
 import com.senior25.tzakar.ui.presentation.components.button.CustomButton
@@ -278,6 +279,14 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
                         interaction.openMap(getLongLat?.value)
                     }
             ) {
+
+                MapView(modifier = Modifier.matchParentSize(),getLongLat?.value?.map { it.toDoubleOrNull()?:0.0 }?: listOf(33.8938,35.5018))
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(Color.Transparent)
+                        .clickable(enabled = false) {}
+                )
             }
         }
 
@@ -384,28 +393,6 @@ fun TabsRow(
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
-//
-//
-//            Box(
-//                modifier = Modifier
-//                    .border(
-//                        width = if (index == selectedTab) 2.dp else 0.dp,
-//                        color = if (index == selectedTab) Color.Black else Color.Transparent,
-//                        shape = RoundedCornerShape(12.dp)
-//                    )
-//                    .clip(RoundedCornerShape(12.dp))
-//                    .clickable {
-//                        newTabSelected.value = index
-//                        onClick(index)
-//                    }
-//            ) {
-//                Text(
-//                    text = title,
-//                    style = fontParagraphM,
-//                    color =  Color.Black ,
-//                    modifier = Modifier  .padding(horizontal = 16.dp, vertical = 8.dp)
-//                )
-//            }
         }
     }
 }

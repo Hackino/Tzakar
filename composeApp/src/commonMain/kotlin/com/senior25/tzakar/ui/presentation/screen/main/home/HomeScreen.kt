@@ -130,6 +130,9 @@ class HomeScreen: Screen {
                 }
             }
             override fun getFilteredReminder(): StateFlow<List<ReminderModel>?>  = screenModel.filteredReminders
+
+            override fun getLocationReminder(): StateFlow<List<ReminderModel>?>  = screenModel.locationReminder
+
             override fun updateReminderStatus(reminderModel: ReminderModel?) {
                 screenModel.onUIEvent(HomePageEvent.UpdateReminderStatus(reminderModel))
             }
@@ -209,6 +212,8 @@ class HomeScreen: Screen {
         )
 
         val reminders = interaction.getFilteredReminder().collectAsState()
+        val locationReminders = interaction.getLocationReminder().collectAsState()
+        val tabState = interaction?.getTabIndexState()?.collectAsState()
 
         Box(
             Modifier
@@ -238,22 +243,47 @@ class HomeScreen: Screen {
                     item{ DrawTabs(interaction) }
 
                     item{Spacer(Modifier.height(16.dp))}
-                    reminders.value?.ifEmpty { null }?.let {
-                        itemsIndexed(it){_,item->
-                            ReminderItem(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                reminderModel =  item,
-                                isSelected = item.isEnabled == 1,
-                                onSelect = { interaction.updateReminderStatus(it) }
-                            ){ navigator.push(CategoryDetailsScreen(it?.id)) }
-                            Spacer(Modifier.height(8.dp))
+
+                    if (tabState?.value == ReminderTabType.LOCATIONS) {
+                        locationReminders.value?.ifEmpty { null }?.let {
+                            itemsIndexed(it) { _, item ->
+                                ReminderItem(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    reminderModel = item,
+                                    isSelected = item.isEnabled == 1,
+                                    onSelect = { interaction.updateReminderStatus(it) }
+                                ) { navigator.push(CategoryDetailsScreen(it?.id)) }
+                                Spacer(Modifier.height(8.dp))
+                            }
+                        } ?: run {
+                            item {
+                                NoDataWidget(
+                                    modifier = Modifier.fillMaxWidth().padding(top = 128.dp)
+                                        .height(200.dp)
+                                )
+                            }
                         }
-                    }?:run {
-                        item {
-                            NoDataWidget(modifier = Modifier.fillMaxWidth().padding(top = 128.dp).height(200.dp))
+                    }else {
+
+                        reminders.value?.ifEmpty { null }?.let {
+                            itemsIndexed(it) { _, item ->
+                                ReminderItem(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    reminderModel = item,
+                                    isSelected = item.isEnabled == 1,
+                                    onSelect = { interaction.updateReminderStatus(it) }
+                                ) { navigator.push(CategoryDetailsScreen(it?.id)) }
+                                Spacer(Modifier.height(8.dp))
+                            }
+                        } ?: run {
+                            item {
+                                NoDataWidget(
+                                    modifier = Modifier.fillMaxWidth().padding(top = 128.dp)
+                                        .height(200.dp)
+                                )
+                            }
                         }
                     }
-
                 }
             }
             PullRefreshIndicator(
@@ -552,16 +582,14 @@ class HomeScreen: Screen {
         fun getTabIndexState(): StateFlow<ReminderTabType?>
         fun navigate(action:HomeNavigationAction)
         fun getFilteredReminder(): StateFlow<List<ReminderModel>?>
-        fun updateReminderStatus(reminderModel: ReminderModel?)
+         fun getLocationReminder(): StateFlow<List<ReminderModel>?>
 
+        fun updateReminderStatus(reminderModel: ReminderModel?)
         fun countToday():StateFlow<Int>
         fun countTodayCompleted():StateFlow<Int>
         fun countTotal():StateFlow<Int>
         fun countTotalCompleted():StateFlow<Int>
-
-
     }
-
     enum class HomeNavigationAction{
         ReminderDetail,AddReminder
     }

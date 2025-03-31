@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
         android:allowBackup="true"
@@ -18,6 +19,13 @@
         android:usesCleartextTraffic="true"
         android:name=".application.MyApplication"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
+
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC8kq7XKe208OZSCaxG0qC11ctZ0PGHZJ4"/>
+
+
         <activity
             android:theme="@style/Theme.MyApp.MySplash"
             android:exported="true"

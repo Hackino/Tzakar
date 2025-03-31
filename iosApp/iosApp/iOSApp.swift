@@ -1,28 +1,14 @@
-//import SwiftUI
 import FirebaseCore
-
-//@main
-//struct iOSApp: App {
-//    
-//    init() {
-//        FirebaseApp.configure()
-//    }
-//    
-//    var body: some Scene {
-//        WindowGroup {
-//            ContentView()
-//        }
-//    }
-//}
-
 import SwiftUI
 import GoogleSignIn
+import GoogleMaps
 
 
 @main
 struct iOSApp: App {
         init() {
             FirebaseApp.configure()
+            GMSServices.provideAPIKey("AIzaSyC8kq7XKe208OZSCaxG0qC11ctZ0PGHZJ4")
         }
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
@@ -41,19 +27,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
       _ app: UIApplication,
       open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]
     ) -> Bool {
-//     FirebaseApp.configure()
-      var handled: Bool
     
-
-    // Let Google Sign-In handle the URL if it's related to Google Sign-In
-      handled = GIDSignIn.sharedInstance.handle(url)
+      var handled: Bool
+          handled = GIDSignIn.sharedInstance.handle(url)
       if handled {
         return true
       }
-
-      // Handle other custom URL types.
-
-      // If not handled by this app, return false.
       return false
     }
 }

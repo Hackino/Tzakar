@@ -51,6 +51,10 @@ class HomeScreenViewModel(
     private val _filteredReminders = MutableStateFlow<List<ReminderModel>?>(emptyList())
     val filteredReminders: StateFlow<List<ReminderModel>?> get() = _filteredReminders.asStateFlow()
 
+
+    private val _locationReminder = MutableStateFlow<List<ReminderModel>?>(emptyList())
+    val locationReminder: StateFlow<List<ReminderModel>?> get() = _locationReminder.asStateFlow()
+
     fun init() {
         screenModelScope.launch {
             screenModelScope.launch(Dispatchers.IO) { mainRepository.fetchServerReminder() }

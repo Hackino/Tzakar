@@ -63,6 +63,8 @@
 	</array>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>bbbbbbbbb</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need your location for maps</string>
 	<key>NSUserNotificationUsageDescription</key>
     <string>We need permission to send notifications.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

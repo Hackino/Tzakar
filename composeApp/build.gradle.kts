@@ -62,6 +62,8 @@ kotlin {
             implementation(libs.play.services.auth)
             implementation("com.jakewharton.threetenabp:threetenabp:1.4.6")
             implementation("com.google.android.material:material:1.12.0")
+            implementation("com.google.maps.android:maps-compose:6.1.0")
+
         }
 
         commonMain.dependencies {
@@ -99,6 +101,9 @@ kotlin {
             implementation("media.kamel:kamel-image:1.0.3")
             implementation("io.github.qdsfdhvh:image-loader:1.10.0")
             implementation("network.chaintech:kmp-date-time-picker:1.0.5")
+//            implementation("com.google.android.gms:play-services-maps:18.2.0")
+
+
         }
     }
 }
