@@ -47,8 +47,8 @@ class CategoryViewModel(
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> get() = _isPlaying.asStateFlow()
 
-    private val _longLat = MutableStateFlow<List<String>?>(emptyList())
-    val longLat: StateFlow<List<String>?> get() = _longLat.asStateFlow()
+    private val _longLat = MutableStateFlow<List<Double>?>(emptyList())
+    val longLat: StateFlow<List<Double>?> get() = _longLat.asStateFlow()
 
     private var player:MediaPlayerHelper? = null
 
@@ -148,7 +148,7 @@ sealed class CategoryPageEvent {
 
     data object TimeBased : CategoryPageEvent()
     data object LocationBased : CategoryPageEvent()
-    data class UpdateLongLat(val longLat:List<String>) : CategoryPageEvent()
+    data class UpdateLongLat(val longLat:List<Double>) : CategoryPageEvent()
 
 }
 

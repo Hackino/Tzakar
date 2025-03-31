@@ -105,11 +105,11 @@ data class CategoryScreen(val type:CategoryType = CategoryType.UNKNOWN): Screen 
             override fun onBackPress() { navigator.pop() }
             override fun isPlaying():StateFlow<Boolean?>  = screenModel.isPlaying
             override fun getTabIndexState(): StateFlow<CategoryTabType?> = screenModel.tabIndexState
-            override fun openMap(list: List<String>?) {
+            override fun openMap(list: List<Double>?) {
                navigator.push(FullScreenMap(list))
             }
 
-            override fun getLongLat(): StateFlow<List<String>?> =  screenModel.longLat
+            override fun getLongLat(): StateFlow<List<Double>?> =  screenModel.longLat
         }
 
         Scaffold(
@@ -271,10 +271,11 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
                     .clip(RoundedCornerShape(12.dp))
                     .clickable { interaction.openMap(getLongLat?.value) }
             ) {
-
                 MapView(
                     modifier = Modifier.fillMaxWidth().height(150.dp),
-                    longLat = getLongLat?.value?.ifEmpty { null }?.map { it.toDoubleOrNull()?:0.0 }?: listOf(35.5018,33.8938)
+                    cameraLongLat = getLongLat?.value?.ifEmpty { null }?:listOf(35.5018,33.8938),
+                    markerLongLat = getLongLat?.value?.ifEmpty { null },
+                    onMarkerSet = {_,_-> }
                 )
             }
         }
@@ -390,7 +391,6 @@ interface CategoryPageInteraction: BackPressInteraction {
     fun getTone(): StateFlow<String?>
     fun isPlaying():StateFlow<Boolean?>
     fun getTabIndexState(): StateFlow<CategoryTabType?>
-    fun openMap(list:List<String>?)
-    fun getLongLat():StateFlow<List<String>?>
-
+    fun openMap(list:List<Double>?)
+    fun getLongLat():StateFlow<List<Double>?>
 }

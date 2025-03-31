@@ -11,15 +11,19 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 
-
-
 @Composable
-actual  fun MapView(modifier: Modifier ,longLat:List<Double>)  {
+actual  fun MapView(modifier: Modifier ,cameraLongLat:List<Double>,markerLongLat:List<Double>?,onMarkerSet:(Double,Double)->Unit)  {
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
-        val coordinates = LatLng(longLat[0], longLat[1])
-        val markerState = rememberMarkerState(position = coordinates)
+        val coordinates = LatLng(cameraLongLat[0], cameraLongLat[1])
+
+        val markerState = rememberMarkerState(
+            position = LatLng(
+                markerLongLat?.getOrNull(0)?:0.0,
+                markerLongLat?.getOrNull(1)?:0.0
+            )
+        )
         val cameraPositionState = rememberCameraPositionState {
             position = CameraPosition.fromLatLngZoom(coordinates, 10f)
         }
@@ -27,9 +31,8 @@ actual  fun MapView(modifier: Modifier ,longLat:List<Double>)  {
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState
         ) {
-            Marker(
-                state = markerState,
-            )
+            listOf(markerState.position.latitude,markerState.position.longitude)
+                .filter { it != 0.0 }.ifEmpty { null }.let { Marker(state = markerState,) }
         }
     }
 }

@@ -9,13 +9,17 @@ import kotlinx.cinterop.ExperimentalForeignApi
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
-actual fun MapView(modifier: Modifier ,longLat:List<Double>) {
+actual fun MapView(modifier: Modifier ,cameraLongLat:List<Double>,markerLongLat:List<Double>?,onMarkerSet:(Double,Double)->Unit) {
     val factory = LocalNativeViewFactory.current
     UIKitViewController(
         factory = {
             val mapViewController = factory.createGoogleMap(object :MapInteraction{
-                override fun getMarkerLong() = longLat[0]
-                override fun getMarkerLat()  = longLat[1]
+                override fun getMarkerLong() = markerLongLat?.getOrNull(0)
+                override fun getMarkerLat()  = markerLongLat?.getOrNull(1)
+                override fun getCameraLong() = cameraLongLat[0]
+                override fun getCameraLat()  = cameraLongLat[1]
+                override fun onMarkerSet(long:Double,lat:Double) {
+                }
             })
             mapViewController
         },
