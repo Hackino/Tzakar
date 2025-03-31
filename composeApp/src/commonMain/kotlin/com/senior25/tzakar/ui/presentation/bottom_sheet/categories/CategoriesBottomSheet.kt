@@ -181,6 +181,8 @@ enum class CategoryType(val value: Int) {
             else->null
         }
     }
-
+}
+enum class TriggerType(val value: Int) {
+    TIME(0), LOCATION(1)
 }
 

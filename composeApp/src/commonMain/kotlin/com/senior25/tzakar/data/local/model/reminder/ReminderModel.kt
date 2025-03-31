@@ -2,7 +2,6 @@ package com.senior25.tzakar.data.local.model.reminder
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.senior25.tzakar.data.local.model.gender.GenderModel
 import com.senior25.tzakar.data.local.model.notification.NotificationModel
 import kotlinx.serialization.Serializable
 
@@ -21,7 +20,10 @@ data class ReminderModel(
     val shownTimestamp:Long? = 0L,
     var isCompleted:Boolean? = null,
     val dateTimeEpoch:Long? =null,
-    val sound:String? = null
+    val sound:String? = null,
+    val triggerType:Int? = null,
+    val long:String? = null,
+    val lat:String? = null
 )
 
 fun ReminderModel.toNotificationModel():NotificationModel{

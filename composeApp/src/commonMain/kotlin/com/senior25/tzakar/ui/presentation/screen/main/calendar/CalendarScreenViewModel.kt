@@ -4,6 +4,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.menu.MenuModel
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.domain.MainRepository
+import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.TriggerType
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.getSortingFilter
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import kotlinx.coroutines.Dispatchers
@@ -82,7 +83,7 @@ class CalendarViewModel(
             }
             screenModelScope.launch {
                 maiRepository.getAllReminders().collectLatest {
-                    _reminders.value = it?.onEach{
+                    _reminders.value = it?.filter { it.triggerType == TriggerType.TIME.value }?.onEach{
                         val latestDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
                         val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
                         it.date?.let { dateStr ->
@@ -127,7 +128,7 @@ class CalendarViewModel(
                 _selectedYear.value = uiEvent.year
                 _selectedMonth.value = uiEvent.month
                 _selectedDate.value = 1
-                _monthDates.value =getDaysInMonthWithWeekdays(uiEvent.year, uiEvent.month)
+                _monthDates.value = getDaysInMonthWithWeekdays(uiEvent.year, uiEvent.month)
                 requestScroll(true)
                 filterData(_reminders.value)
 

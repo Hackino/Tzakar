@@ -493,14 +493,17 @@ class HomeScreen: Screen {
             selectedTab = tabState?.value?.value ?: 0,
             tabs = listOf(
                 "Active",
-                "Completed"
+                "Completed",
+                "Locations",
             ),
             onClick = { index ->
                 if (index == 0) {
                     interaction?.onUIEvent(HomePageEvent.LoadCurrent)
                 } else if (index == 1) {
                     interaction?.onUIEvent(HomePageEvent.LoadExpired)
-                }
+                }  else if (index == 2) {
+            interaction?.onUIEvent(HomePageEvent.LoadLocations)
+        }
             }
         )
     }

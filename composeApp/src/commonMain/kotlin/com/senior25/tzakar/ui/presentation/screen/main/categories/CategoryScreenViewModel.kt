@@ -6,6 +6,8 @@ import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.helper.media.MediaPlayerHelper
 import com.senior25.tzakar.platform_specific.utils.generateUUID
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.home.HomePageEvent
+import com.senior25.tzakar.ui.presentation.screen.main.home.ReminderTabType
 import dev.gitlive.firebase.auth.AuthResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,6 +32,7 @@ class CategoryViewModel(
     val popUpState: StateFlow<CategoryPagePopUp?> get() = _popUpState.asStateFlow()
 
     var title:String? = ""
+
     var description:String? =""
 
     private val _reminderDate = MutableStateFlow<String?>(null)
@@ -44,7 +47,13 @@ class CategoryViewModel(
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> get() = _isPlaying.asStateFlow()
 
+    private val _longLat = MutableStateFlow<List<String>?>(emptyList())
+    val longLat: StateFlow<List<String>?> get() = _longLat.asStateFlow()
+
     private var player:MediaPlayerHelper? = null
+
+    private val _tabIndexState = MutableStateFlow<CategoryTabType?>(CategoryTabType.TIME)
+    val tabIndexState: StateFlow<CategoryTabType?> get() = _tabIndexState.asStateFlow()
 
     init {
         player = MediaPlayerHelper().apply {
@@ -79,6 +88,17 @@ class CategoryViewModel(
                     player?.release()
                 }
             }
+
+            CategoryPageEvent.LocationBased -> {
+                _tabIndexState.value  = CategoryTabType.LOCATION
+            }
+            CategoryPageEvent.TimeBased -> {
+                _tabIndexState.value  = CategoryTabType.TIME
+            }
+
+            is CategoryPageEvent.UpdateLongLat ->{
+                _longLat.value = uiEvent.longLat
+            }
         }
     }
 
@@ -106,7 +126,8 @@ class CategoryViewModel(
                 isEnabled = 1,
                 dateTimeEpoch =reminderInstant,
                 lastUpdateTimestamp = currentTime,
-                sound = _sound.value + ".wav"
+                sound = _sound.value + ".wav",
+                triggerType = _tabIndexState.value?.value
             )
             maiRepository.addReminder(reminder)
             onSuccess()
@@ -124,6 +145,11 @@ sealed class CategoryPageEvent {
     data class UpdateReminderTime(val time: String?) : CategoryPageEvent()
     data class UpdateReminderTone(val tone: String?) : CategoryPageEvent()
     data object UpdatePlayingStatus : CategoryPageEvent()
+
+    data object TimeBased : CategoryPageEvent()
+    data object LocationBased : CategoryPageEvent()
+    data class UpdateLongLat(val longLat:List<String>) : CategoryPageEvent()
+
 }
 
 sealed class CategoryPagePopUp{
@@ -137,4 +163,8 @@ sealed class CategoryPageUiState {
     data object ProgressLoader : CategoryPageUiState()
     data object Success : CategoryPageUiState()
     data object Error : CategoryPageUiState()
+}
+
+enum class CategoryTabType(val value:Int){
+    TIME(0),   LOCATION(1)
 }

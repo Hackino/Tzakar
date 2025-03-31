@@ -9,6 +9,7 @@ import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.helper.notification.NotificationHelper
+import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.TriggerType
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
@@ -39,56 +40,66 @@ class MainRepositoryImpl(
                 .child("reminders")
             ref.child(reminderModel.id).setValue(reminderModel)
         }
-        if (reminderModel.isEnabled == 1) {
-            val latestDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-            val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
-            reminderModel.date?.let { dateStr ->
-                val parsedDate = LocalDate.parse(dateStr)
-                if (parsedDate < latestDate){
-                    NotificationHelper.cancelNotification(listOf(reminderModel.id))
-                } else if(parsedDate == latestDate){
-                    reminderModel.time?.let { timeStr ->
-                        val parsedTime = LocalTime.parse(timeStr)
-                        if (parsedTime <= currentTime){
-                            NotificationHelper.cancelNotification(listOf(reminderModel.id))
-                        }else{
-                            NotificationHelper.showNotification(reminderModel.toNotificationModel())
-                        }
-                    }
-                }else{
-                    NotificationHelper.showNotification(reminderModel.toNotificationModel())
 
+        if (reminderModel.triggerType == TriggerType.TIME.value) {
+            if (reminderModel.isEnabled == 1) {
+                val latestDate =
+                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val currentTime =
+                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
+                reminderModel.date?.let { dateStr ->
+                    val parsedDate = LocalDate.parse(dateStr)
+                    if (parsedDate < latestDate) {
+                        NotificationHelper.cancelNotification(listOf(reminderModel.id))
+                    } else if (parsedDate == latestDate) {
+                        reminderModel.time?.let { timeStr ->
+                            val parsedTime = LocalTime.parse(timeStr)
+                            if (parsedTime <= currentTime) {
+                                NotificationHelper.cancelNotification(listOf(reminderModel.id))
+                            } else {
+                                NotificationHelper.showNotification(reminderModel.toNotificationModel())
+                            }
+                        }
+                    } else {
+                        NotificationHelper.showNotification(reminderModel.toNotificationModel())
+
+                    }
                 }
+            } else {
+                NotificationHelper.cancelNotification(listOf(reminderModel.id))
             }
-        } else {
-            NotificationHelper.cancelNotification(listOf(reminderModel.id))
         }
         reminderDao.insert(reminderModel)
     }
 
     override suspend fun updateReminder(reminderModel: ReminderModel) {
-        if (reminderModel.isEnabled == 1) {
-            val latestDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-            val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
-            reminderModel.date?.let { dateStr ->
-                val parsedDate = LocalDate.parse(dateStr)
-                if (parsedDate < latestDate){
-                    NotificationHelper.cancelNotification(listOf(reminderModel.id))
-                } else if(parsedDate == latestDate){
-                    reminderModel.time?.let { timeStr ->
-                        val parsedTime = LocalTime.parse(timeStr)
-                        if (parsedTime <= currentTime){
-                            NotificationHelper.cancelNotification(listOf(reminderModel.id))
-                        }else{
-                            NotificationHelper.showNotification(reminderModel.toNotificationModel())
+        if (reminderModel.triggerType == TriggerType.TIME.value) {
+
+            if (reminderModel.isEnabled == 1) {
+                val latestDate =
+                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val currentTime =
+                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
+                reminderModel.date?.let { dateStr ->
+                    val parsedDate = LocalDate.parse(dateStr)
+                    if (parsedDate < latestDate) {
+                        NotificationHelper.cancelNotification(listOf(reminderModel.id))
+                    } else if (parsedDate == latestDate) {
+                        reminderModel.time?.let { timeStr ->
+                            val parsedTime = LocalTime.parse(timeStr)
+                            if (parsedTime <= currentTime) {
+                                NotificationHelper.cancelNotification(listOf(reminderModel.id))
+                            } else {
+                                NotificationHelper.showNotification(reminderModel.toNotificationModel())
+                            }
                         }
+                    } else {
+                        NotificationHelper.showNotification(reminderModel.toNotificationModel())
                     }
-                }else{
-                    NotificationHelper.showNotification(reminderModel.toNotificationModel())
                 }
+            } else {
+                NotificationHelper.cancelNotification(listOf(reminderModel.id))
             }
-        } else {
-            NotificationHelper.cancelNotification(listOf(reminderModel.id))
         }
         val currentTime = LocalDateTime.now().toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
         val reminder= reminderModel.copy(lastUpdateTimestamp = currentTime)
@@ -145,29 +156,32 @@ class MainRepositoryImpl(
                     reminderDao.insert(reminder)
                 }
 
-
-                if (reminder.isEnabled == 1) {
-                    val latestDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-                    val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
-                    reminder.date?.let { dateStr ->
-                        val parsedDate = LocalDate.parse(dateStr)
-                        if (parsedDate < latestDate){
-                            NotificationHelper.cancelNotification(listOf(reminder.id))
-                        } else if(parsedDate == latestDate){
-                            reminder.time?.let { timeStr ->
-                                val parsedTime = LocalTime.parse(timeStr)
-                                if (parsedTime <= currentTime){
-                                    NotificationHelper.cancelNotification(listOf(reminder.id))
-                                }else{
-                                    NotificationHelper.showNotification(reminder.toNotificationModel())
+                if (reminder.triggerType == TriggerType.TIME.value) {
+                    if (reminder.isEnabled == 1) {
+                        val latestDate =
+                            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                        val currentTime =
+                            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
+                        reminder.date?.let { dateStr ->
+                            val parsedDate = LocalDate.parse(dateStr)
+                            if (parsedDate < latestDate) {
+                                NotificationHelper.cancelNotification(listOf(reminder.id))
+                            } else if (parsedDate == latestDate) {
+                                reminder.time?.let { timeStr ->
+                                    val parsedTime = LocalTime.parse(timeStr)
+                                    if (parsedTime <= currentTime) {
+                                        NotificationHelper.cancelNotification(listOf(reminder.id))
+                                    } else {
+                                        NotificationHelper.showNotification(reminder.toNotificationModel())
+                                    }
                                 }
+                            } else {
+                                NotificationHelper.showNotification(reminder.toNotificationModel())
                             }
-                        }else{
-                            NotificationHelper.showNotification(reminder.toNotificationModel())
                         }
+                    } else {
+                        NotificationHelper.cancelNotification(listOf(reminder.id))
                     }
-                } else {
-                    NotificationHelper.cancelNotification(listOf(reminder.id))
                 }
             }
         }

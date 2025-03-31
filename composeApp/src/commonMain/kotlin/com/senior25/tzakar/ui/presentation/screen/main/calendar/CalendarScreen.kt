@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
@@ -68,6 +69,7 @@ import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.screen.common.composable.no_data.NoDataWidget
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.category_details.CategoryDetailsScreen
+import com.senior25.tzakar.ui.presentation.screen.main.reminders_list.RemindersListScreen
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH1
 import com.senior25.tzakar.ui.theme.fontH3
@@ -139,6 +141,10 @@ class CalendarScreen: Screen {
 
             override fun updateReminderStatus(reminderModel: ReminderModel?) {
                 viewModel.onUIEvent(CalendarPageEvent.UpdateReminderStatus(reminderModel))
+            }
+
+            override fun seeAllClick() {
+                navigator.push(RemindersListScreen())
             }
 
             override fun applyCategoriesFilters(filters: List<MenuModel>,sorting:List<MenuModel>) {
@@ -226,17 +232,28 @@ class CalendarScreen: Screen {
             item {
                 Column(modifier = Modifier) {
                     Spacer(Modifier.height(16.dp))
-                    Row(modifier = Modifier
+                    Row(modifier = Modifier.fillMaxWidth()
                         .padding(horizontal = 16.dp)
-                        .clickable(enabled = true){ showDialog = true },
-                        verticalAlignment =Alignment.CenterVertically
+                   ,
+                        verticalAlignment =Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
+
                             text = selectedMonth.value?.name?.substring(0,3) +", " + selectedYear.value.toString() +" ▼"  ,
                             textAlign = TextAlign.Start,
                             color = MyColors.colorDarkBlue,
                             style = fontH3,
-                            modifier = Modifier
+                            modifier = Modifier.clickable(enabled = true){ showDialog = true }
+                        )
+
+                        Text(
+                            text = "See All"  ,
+                            textAlign = TextAlign.Start,
+                            color = MyColors.colorDarkBlue,
+                            style = fontH3.copy(textDecoration = TextDecoration.Underline),
+                            modifier = Modifier.clickable(enabled = true){ interaction.seeAllClick()}
+
                         )
                     }
                     Spacer(Modifier.height(16.dp))
@@ -352,6 +369,7 @@ class CalendarScreen: Screen {
         fun getAllSorting(): StateFlow<MutableList<MenuModel>?>
         fun getFilteredReminder(): StateFlow<List<ReminderModel>?>
         fun updateReminderStatus(reminderModel: ReminderModel?)
+        fun seeAllClick()
 
     }
 

@@ -43,7 +43,7 @@ class HomeScreenViewModel(
     private val _popUpState = MutableStateFlow<HomePagePopUp?>(HomePagePopUp.None)
     val popUpState: StateFlow<HomePagePopUp?> get() = _popUpState.asStateFlow()
 
-    private var _homePageData = MutableStateFlow<HomePageData?>(HomePageData())
+//    private var _homePageData = MutableStateFlow<HomePageData?>(HomePageData())
 
     private val _reminders = MutableStateFlow<List<ReminderModel>?>(emptyList())
     val reminders: StateFlow<List<ReminderModel>?> get() = _reminders.asStateFlow()
@@ -112,6 +112,11 @@ class HomeScreenViewModel(
             is HomePageEvent.UpdateReminderStatus -> {
                 uiEvent.reminderModel?.let { mainRepository.updateReminder(it) }
             }
+
+            HomePageEvent.LoadLocations -> {
+                _tabIndexState.value  = ReminderTabType.LOCATIONS
+                filterData(emptyList())
+            }
         }
     }
 
@@ -122,7 +127,7 @@ class HomeScreenViewModel(
 
     private fun updateState(newState: HomePageUiState) {
         if (_uiState.value != newState) {
-            _homePageData.value =newState.data
+//            _homePageData.value =newState.data
             _uiState.value = newState
         }
     }
@@ -135,6 +140,8 @@ sealed class HomePageEvent {
     data class UpdatePopUpState(val popUp: HomePagePopUp) : HomePageEvent()
     data object LoadCurrent : HomePageEvent()
     data object LoadExpired : HomePageEvent()
+    data object LoadLocations : HomePageEvent()
+
     data object Init : HomePageEvent()
     data class UpdateReminderStatus(val reminderModel: ReminderModel?): HomePageEvent()
 
@@ -154,5 +161,5 @@ sealed class HomePagePopUp{
 }
 
 enum class ReminderTabType(val value:Int){
-    CURRENT(0),   COMPLETED(1),
+    CURRENT(0),   COMPLETED(1), LOCATIONS(2),
 }

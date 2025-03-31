@@ -2,10 +2,14 @@ package com.senior25.tzakar.ui.presentation.screen.main.categories
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,8 +18,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.RadioButton
+import androidx.compose.material.RadioButtonDefaults
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,7 +31,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -48,6 +57,7 @@ import com.senior25.tzakar.ui.presentation.dialog.reminder_set.ShowReminderAdded
 import com.senior25.tzakar.ui.presentation.dialog.reminder_set.ShowSelectValidDate
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.theme.MyColors
+import com.senior25.tzakar.ui.theme.fontParagraphM
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -92,6 +102,12 @@ data class CategoryScreen(val type:CategoryType = CategoryType.UNKNOWN): Screen 
             override fun getTone(): StateFlow<String?>  = screenModel.sound
             override fun onBackPress() { navigator.pop() }
             override fun isPlaying():StateFlow<Boolean?>  = screenModel.isPlaying
+            override fun getTabIndexState(): StateFlow<CategoryTabType?> = screenModel.tabIndexState
+            override fun openMap(list: List<String>?) {
+                // open map  and update longLat
+            }
+
+            override fun getLongLat(): StateFlow<List<String>?> =  screenModel.longLat
         }
 
         Scaffold(
@@ -143,12 +159,15 @@ private fun CategoryPageScreen(paddingValues: PaddingValues,interaction: Categor
 
 @Composable
 private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?){
+    val tabState = interaction?.getTabIndexState()?.collectAsState()
 
     var isValidUsername by remember { mutableStateOf(false) }
 
     var isValidReminderData by remember { mutableStateOf(false) }
 
     var isValidReminderTime by remember { mutableStateOf(false) }
+
+    var isValidLocation  by remember { mutableStateOf(false) }
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -162,12 +181,13 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
     val tone = interaction?.getTone()?.collectAsState()
     val isPlaying = interaction?.isPlaying()?.collectAsState()
 
+    val getLongLat = interaction?.getLongLat()?.collectAsState()
+
     Column(
         modifier = Modifier.weight(1f),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-
         normalTextField(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             label = stringResource(Res.string.title),
@@ -202,39 +222,64 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        DateField(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            label = stringResource(Res.string.reminder_data),
-            placeHolder = stringResource(Res.string.select_date),
-            value = reminderDate?.value,
-            validate = true,
-            onValueChange = { interaction?.onUIEvent(CategoryPageEvent.UpdateReminderDate(it)) },
-            isInputValid = {
-                println("valid time $isValidReminderTime and valid date $isValidReminderData")
-                isValidReminderData = it
-                isValidReminderTime = it && isValidReminderTime
-            },
-        )
+
+        DrawTabs(interaction)
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        TimeField(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            label = stringResource(Res.string.reminder_time),
-            placeHolder = stringResource(Res.string.select_time),
-            value = reminderTime?.value,
-            selectedDate =reminderDate?.value,
-            onValueChange = { interaction?.onUIEvent(CategoryPageEvent.UpdateReminderTime(it)) },
-            isInputValid = { isValidReminderTime = it },
-            validate = true,
-            validateDateBefore = {
-                if (!isValidReminderData){
-                    interaction?.onUIEvent(CategoryPageEvent.UpdatePopUpState(CategoryPagePopUp.SelectAValidDateBefore))
-                    false
-                }else{
-                    true
+        if (tabState?.value == CategoryTabType.TIME){
+
+
+            DateField(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                label = stringResource(Res.string.reminder_data),
+                placeHolder = stringResource(Res.string.select_date),
+                value = reminderDate?.value,
+                validate = true,
+                onValueChange = { interaction.onUIEvent(CategoryPageEvent.UpdateReminderDate(it)) },
+                isInputValid = {
+                    println("valid time $isValidReminderTime and valid date $isValidReminderData")
+                    isValidReminderData = it
+                    isValidReminderTime = it && isValidReminderTime
+                },
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TimeField(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                label = stringResource(Res.string.reminder_time),
+                placeHolder = stringResource(Res.string.select_time),
+                value = reminderTime?.value,
+                selectedDate =reminderDate?.value,
+                onValueChange = { interaction?.onUIEvent(CategoryPageEvent.UpdateReminderTime(it)) },
+                isInputValid = { isValidReminderTime = it },
+                validate = true,
+                validateDateBefore = {
+                    if (!isValidReminderData){
+                        interaction?.onUIEvent(CategoryPageEvent.UpdatePopUpState(CategoryPagePopUp.SelectAValidDateBefore))
+                        false
+                    }else{
+                        true
+                    }
                 }
+            )
+        }else if (tabState?.value == CategoryTabType.LOCATION){
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                    .height(150.dp)
+                    .border(
+                        width =  2.dp ,
+                        color = Color.Black ,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable {
+                        interaction.openMap(getLongLat?.value)
+                    }
+            ) {
             }
-        )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -264,12 +309,104 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         println("for button ${isValidUsername}  ${isValidReminderData}   ${isValidReminderTime} ")
+        val isValid = if (tabState?.value == CategoryTabType.TIME){
+            isValidUsername && isValidReminderData && isValidReminderTime
+        }else{
+            isValidUsername && isValidLocation
+        }
         CustomButton(
-            isEnabled = isValidUsername && isValidReminderData && isValidReminderTime   ,
+            isEnabled = isValid,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             onClick = { interaction?.onUIEvent(CategoryPageEvent.UpdatePopUpState(CategoryPagePopUp.SaveChanges)) },
             text = stringResource(Res.string.set_reminder)
         )
+    }
+}
+
+@Composable
+private fun DrawTabs(
+    interaction: CategoryPageInteraction?,
+) {
+    val tabState = interaction?.getTabIndexState()?.collectAsState()
+    TabsRow(
+        selectedTab = tabState?.value?.value ?: 0,
+        tabs = listOf(
+            "DateTime",
+            "Location",
+        ),
+        onClick = { index ->
+            if (index == 0) {
+                interaction?.onUIEvent(CategoryPageEvent.TimeBased)
+            } else if (index == 1) {
+                interaction?.onUIEvent(CategoryPageEvent.LocationBased)
+            }
+        }
+    )
+}
+
+@Composable
+fun TabsRow(
+    selectedTab:Int?=0,
+    tabs:List<String>,
+    onClick: (index : Int) -> Unit
+) {
+    val newTabSelected = remember { mutableStateOf(selectedTab) }
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(end = 32.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        tabs.forEachIndexed { index, title ->
+
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable {
+                    newTabSelected.value = index
+                    onClick(index)
+                }
+            ) {
+                RadioButton(
+                    selected = index == selectedTab,
+                    onClick = {
+                        newTabSelected.value = index
+                        onClick(index)
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = Color.Black,
+                        unselectedColor = Color.Gray
+                    )
+                )
+
+                Text(
+                    text = title,
+                    style = fontParagraphM,
+                    color = Color.Black,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+//
+//
+//            Box(
+//                modifier = Modifier
+//                    .border(
+//                        width = if (index == selectedTab) 2.dp else 0.dp,
+//                        color = if (index == selectedTab) Color.Black else Color.Transparent,
+//                        shape = RoundedCornerShape(12.dp)
+//                    )
+//                    .clip(RoundedCornerShape(12.dp))
+//                    .clickable {
+//                        newTabSelected.value = index
+//                        onClick(index)
+//                    }
+//            ) {
+//                Text(
+//                    text = title,
+//                    style = fontParagraphM,
+//                    color =  Color.Black ,
+//                    modifier = Modifier  .padding(horizontal = 16.dp, vertical = 8.dp)
+//                )
+//            }
+        }
     }
 }
 
@@ -284,4 +421,8 @@ interface CategoryPageInteraction: BackPressInteraction {
     fun getReminderTime(): StateFlow<String?>
     fun getTone(): StateFlow<String?>
     fun isPlaying():StateFlow<Boolean?>
+    fun getTabIndexState(): StateFlow<CategoryTabType?>
+    fun openMap(list:List<String>?)
+    fun getLongLat():StateFlow<List<String>?>
+
 }
