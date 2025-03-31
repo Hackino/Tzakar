@@ -12,7 +12,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 
 @Composable
-actual  fun MapView(modifier: Modifier ,cameraLongLat:List<Double>,markerLongLat:List<Double>?,onMarkerSet:(Double,Double)->Unit)  {
+actual  fun MapView(modifier: Modifier ,cameraLongLat:List<Double>,markerLongLat:List<Double>?,  showControls:Boolean ,onMarkerSet:(Double,Double)->Unit)  {
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {

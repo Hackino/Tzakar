@@ -6,4 +6,6 @@ interface MapInteraction {
     fun onMarkerSet(long:Double,lat:Double)
     fun getCameraLong():Double
     fun getCameraLat():Double
+    fun showControl():Boolean
+
 }

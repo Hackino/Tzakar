@@ -9,7 +9,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
-actual fun MapView(modifier: Modifier ,cameraLongLat:List<Double>,markerLongLat:List<Double>?,onMarkerSet:(Double,Double)->Unit) {
+actual fun MapView(modifier: Modifier ,cameraLongLat:List<Double>,markerLongLat:List<Double>?,  showControls:Boolean ,onMarkerSet:(Double,Double)->Unit) {
     val factory = LocalNativeViewFactory.current
     UIKitViewController(
         factory = {
@@ -18,8 +18,8 @@ actual fun MapView(modifier: Modifier ,cameraLongLat:List<Double>,markerLongLat:
                 override fun getMarkerLat()  = markerLongLat?.getOrNull(1)
                 override fun getCameraLong() = cameraLongLat[0]
                 override fun getCameraLat()  = cameraLongLat[1]
-                override fun onMarkerSet(long:Double,lat:Double) {
-                }
+                override fun onMarkerSet(long:Double,lat:Double) {}
+                override fun showControl(): Boolean  = showControls
             })
             mapViewController
         },

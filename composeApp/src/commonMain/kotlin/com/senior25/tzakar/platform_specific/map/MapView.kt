@@ -4,4 +4,4 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-expect fun MapView(modifier: Modifier ,cameraLongLat:List<Double>,markerLongLat:List<Double>?,onMarkerSet:(Double,Double)->Unit)
+expect fun MapView(modifier: Modifier ,cameraLongLat:List<Double>,markerLongLat:List<Double>?,  showControls:Boolean ,onMarkerSet:(Double,Double)->Unit)

@@ -52,6 +52,7 @@ private fun FullScreenMap(interaction: FullScreenMapInteraction?) {
                 modifier = Modifier.fillMaxWidth().height(150.dp),
                 cameraLongLat =interaction?.getLongLat()?.ifEmpty { null }?: listOf(35.5018,33.8938),
                 markerLongLat = interaction?.getLongLat()?.ifEmpty { null },
+                showControls = true,
                 onMarkerSet = {_,_-> }
             )
             CustomButton(

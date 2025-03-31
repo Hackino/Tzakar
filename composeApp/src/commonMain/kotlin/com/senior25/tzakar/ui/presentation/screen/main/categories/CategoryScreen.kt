@@ -275,6 +275,7 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
                     modifier = Modifier.fillMaxWidth().height(150.dp),
                     cameraLongLat = getLongLat?.value?.ifEmpty { null }?:listOf(35.5018,33.8938),
                     markerLongLat = getLongLat?.value?.ifEmpty { null },
+                    showControls = false,
                     onMarkerSet = {_,_-> }
                 )
             }

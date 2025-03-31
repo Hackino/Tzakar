@@ -18,7 +18,7 @@ public class GoogleMapViewController: UIViewController,GMSMapViewDelegate {
     private var mapView: GMSMapView!
     
     var interaction: MapInteraction!
-
+    
     init(action: MapInteraction) {
         self.interaction = action
         super.init(nibName: nil, bundle: nil)
@@ -47,14 +47,16 @@ public class GoogleMapViewController: UIViewController,GMSMapViewDelegate {
             mapView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         mapView.settings.setAllGesturesEnabled(false)
-mapView.delegate = self
-
-               // Enable user interaction
-                mapView.isUserInteractionEnabled = true
-mapView.settings.scrollGestures = true   // Enable scrolling
-// mapView.settings.zoomGestures = true
-
-addZoomControls()
+        mapView.delegate = self
+        
+        // Enable user interaction
+        mapView.isUserInteractionEnabled = interaction.showControl() == true
+        mapView.settings.scrollGestures = interaction.showControl() == true   // Enable scrolling
+        // mapView.settings.zoomGestures = true
+        
+        if(interaction.showControl() == true){
+            addZoomControls()
+        }
         if let latitude = interaction.getMarkerLat() as? Double,
            let longitude = interaction.getMarkerLong() as? Double,
            latitude != 0.0, longitude != 0.0 {
@@ -62,13 +64,15 @@ addZoomControls()
             marker.position = CLLocationCoordinate2D( latitude: CLLocationDegrees(latitude), longitude:CLLocationDegrees(longitude) )
             marker.map = mapView
         }
-   
         
-
+        
+        
     }
     // Handle the tap gesture
-          @objc public func mapView(_ mapView: GMSMapView, didTapAt coordinate: CLLocationCoordinate2D) {
-          mapView.clear()
+    @objc public func mapView(_ mapView: GMSMapView, didTapAt coordinate: CLLocationCoordinate2D) {
+        if(interaction.showControl() == true){
+            
+            mapView.clear()
             let marker = GMSMarker()
             marker.position = coordinate
             marker.map = mapView
@@ -76,55 +80,56 @@ addZoomControls()
             let camera = GMSCameraPosition.camera(withLatitude: coordinate.latitude, longitude: coordinate.longitude, zoom: currentZoom)
             mapView.animate(to: camera)
         }
-
-       private func addZoomControls() {
-           let buttonSize: CGFloat = 50
-    let offset: CGFloat = 20 // Adjust this value to control how far up the zoom controls are pushed
-
-           // Zoom In Button
-           let zoomInButton = UIButton()
-           zoomInButton.setTitle("+", for: .normal)
-           zoomInButton.backgroundColor = .white
-           zoomInButton.setTitleColor(.black, for: .normal)
-           zoomInButton.layer.cornerRadius = buttonSize / 2
-           zoomInButton.addTarget(self, action: #selector(zoomIn), for: .touchUpInside)
-
-           // Zoom Out Button
-           let zoomOutButton = UIButton()
-           zoomOutButton.setTitle("-", for: .normal)
-           zoomOutButton.backgroundColor = .white
-           zoomOutButton.setTitleColor(.black, for: .normal)
-           zoomOutButton.layer.cornerRadius = buttonSize / 2
-           zoomOutButton.addTarget(self, action: #selector(zoomOut), for: .touchUpInside)
-
-           // Add buttons to the view
-           view.addSubview(zoomInButton)
-           view.addSubview(zoomOutButton)
-
-           // Set Auto Layout constraints
-           zoomInButton.translatesAutoresizingMaskIntoConstraints = false
-           zoomOutButton.translatesAutoresizingMaskIntoConstraints = false
-
-           NSLayoutConstraint.activate([
-               zoomInButton.widthAnchor.constraint(equalToConstant: buttonSize),
-               zoomInButton.heightAnchor.constraint(equalToConstant: buttonSize),
-               zoomInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-               zoomInButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -160),
-
-               zoomOutButton.widthAnchor.constraint(equalToConstant: buttonSize),
-               zoomOutButton.heightAnchor.constraint(equalToConstant: buttonSize),
-               zoomOutButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-               zoomOutButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100)
-           ])
-       }
-
-       @objc private func zoomIn() {
-           let zoom = mapView.camera.zoom + 1
-           mapView.animate(toZoom: zoom)
-       }
-
-       @objc private func zoomOut() {
-           let zoom = mapView.camera.zoom - 1
-           mapView.animate(toZoom: zoom)
-       }
+    }
+    
+    private func addZoomControls() {
+        let buttonSize: CGFloat = 50
+        let offset: CGFloat = 20 // Adjust this value to control how far up the zoom controls are pushed
+        
+        // Zoom In Button
+        let zoomInButton = UIButton()
+        zoomInButton.setTitle("+", for: .normal)
+        zoomInButton.backgroundColor = .white
+        zoomInButton.setTitleColor(.black, for: .normal)
+        zoomInButton.layer.cornerRadius = buttonSize / 2
+        zoomInButton.addTarget(self, action: #selector(zoomIn), for: .touchUpInside)
+        
+        // Zoom Out Button
+        let zoomOutButton = UIButton()
+        zoomOutButton.setTitle("-", for: .normal)
+        zoomOutButton.backgroundColor = .white
+        zoomOutButton.setTitleColor(.black, for: .normal)
+        zoomOutButton.layer.cornerRadius = buttonSize / 2
+        zoomOutButton.addTarget(self, action: #selector(zoomOut), for: .touchUpInside)
+        
+        // Add buttons to the view
+        view.addSubview(zoomInButton)
+        view.addSubview(zoomOutButton)
+        
+        // Set Auto Layout constraints
+        zoomInButton.translatesAutoresizingMaskIntoConstraints = false
+        zoomOutButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            zoomInButton.widthAnchor.constraint(equalToConstant: buttonSize),
+            zoomInButton.heightAnchor.constraint(equalToConstant: buttonSize),
+            zoomInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            zoomInButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -160),
+            
+            zoomOutButton.widthAnchor.constraint(equalToConstant: buttonSize),
+            zoomOutButton.heightAnchor.constraint(equalToConstant: buttonSize),
+            zoomOutButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            zoomOutButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100)
+        ])
+    }
+    
+    @objc private func zoomIn() {
+        let zoom = mapView.camera.zoom + 1
+        mapView.animate(toZoom: zoom)
+    }
+    
+    @objc private func zoomOut() {
+        let zoom = mapView.camera.zoom - 1
+        mapView.animate(toZoom: zoom)
+    }
 }
