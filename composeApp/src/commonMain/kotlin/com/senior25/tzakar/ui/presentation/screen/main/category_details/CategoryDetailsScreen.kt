@@ -164,8 +164,9 @@ private fun CategoryPageScreen(paddingValues: PaddingValues,interaction: Categor
                             .clip(RoundedCornerShape(12.dp))
                             .clickable {}
                     ) {
-                        val location = listOfNotNull(reminderTime.value?.long, reminderTime.value?.lat)
+                        val location = listOfNotNull(reminderTime.value?.long, reminderTime.value?.lat).filter { it != 0.0 }
                             .ifEmpty { null }?: emptyList()
+
                         MapView(
                             modifier = Modifier.fillMaxWidth().height(150.dp),
                             cameraLongLat = location,

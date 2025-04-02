@@ -533,7 +533,9 @@ fun ReminderItem(
                 .height(150.dp)
                 .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(12.dp))
                 .clip(RoundedCornerShape(12.dp))
-                .clickable {}
+                .clickable {
+                    onClick.invoke(reminderModel)
+                }
         ) {
             val location = listOfNotNull(reminderModel.long, reminderModel.lat)
                 .ifEmpty { null }?: emptyList()

@@ -93,7 +93,7 @@ class RemindersListScreen: Screen {
 
         Scaffold(
             backgroundColor = MyColors.colorOffWhite,
-            topBar = { MyTopAppBar("ALL Reminders" , showBack = true,interaction= interaction) },
+            topBar = { MyTopAppBar("Scheduled Reminders" , showBack = true,interaction= interaction) },
             content = { RemindersListScreen(interaction) }
         )
     }
