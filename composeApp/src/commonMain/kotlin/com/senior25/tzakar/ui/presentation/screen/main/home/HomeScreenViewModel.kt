@@ -4,6 +4,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.categories.CategoryTabType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
@@ -43,7 +44,6 @@ class HomeScreenViewModel(
     private val _popUpState = MutableStateFlow<HomePagePopUp?>(HomePagePopUp.None)
     val popUpState: StateFlow<HomePagePopUp?> get() = _popUpState.asStateFlow()
 
-//    private var _homePageData = MutableStateFlow<HomePageData?>(HomePageData())
 
     private val _reminders = MutableStateFlow<List<ReminderModel>?>(emptyList())
     val reminders: StateFlow<List<ReminderModel>?> get() = _reminders.asStateFlow()
@@ -67,7 +67,7 @@ class HomeScreenViewModel(
 
     fun reminder(reminders:List<ReminderModel>?){
         val todayDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-        val allReminders = reminders?.onEach{
+        val allReminders = reminders?.filter { it.triggerType == CategoryTabType.TIME.value }?.onEach{
             val latestDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
             val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
             it.date?.let { dateStr ->
@@ -82,9 +82,12 @@ class HomeScreenViewModel(
             }
         }?.toList()
 
+        _locationReminder.value = reminders?.filter { it.triggerType ==   CategoryTabType.LOCATION.value }
+
         _totalReminderCount.value = allReminders?.size?:0
         _totalCompleteReminderCount.value =allReminders?.filter { it.isCompleted == true }?.size?:0
-        _reminders.value = allReminders?.filter {   it.date?.let { LocalDate.parse(it) == todayDate }?:false }
+
+        _reminders.value = allReminders?.filter { it.date?.let { LocalDate.parse(it) == todayDate }?:false }
         _todayReminderCount.value = _reminders.value?.size?:0
         _todayCompletedReminderCount.value =_reminders.value?.filter { it.isCompleted == true }?.size?:0
     }
@@ -119,7 +122,6 @@ class HomeScreenViewModel(
 
             HomePageEvent.LoadLocations -> {
                 _tabIndexState.value  = ReminderTabType.LOCATIONS
-                filterData(emptyList())
             }
         }
     }
@@ -131,7 +133,6 @@ class HomeScreenViewModel(
 
     private fun updateState(newState: HomePageUiState) {
         if (_uiState.value != newState) {
-//            _homePageData.value =newState.data
             _uiState.value = newState
         }
     }
@@ -145,11 +146,8 @@ sealed class HomePageEvent {
     data object LoadCurrent : HomePageEvent()
     data object LoadExpired : HomePageEvent()
     data object LoadLocations : HomePageEvent()
-
     data object Init : HomePageEvent()
     data class UpdateReminderStatus(val reminderModel: ReminderModel?): HomePageEvent()
-
-
 }
 
 sealed class HomePageUiState(open val data: HomePageData?) {

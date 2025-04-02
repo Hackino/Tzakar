@@ -79,26 +79,13 @@ class CategoryViewModel(
             }
             CategoryPageEvent.UpdatePlayingStatus ->{
                 _isPlaying.value = !_isPlaying.value
-                if (_isPlaying.value){
-                    _sound.value?.let {
-                        player?.init(it)
-                        player?.play()
-                    }
-                }else{
-                    player?.release()
-                }
+                if (_isPlaying.value) _sound.value?.let { player?.init(it);player?.play() }
+                else player?.release()
             }
 
-            CategoryPageEvent.LocationBased -> {
-                _tabIndexState.value  = CategoryTabType.LOCATION
-            }
-            CategoryPageEvent.TimeBased -> {
-                _tabIndexState.value  = CategoryTabType.TIME
-            }
-
-            is CategoryPageEvent.UpdateLongLat ->{
-                _longLat.value = uiEvent.longLat
-            }
+            CategoryPageEvent.LocationBased ->  _tabIndexState.value  = CategoryTabType.LOCATION
+            CategoryPageEvent.TimeBased ->  _tabIndexState.value  = CategoryTabType.TIME
+            is CategoryPageEvent.UpdateLongLat -> _longLat.value = uiEvent.longLat
         }
     }
 
@@ -109,11 +96,19 @@ class CategoryViewModel(
 
     fun setCategory(type:Int? = null,onSuccess:()->Unit) {
         screenModelScope.launch {
+
             _uiState.value = CategoryPageUiState.ProgressLoader
-            val parsedDate = _reminderDate.value?.let { LocalDate.parse(it) }
-            val parsedTime = _reminderTime.value?.let { LocalTime.parse(it) }
-            val reminderDateTime = LocalDateTime(parsedDate!!, parsedTime!!)
-            val reminderInstant = reminderDateTime.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+
+            val reminderInstant =  try {
+
+                val parsedDate = _reminderDate.value?.let { LocalDate.parse(it) }
+                val parsedTime = _reminderTime.value?.let { LocalTime.parse(it) }
+                val reminderDateTime = LocalDateTime(parsedDate!!, parsedTime!!)
+               reminderDateTime.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+
+            }catch (e:Exception){
+                null
+            }
             val currentTime = LocalDateTime.now().toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
 
             val reminder = ReminderModel(
@@ -124,11 +119,16 @@ class CategoryViewModel(
                 date = _reminderDate.value,
                 time = _reminderTime.value,
                 isEnabled = 1,
+                long = _longLat.value?.getOrNull(0),
+                lat =  _longLat.value?.getOrNull(1),
                 dateTimeEpoch =reminderInstant,
                 lastUpdateTimestamp = currentTime,
                 sound = _sound.value + ".wav",
                 triggerType = _tabIndexState.value?.value
-            )
+            ).let {
+                if (it.triggerType == CategoryTabType.TIME.value) it.copy(long =  null, lat =  null)
+                else it.copy(time = null, date = null, dateTimeEpoch = null)
+            }
             maiRepository.addReminder(reminder)
             onSuccess()
         }
@@ -145,11 +145,9 @@ sealed class CategoryPageEvent {
     data class UpdateReminderTime(val time: String?) : CategoryPageEvent()
     data class UpdateReminderTone(val tone: String?) : CategoryPageEvent()
     data object UpdatePlayingStatus : CategoryPageEvent()
-
     data object TimeBased : CategoryPageEvent()
     data object LocationBased : CategoryPageEvent()
     data class UpdateLongLat(val longLat:List<Double>) : CategoryPageEvent()
-
 }
 
 sealed class CategoryPagePopUp{

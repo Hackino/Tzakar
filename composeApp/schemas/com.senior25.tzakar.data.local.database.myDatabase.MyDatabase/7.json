@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "1d4484cc7a833338a3ce9f74503b49ff",
+    "identityHash": "03fef0d7745d9b973b4d29980c0e6727",
     "entities": [
       {
         "tableName": "reminder_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `type` INTEGER, `title` TEXT, `description` TEXT, `date` TEXT, `time` TEXT, `isEnabled` INTEGER, `lastUpdateTimestamp` INTEGER, `shownTimestamp` INTEGER, `isCompleted` INTEGER, `dateTimeEpoch` INTEGER, `sound` TEXT, `triggerType` INTEGER, `long` TEXT, `lat` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `type` INTEGER, `title` TEXT, `description` TEXT, `date` TEXT, `time` TEXT, `isEnabled` INTEGER, `lastUpdateTimestamp` INTEGER, `shownTimestamp` INTEGER, `isCompleted` INTEGER, `dateTimeEpoch` INTEGER, `sound` TEXT, `triggerType` INTEGER, `long` REAL, `lat` REAL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -77,12 +77,12 @@
           {
             "fieldPath": "long",
             "columnName": "long",
-            "affinity": "TEXT"
+            "affinity": "REAL"
           },
           {
             "fieldPath": "lat",
             "columnName": "lat",
-            "affinity": "TEXT"
+            "affinity": "REAL"
           }
         ],
         "primaryKey": {
@@ -178,7 +178,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1d4484cc7a833338a3ce9f74503b49ff')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '03fef0d7745d9b973b4d29980c0e6727')"
     ]
   }
 }

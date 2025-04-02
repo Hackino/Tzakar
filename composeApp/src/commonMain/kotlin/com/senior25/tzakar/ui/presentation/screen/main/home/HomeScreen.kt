@@ -265,8 +265,8 @@ class HomeScreen: Screen {
                         }
                     }else {
 
-                        reminders.value?.ifEmpty { null }?.let {
-                            itemsIndexed(it) { _, item ->
+                        reminders.value?.ifEmpty { null }?.forEach {item->
+                            item(key = item.id) {
                                 ReminderItem(
                                     modifier = Modifier.padding(horizontal = 16.dp),
                                     reminderModel = item,

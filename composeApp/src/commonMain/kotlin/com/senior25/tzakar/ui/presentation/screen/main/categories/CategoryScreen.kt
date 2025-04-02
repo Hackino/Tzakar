@@ -24,6 +24,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +57,7 @@ import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.dialog.reminder_set.ShowAddReminderConfirmation
 import com.senior25.tzakar.ui.presentation.dialog.reminder_set.ShowReminderAddedSuccessDialog
 import com.senior25.tzakar.ui.presentation.dialog.reminder_set.ShowSelectValidDate
+import com.senior25.tzakar.ui.presentation.screen.main._page.MainPageEvent
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.full_screen_map.FullScreenMap
 import com.senior25.tzakar.ui.theme.MyColors
@@ -89,6 +91,15 @@ data class CategoryScreen(val type:CategoryType = CategoryType.UNKNOWN): Screen 
 
         val screenModel = koinScreenModel<CategoryViewModel>()
 
+        val fullScreenMapLongLat =  mainViewModel.longLat?.collectAsState()
+
+        LaunchedEffect(key1 =fullScreenMapLongLat?.value ){
+            fullScreenMapLongLat?.value?.ifEmpty { null }?.let {
+                screenModel.onUIEvent(CategoryPageEvent.UpdateLongLat(it))
+                mainViewModel.onUIEvent(MainPageEvent.UpdateLongLat(emptyList()))
+            }
+        }
+
         val interaction = object :CategoryPageInteraction{
             override fun onContinueClick() {
                 screenModel.setCategory(type.value) {
@@ -108,7 +119,6 @@ data class CategoryScreen(val type:CategoryType = CategoryType.UNKNOWN): Screen 
             override fun openMap(list: List<Double>?) {
                navigator.push(FullScreenMap(list))
             }
-
             override fun getLongLat(): StateFlow<List<Double>?> =  screenModel.longLat
         }
 
@@ -147,15 +157,15 @@ private fun CategoryPageScreen(paddingValues: PaddingValues,interaction: Categor
     if (popUpState?.value is CategoryPagePopUp.SaveChanges){
         ShowAddReminderConfirmation(
             onConfirm = { interaction.onContinueClick() },
-            onDismiss = { interaction?.onUIEvent(CategoryPageEvent.UpdatePopUpState(CategoryPagePopUp.None)) }
+            onDismiss = { interaction.onUIEvent(CategoryPageEvent.UpdatePopUpState(CategoryPagePopUp.None)) }
         )
     }
 
     if (popUpState?.value is CategoryPagePopUp.SaveChangesSuccess) {
-        ShowReminderAddedSuccessDialog(onDismiss = { interaction?.onBackPress() })
+        ShowReminderAddedSuccessDialog(onDismiss = { interaction.onBackPress() })
     }
     if (popUpState?.value is CategoryPagePopUp.SelectAValidDateBefore) {
-        ShowSelectValidDate(onDismiss = {interaction?.onUIEvent(CategoryPageEvent.UpdatePopUpState(CategoryPagePopUp.None)) })
+        ShowSelectValidDate(onDismiss = {interaction.onUIEvent(CategoryPageEvent.UpdatePopUpState(CategoryPagePopUp.None)) })
     }
 }
 
@@ -180,7 +190,9 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
     val reminderTime = interaction?.getReminderTime()?.collectAsState()
 
     val reminderDate = interaction?.getReminderDate()?.collectAsState()
+
     val tone = interaction?.getTone()?.collectAsState()
+
     val isPlaying = interaction?.isPlaying()?.collectAsState()
 
     val getLongLat = interaction?.getLongLat()?.collectAsState()
@@ -256,7 +268,7 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
                 validate = true,
                 validateDateBefore = {
                     if (!isValidReminderData){
-                        interaction?.onUIEvent(CategoryPageEvent.UpdatePopUpState(CategoryPagePopUp.SelectAValidDateBefore))
+                        interaction.onUIEvent(CategoryPageEvent.UpdatePopUpState(CategoryPagePopUp.SelectAValidDateBefore))
                         false
                     }else{
                         true
@@ -269,7 +281,11 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
                     .height(150.dp)
                     .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(12.dp))
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { interaction.openMap(getLongLat?.value) }
+                    .clickable {
+                        //
+                        println("sending coordinates ${getLongLat?.value}")
+                        interaction.openMap(getLongLat?.value)
+                    }
             ) {
                 MapView(
                     modifier = Modifier.fillMaxWidth().height(150.dp),
@@ -308,11 +324,10 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        println("for button ${isValidUsername}  ${isValidReminderData}   ${isValidReminderTime} ")
         val isValid = if (tabState?.value == CategoryTabType.TIME){
             isValidUsername && isValidReminderData && isValidReminderTime
         }else{
-            isValidUsername && isValidLocation
+            isValidUsername && getLongLat?.value?.ifEmpty { null } != null
         }
         CustomButton(
             isEnabled = isValid,

@@ -10,7 +10,13 @@ class IOSNativeViewFactory: NativeViewFactory {
     func createGoogleMap(interaction: MapInteraction) ->UIViewController{
         return GoogleMapViewController(action: interaction)
     }
+
     
+    func updateGoogleMapMarker(view:UIViewController,latitude: Double, longitude: Double){
+        if let googleMapViewController = view as? GoogleMapViewController {
+            googleMapViewController.updateMarker(latitude: latitude, longitude: longitude)
+        }
+    }
 }
 
 public class GoogleMapViewController: UIViewController,GMSMapViewDelegate {
@@ -55,7 +61,7 @@ public class GoogleMapViewController: UIViewController,GMSMapViewDelegate {
         // mapView.settings.zoomGestures = true
         
         if(interaction.showControl() == true){
-            addZoomControls()
+          addZoomControls()
         }
         if let latitude = interaction.getMarkerLat() as? Double,
            let longitude = interaction.getMarkerLong() as? Double,
@@ -64,14 +70,14 @@ public class GoogleMapViewController: UIViewController,GMSMapViewDelegate {
             marker.position = CLLocationCoordinate2D( latitude: CLLocationDegrees(latitude), longitude:CLLocationDegrees(longitude) )
             marker.map = mapView
         }
-        
-        
-        
+
     }
+
+
+
     // Handle the tap gesture
     @objc public func mapView(_ mapView: GMSMapView, didTapAt coordinate: CLLocationCoordinate2D) {
         if(interaction.showControl() == true){
-            
             mapView.clear()
             let marker = GMSMarker()
             marker.position = coordinate
@@ -79,8 +85,25 @@ public class GoogleMapViewController: UIViewController,GMSMapViewDelegate {
             let currentZoom = mapView.camera.zoom
             let camera = GMSCameraPosition.camera(withLatitude: coordinate.latitude, longitude: coordinate.longitude, zoom: currentZoom)
             mapView.animate(to: camera)
+            interaction.onMarkerSet(long:coordinate.longitude ,lat: coordinate.latitude)
         }
     }
+    
+        
+        @objc public func updateMarker(latitude: Double, longitude: Double) {
+                mapView.clear()
+                if latitude != 0.0, longitude != 0.0 {
+                    let marker = GMSMarker()
+                    marker.position = CLLocationCoordinate2D( latitude: CLLocationDegrees(latitude), longitude:CLLocationDegrees(longitude) )
+                    marker.map = mapView
+                    let currentZoom = mapView.camera.zoom
+                    let camera = GMSCameraPosition.camera(withLatitude: latitude, longitude: longitude, zoom: currentZoom)
+                    mapView.animate(to: camera)
+                }
+            
+        }
+    
+    
     
     private func addZoomControls() {
         let buttonSize: CGFloat = 50

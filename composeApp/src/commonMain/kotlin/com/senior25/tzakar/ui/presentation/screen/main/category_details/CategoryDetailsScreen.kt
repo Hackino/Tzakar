@@ -2,7 +2,10 @@ package com.senior25.tzakar.ui.presentation.screen.main.category_details
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -20,32 +23,29 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
-import com.senior25.tzakar.data.local.model.reminder.RingTones
 import com.senior25.tzakar.ktx.ifEmpty
 import com.senior25.tzakar.ktx.koinScreenModel
+import com.senior25.tzakar.platform_specific.map.MapView
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType.Companion.categoryRes
 import com.senior25.tzakar.ui.presentation.components.fields.DateField
-import com.senior25.tzakar.ui.presentation.components.fields.DropDownField
 import com.senior25.tzakar.ui.presentation.components.fields.TimeField
 import com.senior25.tzakar.ui.presentation.components.fields.normalTextField
 import com.senior25.tzakar.ui.presentation.components.toolbar.BackPressInteraction
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
-import com.senior25.tzakar.ui.presentation.screen.main.categories.CategoryPageEvent
+import com.senior25.tzakar.ui.presentation.screen.main.categories.CategoryTabType
 import com.senior25.tzakar.ui.theme.MyColors
 import kotlinx.coroutines.flow.StateFlow
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.description
-import tzakar_reminder.composeapp.generated.resources.ic_arrow_down
-import tzakar_reminder.composeapp.generated.resources.ic_tone
-import tzakar_reminder.composeapp.generated.resources.please_specify_your_gender
 import tzakar_reminder.composeapp.generated.resources.reminder_data
 import tzakar_reminder.composeapp.generated.resources.reminder_time
 import tzakar_reminder.composeapp.generated.resources.title
@@ -132,26 +132,49 @@ private fun CategoryPageScreen(paddingValues: PaddingValues,interaction: Categor
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-                DateField(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    label = stringResource(Res.string.reminder_data),
-                    placeHolder ="",
-                    isMandatory = false,
-                    value = reminderTime?.value?.date?:"",
-                    validate = true,
-                    enabled = false
-                )
 
-                Spacer(modifier = Modifier.height(16.dp))
-                TimeField(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    label = stringResource(Res.string.reminder_time),
-                    placeHolder ="",
-                    isMandatory = false,
-                    value = reminderTime?.value?.time?:"",
-                    validate = true,
-                    enabled = false
-                )
+                if (reminderTime?.value?.triggerType == CategoryTabType.TIME.value){
+
+                    DateField(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        label = stringResource(Res.string.reminder_data),
+                        placeHolder ="",
+                        isMandatory = false,
+                        value = reminderTime?.value?.date?:"",
+                        validate = true,
+                        enabled = false
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TimeField(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        label = stringResource(Res.string.reminder_time),
+                        placeHolder ="",
+                        isMandatory = false,
+                        value = reminderTime?.value?.time?:"",
+                        validate = true,
+                        enabled = false
+                    )
+
+                }else if (reminderTime?.value?.triggerType == CategoryTabType.LOCATION.value){
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                            .height(150.dp)
+                            .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable {}
+                    ) {
+                        val location = listOfNotNull(reminderTime.value?.long, reminderTime.value?.lat)
+                            .ifEmpty { null }?: emptyList()
+                        MapView(
+                            modifier = Modifier.fillMaxWidth().height(150.dp),
+                            cameraLongLat = location,
+                            markerLongLat =location,
+                            showControls = false,
+                            onMarkerSet = {_,_-> }
+                        )
+                    }
+                }
 
 
                 Spacer(modifier = Modifier.height(16.dp))

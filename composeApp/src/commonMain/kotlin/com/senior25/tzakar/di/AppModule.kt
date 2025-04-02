@@ -15,6 +15,7 @@ import com.senior25.tzakar.ui.presentation.screen.main.category_details.Category
 import com.senior25.tzakar.ui.presentation.screen.main.category_details.CategoryDetailsScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.change_password.ChangePasswordScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.edit_profile.EditProfileViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.full_screen_map.FullScreenMapViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.home.HomeScreenViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.notification_history.NotificationHistoryViewModel
 import com.senior25.tzakar.ui.presentation.screen.main.profile.ProfileViewModel
@@ -58,6 +59,9 @@ val sharedModule = module {
 
     factory { CategoryViewModel(get()) }
     factory { CalendarViewModel(get()) }
+
+    factory { FullScreenMapViewModel(get()) }
+
 }
 
 fun initializeKoin(config: KoinAppDeclaration? = null,appSpecificModules:KoinApplication.()->Unit = {}) {

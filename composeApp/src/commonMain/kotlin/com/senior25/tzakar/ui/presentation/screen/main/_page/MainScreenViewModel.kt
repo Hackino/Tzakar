@@ -8,6 +8,7 @@ import com.senior25.tzakar.domain.RegistrationRepository
 import com.senior25.tzakar.helper.DataBaseReference
 import com.senior25.tzakar.platform_specific.common.getCurrentDateFormatted
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.full_screen_map.FullScreenMapPageEvent
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
@@ -28,6 +29,11 @@ class MainScreenViewModel(
 
     private val _userProfile = MutableStateFlow(SharedPref.loggedInProfile)
     val userProfile: StateFlow<UserProfile?> get() = _userProfile.asStateFlow()
+
+
+    private val _longLat = MutableStateFlow<List<Double>?>(emptyList())
+    val longLat: StateFlow<List<Double>?> get() = _longLat.asStateFlow()
+
 
     fun init(){ fetchProfile() }
 
@@ -57,6 +63,9 @@ class MainScreenViewModel(
             }
 
             MainPageEvent.Refresh ->fetchProfile()
+            is MainPageEvent.UpdateLongLat -> {
+                _longLat.value = uiEvent.longLat
+            }
         }
     }
 
@@ -67,6 +76,7 @@ sealed class MainPageEvent {
     data class UpdatePopUpState(val popUp: MainPagePopUp) : MainPageEvent()
     data object UpdateProfile : MainPageEvent()
     data object Refresh : MainPageEvent()
+    data class UpdateLongLat(val longLat:List<Double>) : MainPageEvent()
 
 }
 

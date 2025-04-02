@@ -22,8 +22,8 @@ data class ReminderModel(
     val dateTimeEpoch:Long? =null,
     val sound:String? = null,
     val triggerType:Int? = null,
-    val long:String? = null,
-    val lat:String? = null
+    val long:Double? = null,
+    val lat:Double? = null
 )
 
 fun ReminderModel.toNotificationModel():NotificationModel{

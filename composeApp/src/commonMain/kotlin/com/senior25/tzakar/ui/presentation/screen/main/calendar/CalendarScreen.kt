@@ -58,6 +58,7 @@ import cafe.adriel.voyager.transitions.SlideTransition
 import com.senior25.tzakar.data.local.model.menu.MenuModel
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.ktx.koinScreenModel
+import com.senior25.tzakar.platform_specific.map.MapView
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoriesFiltersBottomSheet
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoriesFiltersSheetInteraction
@@ -68,6 +69,7 @@ import com.senior25.tzakar.ui.presentation.components.button.OutlinedCustomButto
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.screen.common.composable.no_data.NoDataWidget
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
+import com.senior25.tzakar.ui.presentation.screen.main.categories.CategoryTabType
 import com.senior25.tzakar.ui.presentation.screen.main.category_details.CategoryDetailsScreen
 import com.senior25.tzakar.ui.presentation.screen.main.reminders_list.RemindersListScreen
 import com.senior25.tzakar.ui.theme.MyColors
@@ -516,13 +518,35 @@ fun ReminderItem(
             }
         }
 
-        Text(
+        if (reminderModel?.triggerType == CategoryTabType.TIME.value){
+
+            Text(
             text = reminderModel?.time?:"",
             style = fontH1,
             color = MyColors.colorDarkBlue,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth()
         )
+        }else if (reminderModel?.triggerType == CategoryTabType.LOCATION.value){
+        Box(
+            modifier = Modifier.fillMaxWidth()
+                .height(150.dp)
+                .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(12.dp))
+                .clickable {}
+        ) {
+            val location = listOfNotNull(reminderModel.long, reminderModel.lat)
+                .ifEmpty { null }?: emptyList()
+            MapView(
+                modifier = Modifier.fillMaxWidth().height(150.dp),
+                cameraLongLat = location,
+                markerLongLat =location,
+                showControls = false,
+                onMarkerSet = {_,_-> }
+            )
+        }
+            }
+
         Spacer(Modifier.height(8.dp))
         Text(
             text = reminderModel?.title?:"",
