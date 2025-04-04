@@ -91,10 +91,10 @@ data class CategoryScreen(val type:CategoryType = CategoryType.UNKNOWN): Screen 
 
         val screenModel = koinScreenModel<CategoryViewModel>()
 
-        val fullScreenMapLongLat =  mainViewModel.longLat?.collectAsState()
+        val fullScreenMapLongLat =  mainViewModel.longLat.collectAsState()
 
-        LaunchedEffect(key1 =fullScreenMapLongLat?.value ){
-            fullScreenMapLongLat?.value?.ifEmpty { null }?.let {
+        LaunchedEffect(key1 =fullScreenMapLongLat.value ){
+            fullScreenMapLongLat.value?.ifEmpty { null }?.let {
                 screenModel.onUIEvent(CategoryPageEvent.UpdateLongLat(it))
                 mainViewModel.onUIEvent(MainPageEvent.UpdateLongLat(emptyList()))
             }
@@ -178,8 +178,6 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
     var isValidReminderData by remember { mutableStateOf(false) }
 
     var isValidReminderTime by remember { mutableStateOf(false) }
-
-    var isValidLocation  by remember { mutableStateOf(false) }
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -281,11 +279,7 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
                     .height(150.dp)
                     .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(12.dp))
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable {
-                        //
-                        println("sending coordinates ${getLongLat?.value}")
-                        interaction.openMap(getLongLat?.value)
-                    }
+                    .clickable { interaction.openMap(getLongLat?.value) }
             ) {
                 MapView(
                     modifier = Modifier.fillMaxWidth().height(150.dp),
@@ -293,6 +287,12 @@ private fun ColumnScope.showBirthdayScreen(interaction: CategoryPageInteraction?
                     markerLongLat = getLongLat?.value?.ifEmpty { null },
                     showControls = false,
                     onMarkerSet = {_,_-> }
+                )
+
+                Box(
+                    modifier = Modifier.matchParentSize().clickable {
+                            interaction.openMap(getLongLat?.value)
+                    }
                 )
             }
         }

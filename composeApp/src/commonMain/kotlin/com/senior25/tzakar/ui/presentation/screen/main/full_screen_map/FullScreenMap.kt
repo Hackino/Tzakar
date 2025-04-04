@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
@@ -28,7 +29,7 @@ import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
 import com.senior25.tzakar.ui.theme.MyColors
 import kotlinx.coroutines.flow.StateFlow
 
-data class FullScreenMap(val list: List<Double>?): Screen {
+data class FullScreenMap(val list: List<Double>?,val showOnly:Boolean = false): Screen {
     @Composable
     override fun Content() {
 
@@ -55,6 +56,7 @@ data class FullScreenMap(val list: List<Double>?): Screen {
             }
 
             override fun getLongLat()  = screenModel.longLat
+            override fun showOnly(): Boolean  = showOnly
 
             override fun onBackPress() {
                 navigator.pop()
@@ -74,7 +76,7 @@ private fun FullScreenMap(interaction: FullScreenMapInteraction?) {
     val getLongLat = interaction?.getLongLat()?.collectAsState()
 
     Surface(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp).padding(bottom = 60.dp),
         shape =  RoundedCornerShape(16.dp),
         border = BorderStroke(1.dp, MyColors.colorLightGrey),
         elevation = 4.dp
@@ -87,14 +89,16 @@ private fun FullScreenMap(interaction: FullScreenMapInteraction?) {
                 cameraLongLat =getLongLat?.value?.ifEmpty { null }?: listOf(35.5018,33.8938),
                 markerLongLat = getLongLat?.value?.ifEmpty { null },
                 showControls = true,
+                setMarker = interaction?.showOnly() != true,
                 onMarkerSet = {long,lat->
                     interaction?.onUIEvent(FullScreenMapPageEvent.UpdateLongLat(listOf(long,lat)))
                 }
             )
 
+            if (interaction?.showOnly() != true)
             CustomButton(
                 isEnabled = getLongLat?.value?.ifEmpty { null } != null,
-                modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth().padding(horizontal = 16.dp).align(Alignment.BottomCenter),
+                modifier = Modifier.padding(vertical = 16.dp).width(200.dp).padding(horizontal = 16.dp).align(Alignment.BottomCenter),
                 onClick = { interaction?.onContinueClick() },
                 text = "Set Location"
             )
@@ -106,4 +110,5 @@ interface FullScreenMapInteraction: BackPressInteraction {
     fun onContinueClick(){}
     fun onUIEvent(event: FullScreenMapPageEvent){}
     fun getLongLat(): StateFlow<List<Double>?>
+    fun showOnly():Boolean
 }

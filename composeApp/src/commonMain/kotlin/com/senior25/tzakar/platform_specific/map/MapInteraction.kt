@@ -7,5 +7,6 @@ interface MapInteraction {
     fun getCameraLong():Double
     fun getCameraLat():Double
     fun showControl():Boolean
+     fun enableSetMarker():Boolean
 
 }

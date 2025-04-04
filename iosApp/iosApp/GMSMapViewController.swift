@@ -8,10 +8,13 @@ import GoogleMaps
         static var shared = IOSNativeViewFactory()
 
         func createGoogleMap(interaction: MapInteraction) ->UIViewController{
+        print("creating map")
             return GoogleMapViewController(action: interaction)
         }
 
         func updateGoogleMapMarker(view:UIViewController,latitude: Double, longitude: Double){
+                print("updating map")
+
             if let googleMapViewController = view as? GoogleMapViewController {
                 googleMapViewController.updateMarker(latitude: latitude, longitude: longitude)
             }
@@ -66,23 +69,18 @@ import GoogleMaps
               addZoomControls()
             }
 
-
             if let latitude = interaction.getMarkerLat() as? Double,
                let longitude = interaction.getMarkerLong() as? Double,
                latitude != 0.0, longitude != 0.0 {
             setMarker(latitude: latitude, longitude: longitude)
-
-
             }
         }
 
         @objc public func mapView(_ mapView: GMSMapView, didTapAt coordinate: CLLocationCoordinate2D) {
-            if(interaction.showControl() == true){
+            if(interaction.enableSetMarker() == true ){
                 mapView.clear()
-                       setMarker(latitude: coordinate.latitude, longitude: coordinate.longitude)
-
+                setMarker(latitude: coordinate.latitude, longitude: coordinate.longitude)
                 interaction.onMarkerSet(long:coordinate.longitude ,lat: coordinate.latitude)
-
             }
         }
 

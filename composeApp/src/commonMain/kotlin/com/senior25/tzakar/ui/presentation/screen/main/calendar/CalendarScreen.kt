@@ -59,6 +59,7 @@ import com.senior25.tzakar.data.local.model.menu.MenuModel
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.map.MapView
+import com.senior25.tzakar.platform_specific.map.StaticMapSnapshot
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoriesFiltersBottomSheet
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoriesFiltersSheetInteraction
@@ -236,7 +237,7 @@ class CalendarScreen: Screen {
                     Spacer(Modifier.height(16.dp))
                     Row(modifier = Modifier.fillMaxWidth()
                         .padding(horizontal = 16.dp)
-                   ,
+                        ,
                         verticalAlignment =Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -521,33 +522,42 @@ fun ReminderItem(
         if (reminderModel?.triggerType == CategoryTabType.TIME.value){
 
             Text(
-            text = reminderModel?.time?:"",
-            style = fontH1,
-            color = MyColors.colorDarkBlue,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.fillMaxWidth()
-        )
-        }else if (reminderModel?.triggerType == CategoryTabType.LOCATION.value){
-        Box(
-            modifier = Modifier.fillMaxWidth()
-                .height(150.dp)
-                .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(12.dp))
-                .clip(RoundedCornerShape(12.dp))
-                .clickable {
-                    onClick.invoke(reminderModel)
-                }
-        ) {
-            val location = listOfNotNull(reminderModel.long, reminderModel.lat)
-                .ifEmpty { null }?: emptyList()
-            MapView(
-                modifier = Modifier.fillMaxWidth().height(150.dp),
-                cameraLongLat = location,
-                markerLongLat =location,
-                showControls = false,
-                onMarkerSet = {_,_-> }
+                text = reminderModel?.time?:"",
+                style = fontH1,
+                color = MyColors.colorDarkBlue,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.fillMaxWidth()
             )
-        }
+        }else if (reminderModel?.triggerType == CategoryTabType.LOCATION.value){
+            Box(
+                modifier = Modifier.fillMaxWidth()
+                    .height(150.dp)
+                    .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable {
+                        onClick.invoke(reminderModel)
+                    }
+            ) {
+                listOfNotNull(reminderModel.long, reminderModel.lat).filter { it != null && it != 0.0 }
+                    .ifEmpty { null }?.let {
+                        StaticMapSnapshot(
+                            lat = it[1],
+                            lng = it[0],
+                            modifier =  Modifier.fillMaxWidth().height(150.dp)
+                        )
+                    }
+
+//                val location = listOfNotNull(reminderModel.long, reminderModel.lat)
+//                    .ifEmpty { null }?: emptyList()
+//                MapView(
+//                    modifier = Modifier.fillMaxWidth().height(150.dp),
+//                    cameraLongLat = location,
+//                    markerLongLat =location,
+//                    showControls = false,
+//                    onMarkerSet = {_,_-> }
+//                )
             }
+        }
 
         Spacer(Modifier.height(8.dp))
         Text(

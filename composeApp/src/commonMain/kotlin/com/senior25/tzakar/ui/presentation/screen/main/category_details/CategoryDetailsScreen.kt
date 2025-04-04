@@ -33,6 +33,7 @@ import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.ktx.ifEmpty
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.platform_specific.map.MapView
+import com.senior25.tzakar.platform_specific.map.StaticMapSnapshot
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType
 import com.senior25.tzakar.ui.presentation.bottom_sheet.categories.CategoryType.Companion.categoryRes
 import com.senior25.tzakar.ui.presentation.components.fields.DateField
@@ -41,6 +42,7 @@ import com.senior25.tzakar.ui.presentation.components.fields.normalTextField
 import com.senior25.tzakar.ui.presentation.components.toolbar.BackPressInteraction
 import com.senior25.tzakar.ui.presentation.components.toolbar.MyTopAppBar
 import com.senior25.tzakar.ui.presentation.screen.main.categories.CategoryTabType
+import com.senior25.tzakar.ui.presentation.screen.main.full_screen_map.FullScreenMap
 import com.senior25.tzakar.ui.theme.MyColors
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.stringResource
@@ -62,6 +64,10 @@ data class CategoryDetailsScreen(val reminderId:String? = null): Screen {
 
         val interaction = object :CategoryPageInteraction{
             override fun getReminder(): StateFlow<ReminderModel?> = viewModel.reminder
+            override fun openMap(list: List<Double>?) {
+                navigator.push(FullScreenMap(list,true))
+            }
+
             override fun onBackPress() { navigator.pop() }
         }
 
@@ -162,18 +168,24 @@ private fun CategoryPageScreen(paddingValues: PaddingValues,interaction: Categor
                             .height(150.dp)
                             .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(12.dp))
                             .clip(RoundedCornerShape(12.dp))
-                            .clickable {}
-                    ) {
-                        val location = listOfNotNull(reminderTime.value?.long, reminderTime.value?.lat).filter { it != 0.0 }
-                            .ifEmpty { null }?: emptyList()
+                            .clickable {
+                                listOfNotNull(reminderTime.value?.long, reminderTime.value?.lat).filter { it != 0.0 }
+                                    .ifEmpty { null }?.let {
+                                        interaction.openMap(it)
 
-                        MapView(
-                            modifier = Modifier.fillMaxWidth().height(150.dp),
-                            cameraLongLat = location,
-                            markerLongLat =location,
-                            showControls = false,
-                            onMarkerSet = {_,_-> }
-                        )
+                                    }
+                            }
+                    ) {
+
+                        listOfNotNull(reminderTime.value?.long, reminderTime.value?.lat).filter { it != 0.0 }
+                            .ifEmpty { null }?.let {
+                                StaticMapSnapshot(
+                                    lat = it[1],
+                                    lng = it[0],
+                                    modifier =  Modifier.fillMaxWidth().height(150.dp)
+                                )
+                            }
+
                     }
                 }
 
@@ -198,4 +210,5 @@ private fun CategoryPageScreen(paddingValues: PaddingValues,interaction: Categor
 
 interface CategoryPageInteraction: BackPressInteraction {
     fun getReminder(): StateFlow<ReminderModel?>
+    fun openMap(list:List<Double>?)
 }

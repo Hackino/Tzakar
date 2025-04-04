@@ -246,14 +246,16 @@ class HomeScreen: Screen {
 
                     if (tabState?.value == ReminderTabType.LOCATIONS) {
                         locationReminders.value?.ifEmpty { null }?.let {
-                            itemsIndexed(it) { _, item ->
-                                ReminderItem(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    reminderModel = item,
-                                    isSelected = item.isEnabled == 1,
-                                    onSelect = { interaction.updateReminderStatus(it) }
-                                ) { navigator.push(CategoryDetailsScreen(it?.id)) }
-                                Spacer(Modifier.height(8.dp))
+                            it.forEach {reminder->
+                                item(key = reminder.id) {
+                                    ReminderItem(
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        reminderModel = reminder,
+                                        isSelected = reminder.isEnabled == 1,
+                                        onSelect = { interaction.updateReminderStatus(it) }
+                                    ) { navigator.push(CategoryDetailsScreen(it?.id)) }
+                                    Spacer(Modifier.height(8.dp))
+                                }
                             }
                         } ?: run {
                             item {
