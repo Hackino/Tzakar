@@ -69,6 +69,8 @@
     <string>We need permission to send notifications.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>test</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Our app uses location always for tracking user's location while on the racce track.</string>
 	<key>NSAppTransportSecurity</key>
     <dict>
         <key>NSExceptionDomains</key>

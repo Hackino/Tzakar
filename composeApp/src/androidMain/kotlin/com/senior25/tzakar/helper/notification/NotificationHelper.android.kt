@@ -75,8 +75,6 @@ actual object NotificationHelper: KoinComponent {
         )
 
         val triggerTime = (notificationModel.dateTimeEpoch?.toLong()?:0L)
-
-
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
     }
 
