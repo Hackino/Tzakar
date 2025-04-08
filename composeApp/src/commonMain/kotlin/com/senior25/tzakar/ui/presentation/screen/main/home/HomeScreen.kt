@@ -63,6 +63,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
+import com.adrianwitaszak.kmmpermissions.permissions.model.Permission
 import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.ktx.koinScreenModel

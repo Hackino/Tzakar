@@ -3,6 +3,9 @@ package com.senior25.tzakar.data.local.preferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import okio.Path.Companion.toPath
 
 object PrefsDataStoreManager {
@@ -14,6 +17,12 @@ object PrefsDataStoreManager {
             prefsDataStore = getSharedPref()
         }
         return prefsDataStore!!
+    }
+
+    fun observePrefBoolean(key: String, defaultValue: Boolean): Flow<Boolean> {
+        val dataStoreKey = booleanPreferencesKey(key)
+        return getSharedPreference().data
+            .map { preferences -> preferences[dataStoreKey] ?: defaultValue }
     }
 }
 

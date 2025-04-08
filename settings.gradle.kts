@@ -36,4 +36,4 @@ dependencyResolutionManagement {
     }
 }
 
-include(":composeApp")
+include(":composeApp", ":permissions",)

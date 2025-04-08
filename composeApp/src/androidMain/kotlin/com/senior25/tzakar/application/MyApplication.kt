@@ -1,5 +1,6 @@
 package com.senior25.tzakar.application
 
+import android.app.Activity
 import android.app.Application
 import com.jakewharton.threetenabp.AndroidThreeTen
 
@@ -8,6 +9,7 @@ import com.senior25.tzakar.helper.ApplicationProvider
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.initialize
 import org.koin.android.ext.koin.androidContext
+import org.koin.dsl.module
 
 class MyApplication : Application() {
     override fun onCreate() {

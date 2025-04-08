@@ -91,28 +91,35 @@ data class MainScreenLauncher(val test:String? = null):Screen {
 
 class MainScreen:Screen {
 
+
+
+
     override val key: ScreenKey get() = "MainScreenKey"
 
     @Composable
     override fun Content() {
+
         val mainViewModel = koinScreenModel<MainScreenViewModel>()
+
         val popUpState = mainViewModel.popUpState.collectAsState()
+
         val navigator = LocalNavigator.current
 
-        var shouldRequestPermission by remember { mutableStateOf(false) } // Trigger state
+//        var shouldRequestPermission by remember { mutableStateOf(false) } // Trigger state
 
         LaunchedEffect(key1 = Unit){
+
             mainViewModel.init()
-            if (SharedPref.notificationPermissionStatus == NotificationStatus.UNKNOWN)
-                shouldRequestPermission = true
+//            if (SharedPref.notificationPermissionStatus == NotificationStatus.UNKNOWN)
+//                shouldRequestPermission = true
         }
 
-        if (shouldRequestPermission) {
-            NotificationHelper.requestNotificationPermission { result ->
-                mainViewModel.updateNotificationStatus(result)
-                shouldRequestPermission = false
-            }
-        }
+//        if (shouldRequestPermission) {
+//            NotificationHelper.requestNotificationPermission { result ->
+//                mainViewModel.updateNotificationStatus(result)
+//                shouldRequestPermission = false
+//            }
+//        }
 
         TabNavigator(HomeTab,key ="MainScreenTabNavigator"){
             Scaffold(

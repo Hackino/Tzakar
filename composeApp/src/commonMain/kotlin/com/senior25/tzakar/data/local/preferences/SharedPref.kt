@@ -2,11 +2,13 @@ package com.senior25.tzakar.data.local.preferences
 
 import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.preferences.PrefsDataStoreManager.getSharedPreference
+import com.senior25.tzakar.data.local.preferences.PrefsDataStoreManager.observePrefBoolean
 import com.senior25.tzakar.helper.PreferenceHelper.clearPreferencesDataStore
 import com.senior25.tzakar.helper.PreferenceHelper.getFromDataStore
 import com.senior25.tzakar.helper.PreferenceHelper.saveToDataStore
 import com.senior25.tzakar.ktx.ifEmpty
 import com.senior25.tzakar.platform_specific.getApplicationConfig
+import kotlinx.coroutines.flow.Flow
 
 object SharedPref {
 
@@ -61,6 +63,14 @@ object SharedPref {
         set(profile) = getSharedPreference().saveToDataStore(keyLoggedInProfile(),profile)
         get() = getLoggedInProfileValue()
     private fun getLoggedInProfileValue() = getSharedPreference().getFromDataStore(keyLoggedInProfile())?:UserProfile()
+
+
+    private fun keyIsNotificationOn() = "${getApplicationConfig().id}.pref_is_notification_on"
+    val isNotificationOnFlow: Flow<Boolean> get() = observePrefBoolean(keyIsNotificationOn(), false)
+    var isNotificationOn: Boolean
+        get() = isNotificationON()
+        set(value) = getSharedPreference().saveToDataStore(keyIsNotificationOn(), value)
+    private fun isNotificationON() = getSharedPreference().getFromDataStore(keyIsNotificationOn()) ?: false
 }
 
 enum class AppState { REGISTRATION, MAIN_ACTIVITY, NONE }
@@ -74,7 +84,3 @@ enum class NotificationStatus(val value: Int) {
         fun getByValue(value: Int) = VALUES.firstOrNull { it.value == value } ?: UNKNOWN
     }
 }
-
-
-
-

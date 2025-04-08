@@ -1,5 +1,6 @@
 package com.senior25.tzakar.di
 
+import com.adrianwitaszak.kmmpermissions.permissions.permissionsModule
 import com.senior25.tzakar.data.local.database.dao.NotificationDao
 import com.senior25.tzakar.data.local.database.dao.ReminderDao
 import com.senior25.tzakar.data.local.database.myDatabase.CreateDatabase
@@ -68,9 +69,11 @@ fun initializeKoin(config: KoinAppDeclaration? = null,appSpecificModules:KoinApp
     startKoin {
         appSpecificModules.invoke(this)
         config?.invoke(this)
-        modules(sharedModule + platformModule()   )
+        modules(sharedModule  + platformModule()   )
     }
 }
+
+val permissionsModuleShared = permissionsModule
 
 val mainScreenViewModelModule = module {
     single { MainScreenViewModel(get()) } // Singleton ViewModel

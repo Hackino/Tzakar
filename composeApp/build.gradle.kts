@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.firebase.crashlytics)
     id("org.jetbrains.kotlin.native.cocoapods")
     alias(libs.plugins.ksp)
-//    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -20,10 +19,8 @@ kotlin {
     }
 
     sourceSets.commonMain {
-//        languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
         kotlin.srcDir("build/generated/ksp/metadata")
     }
-
 
     listOf(
         iosX64(),
@@ -67,6 +64,7 @@ kotlin {
         }
 
         commonMain.dependencies {
+            implementation(projects.permissions)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
@@ -151,10 +149,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
 }
-//room {
-//    schemaDirectory("$projectDir/schemas")
-//}
+
+
 ksp {
     arg("room.schemaLocation", "${projectDir}/schemas")
 }
@@ -164,7 +162,6 @@ dependencies {
     debugImplementation(compose.uiTooling)
     listOf(
         "kspAndroid",
-        // "kspJvm",
         "kspIosSimulatorArm64",
         "kspIosX64",
         "kspIosArm64",
@@ -172,21 +169,4 @@ dependencies {
     ).forEach {
         add(it, libs.androidx.room.compiler)
     }
-//    add("kspAndroid", libs.androidx.room.compiler)
-//    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
-//    add("kspIosX64", libs.androidx.room.compiler)
-//    add("kspIosArm64", libs.androidx.room.compiler)
-//    add("kspCommonMainMetadata", libs.androidx.room.compiler)
-
 }
-
-
-//tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
-//    if (name != "kspCommonMainKotlinMetadata" ) {
-//        dependsOn("kspCommonMainKotlinMetadata")
-//    }
-//}
-
-//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-//    kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
-//}

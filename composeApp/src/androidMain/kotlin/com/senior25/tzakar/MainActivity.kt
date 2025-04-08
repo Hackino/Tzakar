@@ -1,12 +1,16 @@
 package com.senior25.tzakar
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.senior25.tzakar.application.MyApplication
+import com.senior25.tzakar.di.permissionsModuleShared
 import com.senior25.tzakar.ui.presentation.app.App
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.unloadKoinModules
+import org.koin.dsl.module
 import java.lang.ref.WeakReference
 
 class MainActivity : ComponentActivity() {
@@ -19,10 +23,28 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loadKoinModules(
+         listOf(
+             module { single<Activity> { this@MainActivity } },
+             permissionsModuleShared
+         )
+        )
         installSplashScreen()
         setContent { App() }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unloadKoinModules(
+            listOf(
+            module { single<Activity> { this@MainActivity } },
+            permissionsModuleShared
+            )
+        )
+
     }
 
     override fun onResume() {
