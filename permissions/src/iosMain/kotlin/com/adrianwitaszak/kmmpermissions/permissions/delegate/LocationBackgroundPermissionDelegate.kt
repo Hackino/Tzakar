@@ -14,10 +14,7 @@ internal class LocationBackgroundPermissionDelegate(
             locationForegroundPermissionDelegate.getPermissionState()
         return when (foregroundPermissionStatus) {
             PermissionState.GRANTED -> checkBackgroundLocationPermission()
-
-            PermissionState.DENIED,
-            PermissionState.NOT_DETERMINED,
-            -> foregroundPermissionStatus
+            PermissionState.DENIED, PermissionState.NOT_DETERMINED, -> foregroundPermissionStatus
         }
     }
 

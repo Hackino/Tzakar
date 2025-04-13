@@ -20,8 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,10 +34,14 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,6 +58,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
@@ -64,25 +69,26 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.adrianwitaszak.kmmpermissions.permissions.model.Permission
+import com.adrianwitaszak.kmmpermissions.permissions.service.PermissionsService
 import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.ktx.koinScreenModel
 import com.senior25.tzakar.ui.presentation.app.AppNavigator
+import com.senior25.tzakar.ui.presentation.components.button.CustomButton
 import com.senior25.tzakar.ui.presentation.components.image.LoadMediaImage
 import com.senior25.tzakar.ui.presentation.components.loader.FullScreenLoader
 import com.senior25.tzakar.ui.presentation.screen.common.composable.no_data.NoDataWidget
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainPageEvent
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainPagePopUp
 import com.senior25.tzakar.ui.presentation.screen.main._page.MainScreenViewModel
-import com.senior25.tzakar.ui.presentation.screen.main.calendar.CalendarPageEvent
 import com.senior25.tzakar.ui.presentation.screen.main.calendar.ReminderItem
 import com.senior25.tzakar.ui.presentation.screen.main.category_details.CategoryDetailsScreen
-import com.senior25.tzakar.ui.presentation.screen.main.profile.NavigationAction
 import com.senior25.tzakar.ui.theme.MyColors
 import com.senior25.tzakar.ui.theme.fontH2
 import com.senior25.tzakar.ui.theme.fontH3
 import com.senior25.tzakar.ui.theme.fontParagraphM
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import tzakar_reminder.composeapp.generated.resources.Res
 import tzakar_reminder.composeapp.generated.resources.ic_profile_placeholder
 
@@ -142,6 +148,7 @@ class HomeScreen: Screen {
             override fun countTodayCompleted(): StateFlow<Int> =screenModel.todayCompletedReminderCount
             override fun countTotal(): StateFlow<Int> = screenModel.totalReminderCount
             override fun countTotalCompleted(): StateFlow<Int> = screenModel.totalCompleteReminderCount
+            override fun getPermissionsService(): PermissionsService  = screenModel.permissionsService
         }
 
 
@@ -216,6 +223,34 @@ class HomeScreen: Screen {
         val locationReminders = interaction.getLocationReminder().collectAsState()
         val tabState = interaction?.getTabIndexState()?.collectAsState()
 
+        val lifecycleOwner = LocalLifecycleOwner.current
+
+
+        var foreground by remember { mutableStateOf(false) }
+        var background by remember { mutableStateOf(false) }
+        var service by remember { mutableStateOf(false) }
+        val scope = rememberCoroutineScope()
+
+
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    foreground = interaction.getPermissionsService().checkPermission(Permission.LOCATION_FOREGROUND).isGranted()
+                    background = interaction.getPermissionsService().checkPermission(Permission.LOCATION_BACKGROUND).isGranted()
+                    service = interaction.getPermissionsService().checkPermission(Permission.LOCATION_SERVICE_ON).isGranted()
+                }
+            }
+
+            lifecycleOwner.lifecycle.addObserver(observer)
+
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+            }
+        }
+
+
+
+
         Box(
             Modifier
                 .fillMaxSize()
@@ -225,19 +260,13 @@ class HomeScreen: Screen {
             if (uiState?.value is HomePageUiState.Refreshing || uiState?.value == HomePageUiState.Loading) {
                 FullScreenLoader()
             } else {
-
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(bottom = 120.dp),
                     state = listState
                 ) {
-                    item {
-                        TopItems(
-                            interaction = interaction,
-                            pageData = uiState?.value?.data,
-                        )
-                    }
+                    item { TopItems(interaction = interaction, pageData = uiState?.value?.data) }
 
                     item{ Spacer(modifier = Modifier.height(8.dp)) }
 
@@ -246,28 +275,143 @@ class HomeScreen: Screen {
                     item{Spacer(Modifier.height(16.dp))}
 
                     if (tabState?.value == ReminderTabType.LOCATIONS) {
-                        locationReminders.value?.ifEmpty { null }?.let {
-                            it.forEach {reminder->
-                                item(key = reminder.id) {
-                                    ReminderItem(
-                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                        reminderModel = reminder,
-                                        isSelected = reminder.isEnabled == 1,
-                                        onSelect = { interaction.updateReminderStatus(it) }
-                                    ) { navigator.push(CategoryDetailsScreen(it?.id)) }
-                                    Spacer(Modifier.height(8.dp))
+
+                        if (!foreground) {
+
+                            item {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 100.dp, horizontal = 16.dp),
+                                ){
+
+                                    Text(
+                                        text = "Allow Foreground locations",
+                                        style = fontH2,
+                                        color = MyColors.colorDarkBlue,
+                                        modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    Text(
+                                        text ="Allow the app to access your location while you're actively using it.",
+                                        style = fontH3,
+                                        color = MyColors.colorDarkBlue,
+                                        modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    CustomButton(
+                                        isEnabled = true,
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                                        onClick = {
+                                            scope.launch {
+                                                interaction.getPermissionsService().providePermission(Permission.LOCATION_FOREGROUND){}
+
+                                            }
+                                        },
+                                        text = "Allow"
+                                    )
                                 }
                             }
-                        } ?: run {
+
+                        }else if (!background){
                             item {
-                                NoDataWidget(
-                                    modifier = Modifier.fillMaxWidth().padding(top = 128.dp)
-                                        .height(200.dp)
-                                )
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 100.dp, horizontal = 16.dp),
+                                ){
+                                    Text(
+                                        text = "Allow Background locations",
+                                        style = fontH2,
+                                        color = MyColors.colorDarkBlue,
+                                        modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    Text(
+                                        text = "Allow the app to access your location even when you're not using it — essential for features like continuous tracking or reminders based on your location.",
+                                        style = fontH3,
+                                        color = MyColors.colorDarkBlue,
+                                        modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    CustomButton(
+                                        isEnabled = true,
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                                        onClick = {
+                                            scope.launch {
+                                                interaction.getPermissionsService().providePermission(Permission.LOCATION_BACKGROUND){}
+
+                                            }
+                                        },
+                                        text = "Allow"
+                                    )
+                                }
+                            }
+                        } else if (!service){
+                            item {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 100.dp, horizontal = 16.dp),
+                                ){
+                                    Text(
+                                        text = "Enable Location Services",
+                                        style = fontH2,
+                                        color = MyColors.colorDarkBlue,
+                                        modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    Text(
+                                        text = "Allow location access even when the app is not in use",
+                                        style = fontH3,
+                                        color = MyColors.colorDarkBlue,
+                                        modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    CustomButton(
+                                        isEnabled = true,
+                                        modifier = Modifier.fillMaxWidth()
+                                            .padding(horizontal = 16.dp),
+                                        onClick = {
+                                            scope.launch {
+                                                interaction.getPermissionsService()
+                                                    .openSettingPage(Permission.LOCATION_SERVICE_ON)
+                                            }
+                                        },
+                                        text = "Go To Settings"
+                                    )
+                                }
+                            }
+                        }else{
+                            locationReminders.value?.ifEmpty { null }?.let {
+                                it.forEach { reminder->
+                                    item(key = reminder.id) {
+                                        ReminderItem(
+                                            modifier = Modifier.padding(horizontal = 16.dp),
+                                            reminderModel = reminder,
+                                            isSelected = reminder.isEnabled == 1,
+                                            onSelect = { interaction.updateReminderStatus(it) }
+                                        ) { navigator.push(CategoryDetailsScreen(it?.id)) }
+                                        Spacer(Modifier.height(8.dp))
+                                    }
+                                }
+                            } ?: run {
+                                item {
+                                    NoDataWidget(
+                                        modifier = Modifier.fillMaxWidth()
+                                            .padding(top = 128.dp).height(200.dp)
+                                    )
+                                }
                             }
                         }
-                    }else {
 
+                    }else {
                         reminders.value?.ifEmpty { null }?.forEach {item->
                             item(key = item.id) {
                                 ReminderItem(
@@ -368,7 +512,7 @@ class HomeScreen: Screen {
                         dashLength = 390f,
                         gapLength = 0f,
                         textBelow = "Total Reminders",
-                        ){
+                    ){
                         Column(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -406,7 +550,7 @@ class HomeScreen: Screen {
                         dashLength = 390f,
                         gapLength = 0f,
                         textBelow = "Add Reminder",
-                        ){
+                    ){
                         Column(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -480,7 +624,7 @@ class HomeScreen: Screen {
                         )
                     )
 
-                   val progressSweepAngle = progress*(totalSweepAngle/100)
+                    val progressSweepAngle = progress*(totalSweepAngle/100)
                     println(progressSweepAngle)
                     drawArc(
                         color = colorReached,
@@ -535,8 +679,8 @@ class HomeScreen: Screen {
                 } else if (index == 1) {
                     interaction?.onUIEvent(HomePageEvent.LoadExpired)
                 }  else if (index == 2) {
-            interaction?.onUIEvent(HomePageEvent.LoadLocations)
-        }
+                    interaction?.onUIEvent(HomePageEvent.LoadLocations)
+                }
             }
         )
     }
@@ -585,13 +729,15 @@ class HomeScreen: Screen {
         fun getTabIndexState(): StateFlow<ReminderTabType?>
         fun navigate(action:HomeNavigationAction)
         fun getFilteredReminder(): StateFlow<List<ReminderModel>?>
-         fun getLocationReminder(): StateFlow<List<ReminderModel>?>
+        fun getLocationReminder(): StateFlow<List<ReminderModel>?>
 
         fun updateReminderStatus(reminderModel: ReminderModel?)
         fun countToday():StateFlow<Int>
         fun countTodayCompleted():StateFlow<Int>
         fun countTotal():StateFlow<Int>
         fun countTotalCompleted():StateFlow<Int>
+        fun getPermissionsService(): PermissionsService
+
     }
     enum class HomeNavigationAction{
         ReminderDetail,AddReminder

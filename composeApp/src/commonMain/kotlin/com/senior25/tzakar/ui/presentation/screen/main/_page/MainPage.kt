@@ -109,8 +109,7 @@ class MainScreen:Screen {
 
         val navigator = LocalNavigator.current
 
-        var shouldRequestPermission by remember { mutableStateOf(false) } // Trigger state
-
+        var shouldRequestPermission by remember { mutableStateOf(false) }
 
         val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -118,26 +117,19 @@ class MainScreen:Screen {
             val observer = LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_RESUME) {
                     if (SharedPref.notificationPermissionStatus != NotificationStatus.UNKNOWN) {
-                        print("hackinoooooo request result not unknown\n")
                         NotificationHelper.isNotificationPermissionGranted { result ->
-                            print("hackinoooooo request result not unknown ${result}\n")
                             mainViewModel.updateNotificationStatus(result)
                         }
                     }
                 }
             }
-
             lifecycleOwner.lifecycle.addObserver(observer)
-
-            onDispose {
-                lifecycleOwner.lifecycle.removeObserver(observer)
-            }
+            onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
         }
 
         SideEffect {
             if (SharedPref.notificationPermissionStatus == NotificationStatus.UNKNOWN)
                 shouldRequestPermission = true
-
         }
 
         LaunchedEffect(key1 = Unit){

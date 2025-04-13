@@ -2,6 +2,7 @@ package com.adrianwitaszak.kmmpermissions.permissions
 
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.location.LocationManager
 import com.adrianwitaszak.kmmpermissions.permissions.delegate.LocationBackgroundPermissionDelegate
 import com.adrianwitaszak.kmmpermissions.permissions.delegate.LocationForegroundPermissionDelegate
 import com.adrianwitaszak.kmmpermissions.permissions.delegate.LocationServicePermissionDelegate
@@ -27,6 +28,10 @@ internal actual fun platformModule(): Module = module {
 //    }
     single {
         get<Context>().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    }
+
+    single {
+        get<Context>().getSystemService(Context.LOCATION_SERVICE) as LocationManager
     }
     single {
         get<BluetoothManager>().adapter

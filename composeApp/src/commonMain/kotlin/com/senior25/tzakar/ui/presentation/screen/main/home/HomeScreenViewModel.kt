@@ -1,6 +1,7 @@
 package com.senior25.tzakar.ui.presentation.screen.main.home
 
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.adrianwitaszak.kmmpermissions.permissions.service.PermissionsService
 import com.senior25.tzakar.data.local.model.reminder.ReminderModel
 import com.senior25.tzakar.domain.MainRepository
 import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
@@ -18,10 +19,14 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class HomeScreenViewModel(
     private val mainRepository: MainRepository
-): CommonViewModel(){
+): CommonViewModel(), KoinComponent {
+
+     val permissionsService: PermissionsService by inject()
 
     private val _uiState = MutableStateFlow<HomePageUiState?>(null)
     val uiState: StateFlow<HomePageUiState?> get() = _uiState.asStateFlow()
