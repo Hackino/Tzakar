@@ -21,7 +21,7 @@ internal class LocationBackgroundPermissionDelegate(
         }
     }
 
-    override suspend fun providePermission() {
+    override suspend fun providePermission(onPermissionProvided: () -> Unit) {
         CLLocationManager().requestAlwaysAuthorization()
     }
 

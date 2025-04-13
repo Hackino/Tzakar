@@ -26,7 +26,7 @@ internal class LocationBackgroundPermissionDelegate(
         }
     }
 
-    override suspend fun providePermission() {
+    override suspend fun providePermission(onPermissionProvided: () -> Unit) {
         activity.value.providePermissions(backgroundLocationPermissions) {
             throw Exception(
                 it.localizedMessage ?: "Failed to request background location permission"

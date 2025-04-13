@@ -36,21 +36,14 @@ internal fun checkPermissions(
     permissions.ifEmpty { return PermissionState.GRANTED } // no permissions needed
     val status: List<Int> = permissions.map { context.checkSelfPermission(it) }
     val isAllGranted: Boolean = status.all { it == PackageManager.PERMISSION_GRANTED }
-    Log.e("hackinoooo","is  Permission granted ${isAllGranted} ${permissions}")
-
     if (isAllGranted) return PermissionState.GRANTED
-
-    Log.e("hackinoooo","is  Permission granted ${isAllGranted} ${permissions}")
 
     val isAllRequestRationale: Boolean = try {
         permissions.all { !activity.value.shouldShowRequestPermissionRationale(it) }
     } catch (t: Throwable) {
-        Log.e("hackinoooo","print error for checking")
         t.printStackTrace()
         true
     }
-    Log.e("hackinoooo","is rational ${isAllRequestRationale}")
-
     return if (isAllRequestRationale) PermissionState.NOT_DETERMINED
     else PermissionState.DENIED
 }
@@ -66,19 +59,13 @@ internal fun Activity.providePermissions(
     onError: (Throwable) -> Unit,
 ) {
     try {
-        Log.e("hackinoooo","has permission ${hasPermissions(permissions)}")
-
         if (!hasPermissions(permissions)) {
-            Log.e("hackinoooo","Request Permission")
-            Log.e("hackinoooo","activity ${this::class.simpleName}")
-
             ActivityCompat.requestPermissions(
                 this, permissions.toTypedArray(), 100
             )
         }
 
     } catch (t: Throwable) {
-        Log.e("hackinoooo","Request Permission Failed")
         onError(t)
     }
 }

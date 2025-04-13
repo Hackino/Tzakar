@@ -30,9 +30,12 @@ internal class PermissionsServiceImpl : PermissionsService, KoinComponent {
         }
     }
 
-    override suspend fun providePermission(permission: Permission) {
+    override suspend fun providePermission(
+        permission: Permission,
+        onPermissionProvided: () -> Unit
+    ) {
         try {
-            getPermissionDelegate(permission).providePermission()
+            getPermissionDelegate(permission).providePermission(onPermissionProvided)
         } catch (e: Exception) {
             println("Failed to request permission $permission")
             e.printStackTrace()

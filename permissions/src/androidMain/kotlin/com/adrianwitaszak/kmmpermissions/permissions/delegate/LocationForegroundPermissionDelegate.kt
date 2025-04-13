@@ -19,7 +19,7 @@ internal class LocationForegroundPermissionDelegate(
         return checkPermissions(context, activity, fineLocationPermissions)
     }
 
-    override suspend fun providePermission() {
+    override suspend fun providePermission(onPermissionProvided: () -> Unit) {
         activity.value.providePermissions(fineLocationPermissions) {
             throw Exception(
                 it.localizedMessage ?: "Failed to request foreground location permission"

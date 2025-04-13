@@ -46,6 +46,7 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.senior25.tzakar.data.local.model.profile.UserProfile
+import com.senior25.tzakar.data.local.preferences.NotificationStatus
 import com.senior25.tzakar.data.local.preferences.SharedPref
 import com.senior25.tzakar.helper.AppLinks
 import com.senior25.tzakar.helper.encode.encodeUrl
@@ -133,7 +134,7 @@ class ProfileScreen: Screen {
 
             override fun getProfileState(): StateFlow<UserProfile?> = mainViewModel.userProfile
 
-            override fun getNotificationState(): StateFlow<Boolean?>  = viewModel.notificationState
+            override fun getNotificationState(): StateFlow<NotificationStatus?>  = viewModel.notificationState
 
             override fun onUIEvent(event: ProfilePageEvent) { viewModel.onUIEvent(event) }
 
@@ -274,7 +275,7 @@ fun ProfileScreen(interaction: ProfilePageScreenInteraction?) {
                     MenuItemSwitch(
                         iconRes = Res.drawable.ic_notifications,
                         text = stringResource(Res.string.notifications),
-                        isSelected = notificationState?.value
+                        isSelected = notificationState?.value?:NotificationStatus.UNKNOWN
                     ) {
                         interaction?.onUIEvent(ProfilePageEvent.UpdateNotificationState(it))
                     }
@@ -375,37 +376,45 @@ fun MenuItemSwitch(
     text: String,
     iconTint:Color = MyColors.colorLightDarkBlue,
     textColor:Color = MyColors.colorLightDarkBlue,
-    isSelected:Boolean? = false,
-    onSelect:(Boolean)->Unit = {  }
+    isSelected:NotificationStatus? = NotificationStatus.UNKNOWN,
+    onSelect:(NotificationStatus)->Unit = {  }
 ) {
-    var isChecked by remember(isSelected) { mutableStateOf(isSelected == true) }
-
-    println("is selected ${isSelected}")
+    var isChecked by remember(isSelected) { mutableStateOf(isSelected == NotificationStatus.ON) }
+    print("hackinoooooo ischecked   ${isChecked}\n")
+    print("hackinoooooo   isselected ${isSelected}\n")
 
     val scope = rememberCoroutineScope()
 
     var shouldRequestPermission by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit){
-        scope.launch{
-            withContext(Dispatchers.Main){
-                NotificationHelper.isNotificationPermissionGranted{
-                    isChecked =  it
-                    onSelect(isChecked)
+    LaunchedEffect(isChecked){
+        print("hackinoooooo   launchEffect isChecked ${isChecked} \n")
+        print("hackinoooooo launchEffect  isselected  ${isSelected} \n")
+
+        if (isSelected == NotificationStatus.UNKNOWN) {
+            scope.launch{
+                withContext(Dispatchers.Main){
+                    NotificationHelper.isNotificationPermissionGranted{
+                        if (isChecked!= it) {
+                            isChecked =  it
+                            onSelect(if(isChecked) NotificationStatus.ON else NotificationStatus.OFF)
+                        }
+                    }
                 }
             }
         }
     }
 
-
     if (shouldRequestPermission) {
         NotificationHelper.requestNotificationPermission { result ->
-            isChecked = result
-            onSelect(result)
+            if (isChecked != result) {
+                isChecked = result
+                onSelect(if (isChecked) NotificationStatus.ON else NotificationStatus.OFF)
+            }
             shouldRequestPermission = false
+
         }
     }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -434,15 +443,12 @@ fun MenuItemSwitch(
             modifier = Modifier
                 .size(52.dp, 32.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(
-                    if (isChecked) MyColors.colorDarkBlue else MyColors.colorLightGrey
-                )
+                .background(if (isChecked) MyColors.colorDarkBlue else MyColors.colorLightGrey)
                 .clickable {
-                    if (!isChecked){
-                        shouldRequestPermission = true
-                    }else{
+                    if (!isChecked) shouldRequestPermission = true
+                    else {
                         isChecked = !isChecked
-                        onSelect(isChecked)
+                        onSelect(if(isChecked) NotificationStatus.ON else NotificationStatus.OFF)
                     }
                 }
                 .padding(horizontal = 4.dp)
@@ -451,7 +457,7 @@ fun MenuItemSwitch(
             Box(
                 modifier = Modifier
                     .size(24.dp)
-                    .align(if (isChecked) Alignment.CenterEnd else Alignment.CenterStart) // Thumb position
+                    .align(if (isChecked) Alignment.CenterEnd else Alignment.CenterStart)
                     .clip(CircleShape)
                     .background(MyColors.colorPurple)
             )
@@ -461,7 +467,7 @@ fun MenuItemSwitch(
 
 interface ProfilePageScreenInteraction{
     fun getUiState(): StateFlow<ProfilePageUiState?>
-    fun getNotificationState(): StateFlow<Boolean?>
+    fun getNotificationState(): StateFlow<NotificationStatus?>
     fun onUIEvent(event: ProfilePageEvent)
     fun navigate(action: NavigationAction)
     fun onBackPress()

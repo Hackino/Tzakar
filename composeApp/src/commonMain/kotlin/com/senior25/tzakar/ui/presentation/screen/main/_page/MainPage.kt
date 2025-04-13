@@ -17,6 +17,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -105,21 +109,48 @@ class MainScreen:Screen {
 
         val navigator = LocalNavigator.current
 
-//        var shouldRequestPermission by remember { mutableStateOf(false) } // Trigger state
+        var shouldRequestPermission by remember { mutableStateOf(false) } // Trigger state
 
-        LaunchedEffect(key1 = Unit){
 
-            mainViewModel.init()
-//            if (SharedPref.notificationPermissionStatus == NotificationStatus.UNKNOWN)
-//                shouldRequestPermission = true
+        val lifecycleOwner = LocalLifecycleOwner.current
+
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    if (SharedPref.notificationPermissionStatus != NotificationStatus.UNKNOWN) {
+                        print("hackinoooooo request result not unknown\n")
+                        NotificationHelper.isNotificationPermissionGranted { result ->
+                            print("hackinoooooo request result not unknown ${result}\n")
+                            mainViewModel.updateNotificationStatus(result)
+                        }
+                    }
+                }
+            }
+
+            lifecycleOwner.lifecycle.addObserver(observer)
+
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+            }
         }
 
-//        if (shouldRequestPermission) {
-//            NotificationHelper.requestNotificationPermission { result ->
-//                mainViewModel.updateNotificationStatus(result)
-//                shouldRequestPermission = false
-//            }
-//        }
+        SideEffect {
+            if (SharedPref.notificationPermissionStatus == NotificationStatus.UNKNOWN)
+                shouldRequestPermission = true
+
+        }
+
+        LaunchedEffect(key1 = Unit){
+            mainViewModel.init()
+        }
+
+        if (shouldRequestPermission) {
+            NotificationHelper.requestNotificationPermission { result ->
+                print("hackinoooooo request result ${result} \n")
+                mainViewModel.updateNotificationStatus(result)
+                shouldRequestPermission = false
+            }
+        }
 
         TabNavigator(HomeTab,key ="MainScreenTabNavigator"){
             Scaffold(

@@ -29,7 +29,7 @@ internal class BluetoothServicePermissionDelegate : PermissionDelegate {
         } else PermissionState.NOT_DETERMINED
     }
 
-    override suspend fun providePermission() {
+    override suspend fun providePermission(onPermissionProvided: () -> Unit) {
         openSettingPage()
     }
 

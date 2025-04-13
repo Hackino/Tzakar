@@ -33,7 +33,7 @@ internal class PostNotificationPermissionDelegate: PermissionDelegate {
         return result ?: PermissionState.DENIED
     }
 
-    override suspend fun providePermission() {
+    override suspend fun providePermission(onPermissionProvided: () -> Unit) {
         suspendCancellableCoroutine { cont ->
             UNUserNotificationCenter.currentNotificationCenter().requestAuthorizationWithOptions(
                     options = UNAuthorizationOptionAlert or UNAuthorizationOptionSound or UNAuthorizationOptionBadge

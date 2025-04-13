@@ -23,8 +23,8 @@ class ProfileViewModel(private val maiRepository: MainRepository): CommonViewMod
     private val _popUpState = MutableStateFlow<ProfilePagePopUp?>(ProfilePagePopUp.None)
     val popUpState: StateFlow<ProfilePagePopUp?> get() = _popUpState.asStateFlow()
 
-    private val _notificationState = MutableStateFlow(SharedPref.notificationPermissionStatus.value == 1)
-    val notificationState: StateFlow<Boolean> get() = _notificationState.asStateFlow()
+    private val _notificationState = MutableStateFlow(SharedPref.notificationPermissionStatus)
+    val notificationState: StateFlow<NotificationStatus> get() = _notificationState.asStateFlow()
 
     private var _profilePageData = MutableStateFlow<ProfilePageData?>(ProfilePageData())
 
@@ -45,8 +45,8 @@ class ProfileViewModel(private val maiRepository: MainRepository): CommonViewMod
             ProfilePageEvent.LoaderView ->  _uiState.value = ProfilePageUiState.ProgressLoader(_profilePageData.value)
             is ProfilePageEvent.UpdatePopUpState -> _popUpState.value = uiEvent.popUp
             is ProfilePageEvent.UpdateNotificationState -> {
-                SharedPref.notificationPermissionStatus = if (uiEvent.isChecked) NotificationStatus.ON else NotificationStatus.OFF
-                _notificationState.value =  SharedPref.notificationPermissionStatus.value == 1
+                SharedPref.notificationPermissionStatus = uiEvent.status
+                _notificationState.value =  uiEvent.status
             }
         }
     }
@@ -56,7 +56,7 @@ sealed class ProfilePageEvent {
     data object Success: ProfilePageEvent()
     data object LoaderView: ProfilePageEvent()
     data class UpdatePopUpState(val popUp: ProfilePagePopUp) : ProfilePageEvent()
-    data class UpdateNotificationState(val isChecked: Boolean) : ProfilePageEvent()
+    data class UpdateNotificationState(val status: NotificationStatus) : ProfilePageEvent()
 
 }
 

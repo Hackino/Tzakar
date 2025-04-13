@@ -17,7 +17,7 @@ internal class BluetoothServicePermissionDelegate(
             PermissionState.GRANTED else PermissionState.DENIED
     }
 
-    override suspend fun providePermission() {
+    override suspend fun providePermission(onPermissionProvided: () -> Unit) {
         openSettingPage()
     }
 

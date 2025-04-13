@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -40,56 +42,72 @@ class MainScreenViewModel(
     val longLat: StateFlow<List<Double>?> get() = _longLat.asStateFlow()
 
     private val _permissions = MutableStateFlow(defaultPermission())
-    private val permissions: StateFlow<HashMap<Permission, Boolean>> get() = _permissions.asStateFlow()
+    private val permissions: StateFlow<HashMap<Permission, PermissionStatus>> get() = _permissions.asStateFlow()
 
-    private fun defaultPermission()= hashMapOf<Permission, Boolean>().apply {
-        this[Permission.LOCATION_FOREGROUND] = false
-        this[Permission.LOCATION_BACKGROUND] = false
-        this[Permission.LOCATION_SERVICE_ON] = false
-        this[Permission.POST_NOTIFICATION] = false
+    private val permissionMutex = Mutex()
+
+    private fun defaultPermission()= hashMapOf<Permission, PermissionStatus>().apply {
+//        this[Permission.LOCATION_FOREGROUND] = PermissionStatus.UNKNOWN
+//        this[Permission.LOCATION_BACKGROUND] = PermissionStatus.UNKNOWN
+//        this[Permission.LOCATION_SERVICE_ON] = PermissionStatus.UNKNOWN
+        this[Permission.POST_NOTIFICATION] = PermissionStatus.UNKNOWN
     }
 
+    private val permissionsToTrack = listOf(
+//        Permission.LOCATION_FOREGROUND,
+//        Permission.LOCATION_BACKGROUND,
+//        Permission.LOCATION_SERVICE_ON,
+        Permission.POST_NOTIFICATION
+    )
+
     fun init(){
+//        screenModelScope.launch {
+//            fetchPermissions()
+//            screenModelScope.launch(Dispatchers.Main) {
+//                permissions.collectLatest {map ->
+//                    permissionMutex.withLock {
+//                        when {
+////                            map[Permission.LOCATION_FOREGROUND] != PermissionStatus.ON -> {
+////                                permissionsService.providePermission(Permission.LOCATION_FOREGROUND){
+////                                    fetchPermissions()
+////                                }
+////                            }
+////                            map[Permission.LOCATION_BACKGROUND] != PermissionStatus.ON -> {
+////                                permissionsService.providePermission(Permission.LOCATION_BACKGROUND){
+////                                    fetchPermissions()
+////                                }
+////                            }
+////                            map[Permission.LOCATION_SERVICE_ON]  != PermissionStatus.ON  -> {
+////                                permissionsService.providePermission(Permission.LOCATION_SERVICE_ON){
+////                                    fetchPermissions()
+////                                }
+////                            }
+//                            map[Permission.POST_NOTIFICATION] != PermissionStatus.ON  -> {
+//                                permissionsService.providePermission(Permission.POST_NOTIFICATION){
+//                                    fetchPermissions()
+//
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+        fetchProfile()
+    }
+
+    private fun fetchPermissions() {
         screenModelScope.launch {
-            permissionsService.checkPermissionFlow(Permission.LOCATION_FOREGROUND).collectLatest{
-                _permissions.value[Permission.LOCATION_FOREGROUND] = it.isGranted()
-            }
-
-            permissionsService.checkPermissionFlow(Permission.LOCATION_BACKGROUND).collectLatest{
-                _permissions.value[Permission.LOCATION_BACKGROUND] = it.isGranted()
-            }
-
-            permissionsService.checkPermissionFlow(Permission.LOCATION_SERVICE_ON).collectLatest{
-                _permissions.value[Permission.LOCATION_SERVICE_ON] = it.isGranted()
-            }
-
-            permissionsService.checkPermissionFlow(Permission.POST_NOTIFICATION).collectLatest{
-                _permissions.value[Permission.POST_NOTIFICATION] = it.isGranted()
-            }
-
-            permissions.collectLatest {
-                if (it[Permission.LOCATION_FOREGROUND] == false){
-                    permissionsService.providePermission(Permission.LOCATION_FOREGROUND)
-                    return@collectLatest
-                }
-
-                if (it[Permission.LOCATION_BACKGROUND] == false){
-                    permissionsService.providePermission(Permission.LOCATION_BACKGROUND)
-                    return@collectLatest
-                }
-
-                if (it[Permission.LOCATION_SERVICE_ON] == false){
-                    permissionsService.providePermission(Permission.LOCATION_SERVICE_ON)
-                    return@collectLatest
-                }
-
-                if (it[Permission.POST_NOTIFICATION] == false){
-                    permissionsService.providePermission(Permission.POST_NOTIFICATION)
-                    return@collectLatest
+            val updatedMap = _permissions.value.toMutableMap()
+            permissionsToTrack.forEach { permission ->
+                val result = permissionsService.checkPermission(permission)
+                val status = PermissionStatus.getByValue(result.isGranted())
+                if (updatedMap[permission] != status) {
+                    updatedMap[permission] = status
+                    _permissions.value = HashMap(updatedMap)
                 }
             }
         }
-        fetchProfile()
     }
 
     fun fetchProfile() {
@@ -113,16 +131,11 @@ class MainScreenViewModel(
     fun onUIEvent(uiEvent: MainPageEvent) = screenModelScope.launch {
         when (uiEvent) {
             is MainPageEvent.UpdatePopUpState -> _popUpState.value = uiEvent.popUp
-
             is MainPageEvent.UpdateProfile -> _userProfile.value = SharedPref.loggedInProfile
-
             MainPageEvent.Refresh -> fetchProfile()
-
             is MainPageEvent.UpdateLongLat -> _longLat.value = uiEvent.longLat
-
         }
     }
-
     fun getCurrentDate() = getCurrentDateFormatted()
 }
 
@@ -131,11 +144,18 @@ sealed class MainPageEvent {
     data object UpdateProfile : MainPageEvent()
     data object Refresh : MainPageEvent()
     data class UpdateLongLat(val longLat:List<Double>) : MainPageEvent()
-
 }
 
 sealed class MainPagePopUp{
     data object None:MainPagePopUp()
     data object LoginPopUp:MainPagePopUp()
     data object CategoriesSheet:MainPagePopUp()
+}
+
+enum class PermissionStatus(val value: Boolean?) {
+    UNKNOWN(null),OFF(false), ON(true);
+    companion object {
+        private val VALUES = entries.toTypedArray()
+        fun getByValue(value: Boolean) = VALUES.firstOrNull { it.value == value } ?: UNKNOWN
+    }
 }

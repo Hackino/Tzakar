@@ -19,7 +19,7 @@ internal class BluetoothPermissionDelegate(
         return checkPermissions(context, activity, bluetoothPermissions)
     }
 
-    override suspend fun providePermission() {
+    override suspend fun providePermission(onPermissionProvided: () -> Unit) {
 //        activity.value.providePermissions(bluetoothPermissions) {
 //            throw PermissionRequestException(Permission.BLUETOOTH.name)
 //        }

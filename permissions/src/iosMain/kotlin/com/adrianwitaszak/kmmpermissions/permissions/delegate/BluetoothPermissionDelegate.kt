@@ -18,7 +18,7 @@ internal class BluetoothPermissionDelegate : PermissionDelegate {
         }
     }
 
-    override suspend fun providePermission() {
+    override suspend fun providePermission(onPermissionProvided: () -> Unit) {
         CBCentralManager().authorization()
     }
 

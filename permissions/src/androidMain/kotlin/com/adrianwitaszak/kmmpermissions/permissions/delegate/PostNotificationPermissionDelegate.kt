@@ -28,7 +28,7 @@ internal class PostNotificationPermissionDelegate(
         return checkPermissions(context, activity, notificationPermission)
     }
 
-    override suspend fun providePermission() {
+    override suspend fun providePermission(onPermissionProvided: () -> Unit) {
         if (notificationPermission.isNotEmpty())
             activity.value.providePermissions(notificationPermission) {
                 throw Exception(
