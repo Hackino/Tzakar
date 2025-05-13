@@ -64,6 +64,7 @@ kotlin {
         }
 
         commonMain.dependencies {
+//            implementation(compose.preview)
             implementation(projects.permissions)
             implementation(compose.runtime)
             implementation(compose.foundation)
