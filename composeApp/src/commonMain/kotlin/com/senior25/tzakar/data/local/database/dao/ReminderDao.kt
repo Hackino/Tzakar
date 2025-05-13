@@ -31,4 +31,7 @@ interface ReminderDao {
 
     @Query("SELECT * FROM reminder_table")
     fun getAllRemindersFlow(): Flow<List<ReminderModel>?>
+
+    @Query("DELETE FROM reminder_table")
+    suspend fun clearTable()
 }

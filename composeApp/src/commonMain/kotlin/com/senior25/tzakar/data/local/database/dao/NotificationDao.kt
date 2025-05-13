@@ -32,4 +32,7 @@ interface NotificationDao {
 
     @Query("SELECT * FROM notification_table")
     fun getAllNotificationFlow(): Flow<List<NotificationModel?>?>
+
+    @Query("DELETE FROM notification_table")
+    suspend fun clearTable()
 }

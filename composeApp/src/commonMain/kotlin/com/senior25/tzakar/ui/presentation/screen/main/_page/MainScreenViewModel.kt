@@ -3,6 +3,7 @@ package com.senior25.tzakar.ui.presentation.screen.main._page
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.adrianwitaszak.kmmpermissions.permissions.model.Permission
 import com.adrianwitaszak.kmmpermissions.permissions.service.PermissionsService
+import com.senior25.tzakar.data.local.database.myDatabase.MyDatabase
 import com.senior25.tzakar.data.local.model.profile.UserProfile
 import com.senior25.tzakar.data.local.preferences.NotificationStatus
 import com.senior25.tzakar.data.local.preferences.SharedPref
@@ -13,6 +14,7 @@ import com.senior25.tzakar.ui.presentation.screen.common.CommonViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.database.database
 import io.ktor.util.encodeBase64
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +31,7 @@ import org.koin.core.component.inject
 class MainScreenViewModel(
     private val registrationRepository: RegistrationRepository
 ): CommonViewModel(), KoinComponent {
+    private val database: MyDatabase by inject()
 
     private val permissionsService: PermissionsService by inject()
 
@@ -137,6 +140,17 @@ class MainScreenViewModel(
         }
     }
     fun getCurrentDate() = getCurrentDateFormatted()
+
+    fun clearDb() {
+        //remove all notifications
+        //remove all reminder
+        //remove all geofence
+        CoroutineScope(Dispatchers.IO).launch {
+            database.reminderDao().clearTable()
+            database.notificationDao().clearTable()
+        }
+    }
+
 }
 
 sealed class MainPageEvent {

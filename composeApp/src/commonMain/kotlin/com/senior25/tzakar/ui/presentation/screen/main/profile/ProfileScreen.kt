@@ -153,6 +153,7 @@ class ProfileScreen: Screen {
                     NavigationAction.LOGOUT -> {
                         onUIEvent(ProfilePageEvent.UpdatePopUpState(ProfilePagePopUp.None))
                         SharedPref.clearPref()
+                        mainViewModel.clearDb()
                         AppNavigator.resetNavigation()
                     }
 
@@ -164,6 +165,7 @@ class ProfileScreen: Screen {
                         viewModel.deleteAccount {
                             onUIEvent(ProfilePageEvent.UpdatePopUpState(ProfilePagePopUp.None))
                             SharedPref.clearPref()
+                            mainViewModel.clearDb()
                             AppNavigator.resetNavigation()
                         }
                     }
