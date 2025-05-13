@@ -40,7 +40,7 @@ class MainRepositoryImpl(
                 .child("reminders")
             ref.child(reminderModel.id).setValue(reminderModel)
         }
-
+    
         if (reminderModel.triggerType == TriggerType.TIME.value) {
             if (reminderModel.isEnabled == 1) {
                 val latestDate =

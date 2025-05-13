@@ -2,6 +2,7 @@ package com.senior25.tzakar.ui.presentation.screen.main._page
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
@@ -146,6 +147,7 @@ class MainScreen:Screen {
 
         TabNavigator(HomeTab,key ="MainScreenTabNavigator"){
             Scaffold(
+                modifier = Modifier.navigationBarsPadding(),
                 content = { CurrentTab() },
                 bottomBar = {
                     BottomAppBar(

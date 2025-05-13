@@ -1,8 +1,10 @@
 package com.senior25.tzakar.ui.presentation.components.toolbar
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -10,7 +12,6 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.senior25.tzakar.ui.presentation.components.debounce.rememberDebounceClick
@@ -21,6 +22,7 @@ import tzakar_reminder.composeapp.generated.resources.ic_back
 
 @Composable
 fun MyTopAppBar(
+
     title:String,
     showBack:Boolean? = true ,
     centerTitle:Boolean = true,
@@ -30,6 +32,7 @@ fun MyTopAppBar(
     val debouncedOnClick = rememberDebounceClick {  interaction?.onBackPress()  }
 
     TopAppBar(
+        modifier = Modifier.background(MyColors.colorPurple).statusBarsPadding(),
         title = {
             Text(
                 title,
@@ -38,6 +41,7 @@ fun MyTopAppBar(
                 modifier = Modifier.fillMaxWidth()
             )
         },
+        elevation = 0.dp,
         navigationIcon = if (showBack == true){
             {
                 IconButton(

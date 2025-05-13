@@ -1,7 +1,10 @@
 package com.senior25.tzakar.ui.presentation.screen.web
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -31,17 +34,23 @@ data class WebViewScreen(val title: String? = null,val link: String? = null):Scr
                 })
             }
         ) {padding->
-            if (getPlatform().name.contains("Android") )
-                HtmlWebView(
-                    getRawResourceHtmlContent(link?:""),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            else{
-                WebView(
-                    state = webViewState,
-                    modifier = Modifier.fillMaxSize(),
-                    captureBackPresses = false,
-                )
+            Box(
+                modifier = Modifier.fillMaxSize().navigationBarsPadding()
+            ) {
+
+
+                if (getPlatform().name.contains("Android"))
+                    HtmlWebView(
+                        getRawResourceHtmlContent(link ?: ""),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                else {
+                    WebView(
+                        state = webViewState,
+                        modifier = Modifier.fillMaxSize(),
+                        captureBackPresses = false,
+                    )
+                }
             }
         }
     }
