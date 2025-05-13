@@ -118,7 +118,7 @@ class MainRepositoryImpl(
 
     override fun getAllNotifications() = notificationDao.getAllNotificationFlow()
 
-    override suspend fun getAllNotificationsFromDb(): List<NotificationModel>?  = notificationDao.getAllNotification()
+    override suspend fun getAllNotificationsFromDb(): List<NotificationModel?>?  = notificationDao.getAllNotification()
 
     override suspend fun addNotification(notificationModel: NotificationModel) {
         notificationDao.insert(notificationModel)
@@ -136,7 +136,7 @@ class MainRepositoryImpl(
                 .child(it.encodeBase64()).child("Notifications")
 
             val snapshot = ref.valueEvents.firstOrNull()
-            val notifications = snapshot?.value<Map<String?, NotificationModel?>>()?.values?.filterNotNull()
+            val notifications = snapshot?.value<Map<String?, NotificationModel?>?>()?.values?.filterNotNull()
             insertNotifications(notifications ?: emptyList())
         }
     }
@@ -147,7 +147,7 @@ class MainRepositoryImpl(
                 .child(it.encodeBase64()).child("reminders")
 
             val snapshot = ref.valueEvents.firstOrNull()
-            val reminders = snapshot?.value<Map<String?, ReminderModel?>>()?.values?.filterNotNull()
+            val reminders = snapshot?.value<Map<String?, ReminderModel?>?>()?.values?.filterNotNull()
             reminders?.forEach { reminder ->
                 val cached = reminderDao.getReminderById(reminder.id)
                 if ( (cached?.lastUpdateTimestamp?:0) >= (reminder.lastUpdateTimestamp?:0)){
@@ -206,6 +206,6 @@ class MainRepositoryImpl(
     }
 
     override suspend fun deleteNotification(ids: List<String>) {}
-    override suspend fun getAllRemindersFromDb(): List<ReminderModel>? = reminderDao.getAllReminder()
+    override suspend fun getAllRemindersFromDb(): List<ReminderModel?>? = reminderDao.getAllReminder()
 
 }

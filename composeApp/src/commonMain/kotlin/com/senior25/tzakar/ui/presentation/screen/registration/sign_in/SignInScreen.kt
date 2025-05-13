@@ -85,6 +85,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -144,6 +145,7 @@ class SignInScreen:Screen {
                     SignInAction.GOOGLE -> {
                         SharedPref.isRememberMeChecked = true
                         SharedPref.appState = AppState.MAIN_ACTIVITY
+                        println("going to maing screeeeeeee")
                         localNavigator.push(MainScreenLauncher())
                     }
 
@@ -338,18 +340,24 @@ private fun SignInScreen(interaction: SignInScreenInteraction? = null) {
                 Spacer(modifier = Modifier.height(16.dp))
                 GoogleButtonUiContainer(
                     onResponse = {response->
+                        println("beofre screeeeeeee")
                         when(response){
                             GoogleAuthResponse.Cancelled ->showToast("cancelled")
                             is GoogleAuthResponse.Error -> showToast(response.message)
                             is GoogleAuthResponse.Success -> {
                                 CoroutineScope(Dispatchers.Main).launch{
                                     val email = response.account.profile.email
-                                    val ref  = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(email.encodeBase64()).child("profile")
-                                    val userJson  = ref.valueEvents.first().value
-                                    val user =  userJson.toString().decodeJson(UserProfile())
-                                   val updatedUser =  user?.copy(
+                                    val ref = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(email.encodeBase64()).child("profile")
+//                                    val ref  = Firebase.database.reference(DataBaseReference.UserProfiles.reference).child(email.encodeBase64()).child("profile")
+//                                    val userJson  = ref.valueEvents.first().value
+//                                    val user =  userJson.toString().decodeJson(UserProfile())
+
+                                    val snapshot = ref.valueEvents.firstOrNull()
+                                    val profile  = snapshot?.value<UserProfile?>()
+
+                                   val updatedUser =  profile?.copy(
                                         email = email,
-                                        userName = user.userName?.ifEmpty { null }?:response.account.profile.name
+                                        userName = profile.userName?.ifEmpty { null }?:response.account.profile.name
                                     )
                                     ref.setValue(updatedUser)
                                     SharedPref.loggedInProfile = updatedUser

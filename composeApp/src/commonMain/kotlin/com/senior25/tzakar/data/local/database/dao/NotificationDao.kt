@@ -28,8 +28,8 @@ interface NotificationDao {
     suspend fun deleteByReferenceId(referenceId: String): Int
 
     @Query("SELECT * FROM notification_table")
-    suspend fun getAllNotification(): List<NotificationModel>
+    suspend fun getAllNotification(): List<NotificationModel?>
 
     @Query("SELECT * FROM notification_table")
-    fun getAllNotificationFlow(): Flow<List<NotificationModel>>
+    fun getAllNotificationFlow(): Flow<List<NotificationModel?>?>
 }

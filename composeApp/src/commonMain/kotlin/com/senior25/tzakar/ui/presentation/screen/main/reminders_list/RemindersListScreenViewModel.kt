@@ -43,7 +43,7 @@ class RemindersListScreenViewModel(
         screenModelScope.launch {
             screenModelScope.launch(Dispatchers.IO) { mainRepository.fetchServerReminder() }
             screenModelScope.launch {
-                mainRepository.getAllReminders().collectLatest { reminder(it) }
+                mainRepository.getAllReminders().collectLatest { reminder(it?.filterNotNull()) }
             }
             screenModelScope.launch { reminders.collectLatest { filterData(it) } }
         }
@@ -78,7 +78,7 @@ class RemindersListScreenViewModel(
                 screenModelScope.launch(Dispatchers.IO) { mainRepository.fetchServerReminder() }
                 screenModelScope.launch {
                     val reminders = mainRepository.getAllRemindersFromDb()
-                    reminder(reminders)
+                    reminder(reminders?.filterNotNull())
                 }
                 delay(2000)
                 updateState(RemindersListPageUiState.Success)

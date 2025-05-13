@@ -12,14 +12,14 @@ interface MainRepository {
 
     fun enableReminder(reminderModel: ReminderModel)
 
-    fun getAllNotifications():Flow<List<NotificationModel>>
-    suspend fun getAllNotificationsFromDb():List<NotificationModel>?
+    fun getAllNotifications():Flow<List<NotificationModel?>?>
+    suspend fun getAllNotificationsFromDb():List<NotificationModel?>?
 
     suspend fun addNotification(notificationModel: NotificationModel)
 
     fun getReminderById(reminderId:String?):Flow<ReminderModel?>
 
-    fun getAllReminders():Flow<List<ReminderModel>?>
+    fun getAllReminders():Flow<List<ReminderModel?>?>
 
     suspend fun fetchServerNotifications()
 
@@ -31,5 +31,5 @@ interface MainRepository {
 
     suspend fun deleteNotification(ids: List<String>)
 
-    suspend fun getAllRemindersFromDb():List<ReminderModel>?
+    suspend fun getAllRemindersFromDb():List<ReminderModel?>?
 }

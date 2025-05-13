@@ -83,7 +83,7 @@ class CalendarViewModel(
             }
             screenModelScope.launch {
                 maiRepository.getAllReminders().collectLatest {
-                    _reminders.value = it?.filter { it.triggerType == TriggerType.TIME.value }?.onEach{
+                    _reminders.value = it?.filterNotNull()?.filter { it.triggerType == TriggerType.TIME.value }?.onEach{
                         val latestDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
                         val currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
                         it.date?.let { dateStr ->

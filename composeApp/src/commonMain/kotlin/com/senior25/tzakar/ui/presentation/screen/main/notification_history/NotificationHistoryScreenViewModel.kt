@@ -32,7 +32,7 @@ class NotificationHistoryViewModel(private val maiRepository: MainRepository): C
                 _uiState.value = NotificationHistoryPageUiState.Loading
                 isInit = true
             }
-            maiRepository.getAllNotifications().collectLatest { notifications(it) }
+            maiRepository.getAllNotifications().collectLatest { notifications(it?.filterNotNull()) }
         }
     }
 
@@ -45,7 +45,7 @@ class NotificationHistoryViewModel(private val maiRepository: MainRepository): C
                 screenModelScope.launch(Dispatchers.IO) { maiRepository.fetchServerNotifications() }
                 val notifications = maiRepository.getAllNotificationsFromDb()
                 delay(2000)
-                notifications(notifications)
+                notifications(notifications?.filterNotNull())
             }
         }
     }
